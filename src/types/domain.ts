@@ -40,6 +40,19 @@ export type ProjectStatus =
   | "approved"
   | "delivered";
 
+/**
+ * A Standard Radio project is a conventional campaign: scripts, variants,
+ * recordings, review and approval.
+ *
+ * A PRAMS project is one complete PRAMS update — the entire onboard
+ * announcement release, spanning many announcement sections and
+ * potentially 100+ announcement variants and audio files. It uses the
+ * same underlying Script/AudioItem reviewable-item model, but is
+ * navigated and summarised very differently (see `lib/mock/prams-library`
+ * and the components under `components/prams`) because of its scale.
+ */
+export type ProjectType = "standard_radio" | "prams";
+
 export interface Campaign {
   id: string;
   name: string;
@@ -48,6 +61,7 @@ export interface Campaign {
 
 export interface Project {
   id: string;
+  type: ProjectType;
   campaignId: string;
   name: string;
   jobNumber: string;

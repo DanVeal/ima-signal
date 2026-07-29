@@ -18,6 +18,14 @@ import type {
   Script,
   UserProfile,
 } from "@/types/domain";
+import {
+  pramsActivityEvents,
+  pramsAudioItems,
+  pramsChangeRequests,
+  pramsComments,
+  pramsProject,
+  pramsScripts,
+} from "./prams-library";
 
 export const organisations: Organisation[] = [
   { id: "org-ima", type: "ima", name: "IMA" },
@@ -95,11 +103,13 @@ export const users: UserProfile[] = [
 export const campaigns: Campaign[] = [
   { id: "camp-winter-sun", name: "Jet2 Winter Sun 2026", organisationId: "org-jet2" },
   { id: "camp-summer-sale", name: "Jet2 Summer Sale 2026", organisationId: "org-jet2" },
+  { id: "camp-prams", name: "Jet2 Onboard Announcements (PRAMS)", organisationId: "org-jet2" },
 ];
 
 export const projects: Project[] = [
   {
     id: "proj-winter-sun-w1",
+    type: "standard_radio",
     campaignId: "camp-winter-sun",
     name: "Winter Sun Dynamic Radio — Wave 1",
     jobNumber: "JET-2026-0142",
@@ -131,6 +141,7 @@ export const projects: Project[] = [
   },
   {
     id: "proj-winter-sun-w2",
+    type: "standard_radio",
     campaignId: "camp-winter-sun",
     name: "Winter Sun Dynamic Radio — Wave 2",
     jobNumber: "JET-2026-0143",
@@ -155,6 +166,7 @@ export const projects: Project[] = [
   },
   {
     id: "proj-summer-late-escapes",
+    type: "standard_radio",
     campaignId: "camp-summer-sale",
     name: "Summer Sale — Late Escapes",
     jobNumber: "JET-2026-0098",
@@ -174,6 +186,7 @@ export const projects: Project[] = [
     importantClaims: ["From £299pp", "Departing this week"],
     deliveryNotes: "Delivered to media agency 1 July.",
   },
+  pramsProject,
 ];
 
 export const scripts: Script[] = [
@@ -292,6 +305,7 @@ export const scripts: Script[] = [
       },
     ],
   },
+  ...pramsScripts,
 ];
 
 /**
@@ -438,6 +452,7 @@ export const audioItems: AudioItem[] = [
     scriptId: "script-lpl-fue",
     versions: [],
   },
+  ...pramsAudioItems,
 ];
 
 export const reviewComments: ReviewComment[] = [
@@ -480,6 +495,7 @@ export const reviewComments: ReviewComment[] = [
     createdAt: "2026-07-23T09:05:00Z",
     replies: [],
   },
+  ...pramsComments,
 ];
 
 export const changeRequests: ChangeRequest[] = [
@@ -519,6 +535,7 @@ export const changeRequests: ChangeRequest[] = [
     reviewerUserId: "user-sasha",
     createdAt: "2026-07-27T13:00:00Z",
   },
+  ...pramsChangeRequests,
 ];
 
 export const approvals: Approval[] = [
@@ -616,4 +633,5 @@ export const activityEvents: ActivityEvent[] = [
     action: "project_delivered",
     createdAt: "2026-07-01T17:30:00Z",
   },
+  ...pramsActivityEvents,
 ];

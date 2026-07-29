@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, CircleDashed, Hourglass, X } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, ChevronLeft, CircleDashed, Hourglass, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -65,19 +66,19 @@ function splitGroupForOverride(group: PramsCellGroup, overrideVariantId: string,
 
 export function PramsMatrix({
   phase,
-  upcomingPhases,
+  backHref,
+  backLabel,
 }: {
   phase: PramsPhase;
-  upcomingPhases: string[];
+  /** Link back to the overall PRAMS project overview. */
+  backHref: string;
+  backLabel: string;
 }) {
-  const [activePhaseName, setActivePhaseName] = useState(phase.name);
   const [lines, setLines] = useState<PramsLine[]>(phase.lines);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [draftText, setDraftText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [pendingSharedEdit, setPendingSharedEdit] = useState<PendingSharedEdit | null>(null);
-
-  const isBoardingActive = activePhaseName === phase.name;
 
   const selectedLine = selection ? lines.find((l) => l.id === selection.lineId) : undefined;
   const selectedGroup = selectedLine?.groups.find((g) => selection && sameGroup(g.variantIds, selection.variantIds));
@@ -143,63 +144,34 @@ export function PramsMatrix({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-1.5 text-xs font-medium text-text-muted">
-        <span>PRAMS</span>
-        <span className="text-ink-300">›</span>
-        <span className="text-ink-800">{phase.updateLabel}</span>
-      </div>
+      <Link
+        href={backHref as never}
+        className="inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-ink-900"
+      >
+        <ChevronLeft className="size-3.5" />
+        {backLabel}
+      </Link>
 
-      <div className="flex flex-wrap gap-1.5">
-        {[phase.name, ...upcomingPhases].map((name) => {
-          const isActive = activePhaseName === name;
-          return (
-            <button
-              key={name}
-              type="button"
-              onClick={() => {
-                setActivePhaseName(name);
-                setSelection(null);
-              }}
+      <>
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight text-ink-900 uppercase">{phase.name}</h2>
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-text-secondary">
+            <span>{countWord(phase.variants.length)} announcement variants</span>
+            <span className="text-ink-300">·</span>
+            <span>{phase.updateLabel}</span>
+            <span
               className={cn(
-                "rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
-                isActive ? "bg-brand text-white" : "bg-surface-raised text-text-secondary hover:bg-ink-100",
+                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
+                approval.tone,
               )}
             >
-              {name}
-            </button>
-          );
-        })}
-      </div>
-
-      {!isBoardingActive ? (
-        <div className="rounded-lg border border-dashed border-border-strong bg-surface-raised px-6 py-12 text-center">
-          <p className="text-sm font-medium text-ink-900">{activePhaseName}</p>
-          <p className="mx-auto mt-1.5 max-w-sm text-sm text-text-muted">
-            Not yet available in this prototype — only Boarding has been transcribed from the source PRAMS
-            workbook so far.
-          </p>
-        </div>
-      ) : (
-        <>
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-ink-900 uppercase">{phase.name}</h2>
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-text-secondary">
-              <span>{countWord(phase.variants.length)} announcement variants</span>
-              <span className="text-ink-300">·</span>
-              <span>{phase.updateLabel}</span>
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
-                  approval.tone,
-                )}
-              >
-                <ApprovalIcon className="size-3.5" strokeWidth={2.25} />
-                {approval.label}
-              </span>
-            </div>
+              <ApprovalIcon className="size-3.5" strokeWidth={2.25} />
+              {approval.label}
+            </span>
           </div>
+        </div>
 
-          <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full min-w-[900px] border-collapse text-sm">
               <thead>
                 <tr>
@@ -338,8 +310,7 @@ export function PramsMatrix({
               )}
             </div>
           )}
-        </>
-      )}
+      </>
 
       <Dialog
         open={pendingSharedEdit !== null}

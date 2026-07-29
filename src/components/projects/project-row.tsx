@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { ProjectStatusBadge } from "@/components/status/project-status-badge";
+import { ProjectTypeBadge } from "@/components/status/project-type-badge";
 import { DeadlineBadge } from "@/components/status/deadline-badge";
 import { getCampaign, getOrganisation, getProjectProgress } from "@/lib/mock/queries";
 import type { Project } from "@/types/domain";
@@ -43,7 +44,8 @@ export function ProjectRow({ project }: { project: Project }) {
       </div>
 
       <div className="flex shrink-0 flex-wrap items-center gap-2">
-        <ProjectStatusBadge status={project.status} />
+        <ProjectTypeBadge type={project.type} />
+        {project.type === "standard_radio" && <ProjectStatusBadge status={project.status} />}
         {project.status !== "delivered" && <DeadlineBadge date={project.liveDate} />}
       </div>
 

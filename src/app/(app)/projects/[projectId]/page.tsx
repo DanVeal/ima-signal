@@ -6,10 +6,9 @@ import { ProjectMeta } from "@/components/projects/project-meta";
 import { BriefPanel } from "@/components/projects/brief-panel";
 import { VariantList } from "@/components/projects/variant-list";
 import { ActivityList } from "@/components/activity/activity-list";
-import { PramsMatrix } from "@/components/prams/prams-matrix";
+import { PramsProjectOverview } from "@/components/prams/prams-project-overview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getActivityForProject, getCampaign, getProjectById } from "@/lib/mock/queries";
-import { BOARDING_PHASE, UPCOMING_PHASES } from "@/lib/mock/prams";
 
 export default async function ProjectPage({
   params,
@@ -19,6 +18,14 @@ export default async function ProjectPage({
   const { projectId } = await params;
   const project = getProjectById(projectId);
   if (!project) notFound();
+
+  if (project.type === "prams") {
+    return (
+      <PageContainer width="wide">
+        <PramsProjectOverview project={project} />
+      </PageContainer>
+    );
+  }
 
   const campaign = getCampaign(project.campaignId);
   const activity = getActivityForProject(project.id);
@@ -44,7 +51,6 @@ export default async function ProjectPage({
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="scripts">Scripts &amp; variants</TabsTrigger>
-            <TabsTrigger value="prams">PRAMS Matrix</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="mt-5">
@@ -52,9 +58,6 @@ export default async function ProjectPage({
           </TabsContent>
           <TabsContent value="scripts" className="mt-5">
             <VariantList projectId={project.id} />
-          </TabsContent>
-          <TabsContent value="prams" className="mt-5">
-            <PramsMatrix phase={BOARDING_PHASE} upcomingPhases={UPCOMING_PHASES} />
           </TabsContent>
           <TabsContent value="activity" className="mt-5">
             <ActivityList events={activity} />

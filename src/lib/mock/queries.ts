@@ -116,6 +116,17 @@ export function getProjectById(projectId: string): Project | undefined {
   return projects.find((p) => p.id === projectId);
 }
 
+/**
+ * True for scripts belonging to a Standard Radio project. PRAMS projects
+ * hold 100+ announcement variants (modelled as scripts/audio items too, so
+ * they can reuse the same review workspace) — excluded here so the global
+ * dashboard and review queue stay scoped to Standard Radio work. PRAMS has
+ * its own project overview and section navigator for exactly this purpose.
+ */
+function isStandardRadioScript(script: Script): boolean {
+  return getProjectById(script.projectId)?.type !== "prams";
+}
+
 /** Which organisation type owns the next action for a given audio-version status. */
 export const STATUS_OWNER: Record<AudioVersionStatus, OrganisationType | "system" | "none"> = {
   uploaded: "system",
@@ -191,6 +202,7 @@ export interface AttentionItem {
 export function getAttentionItems(organisationType: OrganisationType): AttentionItem[] {
   const items: AttentionItem[] = [];
   for (const project of projects) {
+    if (project.type === "prams") continue;
     const projectScripts = getScriptsForProject(project.id);
     for (const script of projectScripts) {
       const audioItem = getAudioItemForScript(script.id);
@@ -214,7 +226,7 @@ export function getRecentAudioVersions(limit = 5) {
   for (const item of audioItems) {
     const script = scripts.find((s) => s.id === item.scriptId);
     const project = script ? projects.find((p) => p.id === script.projectId) : undefined;
-    if (!script || !project) continue;
+    if (!script || !project || project.type === "prams") continue;
     for (const version of item.versions) {
       all.push({ project, script, version });
     }
@@ -268,7 +280,7 @@ export function getVersionsByStatus(status: AudioVersionStatus): WaitingBucket[]
   const rows: WaitingBucket[] = [];
   for (const item of audioItems) {
     const script = scripts.find((s) => s.id === item.scriptId);
-    if (!script) continue;
+    if (!script || !isStandardRadioScript(script)) continue;
     const project = projects.find((p) => p.id === script.projectId);
     if (!project) continue;
     const latest = getLatestVersion(item);
@@ -281,7 +293,10 @@ export function getVersionsByStatus(status: AudioVersionStatus): WaitingBucket[]
 
 export function getOpenChangeRequestsForOrganisation(organisationId: string) {
   return changeRequests.filter(
-    (c) => c.assignedOrganisationId === organisationId && !["resolved", "rejected"].includes(c.status),
+    (c) =>
+      c.assignedOrganisationId === organisationId &&
+      !["resolved", "rejected"].includes(c.status) &&
+      getProjectById(c.projectId)?.type !== "prams",
   );
 }
 
@@ -299,6 +314,7 @@ export function getOverdueReviews(organisationType: OrganisationType): Attention
 
   const items: AttentionItem[] = [];
   for (const project of projects) {
+    if (project.type === "prams") continue;
     const deadline = new Date(`${project[deadlineField]}T23:59:59Z`);
     if (deadline >= now) continue;
     for (const script of getScriptsForProject(project.id)) {

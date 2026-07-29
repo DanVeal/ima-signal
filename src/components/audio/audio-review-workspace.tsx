@@ -40,10 +40,15 @@ export function AudioReviewWorkspace({
   audioItem,
   initialComments,
   initialChangeRequests,
+  backHref,
+  backLabel,
 }: {
   audioItem: AudioItem;
   initialComments: ReviewComment[];
   initialChangeRequests: ChangeRequest[];
+  /** Overrides the default "back to project" link — used by PRAMS variants to return to their section. */
+  backHref?: string;
+  backLabel?: string;
 }) {
   const { currentUser } = useDemoUser();
   const script = getScriptForAudioItem(audioItem.id);
@@ -187,11 +192,11 @@ export function AudioReviewWorkspace({
     <AudioPlaybackProvider key={selectedVersionId} durationMs={version.durationSeconds * 1000}>
       <PageContainer width="wide">
         <Link
-          href={`/projects/${project.id}`}
+          href={(backHref ?? `/projects/${project.id}`) as never}
           className="mb-3 inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-ink-900"
         >
           <ChevronLeft className="size-3.5" />
-          {project.name}
+          {backLabel ?? project.name}
         </Link>
 
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -204,9 +209,11 @@ export function AudioReviewWorkspace({
                 {script.variantCode}
               </Badge>
             </div>
-            <p className="mt-1 text-sm text-text-muted">
-              {script.departureAirport} → {script.destination}
-            </p>
+            {script.departureAirport && script.destination && (
+              <p className="mt-1 text-sm text-text-muted">
+                {script.departureAirport} → {script.destination}
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <AudioStatusBadge status={version.status} />

@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, FolderClosed } from "lucide-react";
+import Link from "next/link";
+import { Search, FolderClosed, Plus } from "lucide-react";
 import { PageContainer } from "@/components/nav/page-container";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -15,7 +17,7 @@ import { EmptyState } from "@/components/states/empty-state";
 import { ProjectRow } from "@/components/projects/project-row";
 import { useDemoUser } from "@/lib/demo-user-context";
 import { getCampaign, getOrganisation, getProjectsForOrganisation } from "@/lib/mock/queries";
-import type { ProjectStatus } from "@/types/domain";
+import type { ProjectStatus, ProjectType } from "@/types/domain";
 
 const STATUS_OPTIONS: { value: ProjectStatus | "all"; label: string }[] = [
   { value: "all", label: "All statuses" },
@@ -30,11 +32,18 @@ const STATUS_OPTIONS: { value: ProjectStatus | "all"; label: string }[] = [
   { value: "delivered", label: "Delivered" },
 ];
 
+const TYPE_OPTIONS: { value: ProjectType | "all"; label: string }[] = [
+  { value: "all", label: "All types" },
+  { value: "standard_radio", label: "Standard Radio" },
+  { value: "prams", label: "PRAMS" },
+];
+
 export function ProjectsListContent() {
   const { currentUser } = useDemoUser();
   const organisation = getOrganisation(currentUser.organisationId);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<ProjectStatus | "all">("all");
+  const [type, setType] = useState<ProjectType | "all">("all");
 
   const projects = getProjectsForOrganisation(organisation?.type ?? "ima", currentUser.organisationId);
 
@@ -47,16 +56,25 @@ export function ProjectsListContent() {
           field.toLowerCase().includes(query.trim().toLowerCase()),
         );
       const matchesStatus = status === "all" || project.status === status;
-      return matchesQuery && matchesStatus;
+      const matchesType = type === "all" || project.type === type;
+      return matchesQuery && matchesStatus && matchesType;
     });
-  }, [projects, query, status]);
+  }, [projects, query, status, type]);
 
   return (
     <PageContainer>
-      <p className="mb-2 text-xs font-medium tracking-wide text-brand uppercase">Projects</p>
-      <h1 className="mb-8 text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl">
-        Every production, in one place
-      </h1>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="mb-2 text-xs font-medium tracking-wide text-brand uppercase">Projects</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl">
+            Every production, in one place
+          </h1>
+        </div>
+        <Button render={<Link href="/projects/new" />}>
+          <Plus className="size-3.5" />
+          New project
+        </Button>
+      </div>
 
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
@@ -69,6 +87,20 @@ export function ProjectsListContent() {
             aria-label="Search projects"
           />
         </div>
+        <Select value={type} onValueChange={(v) => setType(v as ProjectType | "all")}>
+          <SelectTrigger className="h-12 rounded-xl sm:w-48" aria-label="Filter by project type">
+            <SelectValue>
+              {(value: ProjectType | "all") => TYPE_OPTIONS.find((option) => option.value === value)?.label ?? value}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {TYPE_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={status} onValueChange={(v) => setStatus(v as ProjectStatus | "all")}>
           <SelectTrigger className="h-12 rounded-xl sm:w-56" aria-label="Filter by status">
             <SelectValue>
