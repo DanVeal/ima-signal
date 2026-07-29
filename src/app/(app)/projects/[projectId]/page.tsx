@@ -9,7 +9,7 @@ import { ActivityList } from "@/components/activity/activity-list";
 import { PramsMatrix } from "@/components/prams/prams-matrix";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getActivityForProject, getCampaign, getProjectById } from "@/lib/mock/queries";
-import { PRAMS_SECTIONS } from "@/lib/mock/prams";
+import { BOARDING_PHASE, UPCOMING_PHASES } from "@/lib/mock/prams";
 
 export default async function ProjectPage({
   params,
@@ -54,7 +54,7 @@ export default async function ProjectPage({
             <VariantList projectId={project.id} />
           </TabsContent>
           <TabsContent value="prams" className="mt-5">
-            <PramsMatrix initialSections={PRAMS_SECTIONS} />
+            <PramsMatrix phase={BOARDING_PHASE} upcomingPhases={UPCOMING_PHASES} />
           </TabsContent>
           <TabsContent value="activity" className="mt-5">
             <ActivityList events={activity} />

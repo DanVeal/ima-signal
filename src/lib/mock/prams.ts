@@ -1,176 +1,138 @@
 /**
  * PRAMS Matrix — prototype only, no backend.
  *
- * PRAMS is Jet2's own passenger-announcement production document — a
- * standing library of numbered cabin announcements (e.g. "080.J2 -
- * BOARDING"), organised by flight phase, with variant announcements for
- * circumstances such as a VIP service or a fuel-stop routing. In the
- * source spreadsheet, cells are merged wherever the same announcement is
- * used across several circumstances. This file models that same
- * structure — phase, circumstance, announcement — so the matrix reads as
- * the document producers already know, not a generic table.
+ * PRAMS is Jet2's own onboard-announcement production document — a
+ * standing library of numbered announcements, organised by flight phase
+ * (Boarding, Safety Demonstration, After Take-off, Arrival, and others),
+ * with announcement variants for circumstances such as a VIP service or
+ * a fuel-stop routing.
  *
- * The specific wording below is placeholder demo copy, not Jet2's actual
- * scripts — only the section names and the "NNN.J2 - TITLE" numbering
- * convention are meant to match the real document.
+ * The Boarding data below is transcribed directly from the supplied
+ * workbook (Onboard PRAMS Grid — July 26 Changes), "Boarding Charters"
+ * sheet: the four announcement references and titles in row 4, and the
+ * spoken lines and merged ranges in rows 5–9, are copied as given —
+ * including cells that are genuinely blank in the source. Nothing here
+ * has been invented or filled in. Other phases (Safety Demonstration,
+ * After Take-off, Arrival) are not yet transcribed and are marked as
+ * such in the UI rather than filled with placeholder content.
  */
 
-export interface PramsCircumstance {
+export type PramsApprovalStatus = "draft" | "ready_for_review" | "approved";
+
+export interface PramsVariant {
   id: string;
-  label: string;
-}
-
-export interface PramsAnnouncement {
+  /** The announcement code, e.g. "080.J2" — shown secondary to the full reference. */
   code: string;
-  title: string;
-  body: string;
+  /** The full reference as it appears in the source, e.g. "080.J2 - BOARDING". */
+  fullReference: string;
+  /** Searchable attributes only — never a substitute for the full reference above. */
+  tags: string[];
 }
 
-/** One merged span: this announcement is used for these circumstances. */
-export interface PramsGroup {
-  circumstanceIds: string[];
-  announcement: PramsAnnouncement;
+/** One cell (or merged span) in a script line: which variants it covers, and its wording. */
+export interface PramsCellGroup {
+  variantIds: string[];
+  /** null = intentionally blank in the source — no wording is required here. */
+  text: string | null;
 }
 
-export interface PramsSection {
+export interface PramsLine {
+  id: string;
+  groups: PramsCellGroup[];
+}
+
+export interface PramsPhase {
   id: string;
   name: string;
-  groups: PramsGroup[];
+  updateLabel: string;
+  approvalStatus: PramsApprovalStatus;
+  variants: PramsVariant[];
+  lines: PramsLine[];
+  /** Where this content came from, for traceability — not shown as a claim of completeness. */
+  source: string;
 }
 
-/** A contiguous run of columns sharing one announcement — the renderable unit. */
-export interface PramsRun {
-  startIndex: number;
-  span: number;
-  announcement: PramsAnnouncement;
-}
-
-/**
- * Resolves a section's groups into contiguous runs against a fixed column
- * order. A group's circumstances don't need to be adjacent in that order —
- * if they aren't, the same announcement simply renders as more than one
- * run (still styled identically), rather than one impossible merged cell.
- */
-export function getSectionRuns(
-  section: PramsSection,
-  circumstances: PramsCircumstance[],
-): PramsRun[] {
-  const byCircumstance = new Map<string, PramsAnnouncement>();
-  for (const group of section.groups) {
-    for (const id of group.circumstanceIds) {
-      byCircumstance.set(id, group.announcement);
-    }
-  }
-
-  const runs: PramsRun[] = [];
-  for (let i = 0; i < circumstances.length; i++) {
-    const announcement = byCircumstance.get(circumstances[i].id);
-    if (!announcement) continue;
-    const previous = runs[runs.length - 1];
-    if (previous && previous.announcement.code === announcement.code && previous.startIndex + previous.span === i) {
-      previous.span += 1;
-    } else {
-      runs.push({ startIndex: i, span: 1, announcement });
-    }
-  }
-  return runs;
-}
-
-export const PRAMS_CIRCUMSTANCES: PramsCircumstance[] = [
-  { id: "standard", label: "Standard" },
-  { id: "delayed", label: "Delayed" },
-  { id: "night", label: "Night Flight" },
-  { id: "vip", label: "VIP" },
-  { id: "fuel-stop", label: "Fuel Stop" },
+const BOARDING_VARIANTS: PramsVariant[] = [
+  { id: "v080", code: "080.J2", fullReference: "080.J2 - BOARDING", tags: [] },
+  { id: "v080a", code: "080A.J2", fullReference: "080A.J2 - BOARDING – VIP", tags: ["VIP"] },
+  {
+    id: "v081a",
+    code: "081A.J2",
+    fullReference: "081A.J2 - BOARDING & FUEL – VIP",
+    tags: ["VIP", "Fuel"],
+  },
+  { id: "v081", code: "081.J2", fullReference: "081.J2 - BOARDING & FUEL", tags: ["Fuel"] },
 ];
 
-export const PRAMS_SECTIONS: PramsSection[] = [
+const [V080, V080A, V081A, V081] = BOARDING_VARIANTS.map((v) => v.id);
+
+const BOARDING_LINES: PramsLine[] = [
   {
-    id: "boarding",
-    name: "Boarding",
+    id: "line-1",
+    groups: [
+      { variantIds: [V080], text: "Hello and welcome onboard this Jet2.com flight." },
+      { variantIds: [V080A, V081A], text: "Hello and welcome onboard." },
+      { variantIds: [V081], text: "Hello and welcome onboard this Jet2.com flight." },
+    ],
+  },
+  {
+    id: "line-2",
     groups: [
       {
-        circumstanceIds: ["standard", "delayed", "night"],
-        announcement: {
-          code: "080.J2",
-          title: "BOARDING",
-          body: "Good morning/afternoon/evening, and welcome aboard this Jet2.com flight to [destination]. Cabin crew, please prepare the cabin for departure.",
-        },
+        variantIds: [V080],
+        text: "It's nearly time for take-off, so please find your seat as quickly as you can and get comfy.",
       },
       {
-        circumstanceIds: ["vip", "fuel-stop"],
-        announcement: {
-          code: "081A.J2",
-          title: "BOARDING & FUEL - VIP",
-          body: "Good morning/afternoon/evening, and welcome aboard this Jet2.com flight to [destination]. Please note this aircraft will be making a technical fuel stop before reaching its final destination.",
-        },
+        variantIds: [V080A, V081A],
+        text: "It's nearly time for take-off, so please find your seat and get comfortable.",
+      },
+      {
+        variantIds: [V081],
+        text: "It's nearly time for take-off, so please find your seat as quickly as you can and get comfy.",
       },
     ],
   },
   {
-    id: "safety-demonstration",
-    name: "Safety Demonstration",
+    id: "line-3",
     groups: [
       {
-        circumstanceIds: ["standard", "delayed", "night", "vip", "fuel-stop"],
-        announcement: {
-          code: "090.J2",
-          title: "SAFETY DEMONSTRATION",
-          body: "Cabin crew are now demonstrating the safety features of this aircraft. Please direct your attention to the cabin crew or the video screens for the duration of this demonstration.",
-        },
+        variantIds: [V080, V080A, V081A, V081],
+        text: "Small bags and anything containing powerbanks or glass bottles must be put underneath the seat in front of you. And make sure the aisle and exit areas are nice and clear.",
       },
     ],
   },
   {
-    id: "after-take-off",
-    name: "After Take-off",
+    id: "line-4",
     groups: [
+      { variantIds: [V080, V080A], text: null },
       {
-        circumstanceIds: ["standard", "vip", "fuel-stop"],
-        announcement: {
-          code: "100.J2",
-          title: "AFTER TAKE-OFF",
-          body: "Ladies and gentlemen, the captain has now turned off the seatbelt sign. You are free to move around the cabin, but we do recommend keeping your seatbelt fastened while seated.",
-        },
-      },
-      {
-        circumstanceIds: ["delayed"],
-        announcement: {
-          code: "101.J2",
-          title: "AFTER TAKE-OFF - DELAY APOLOGY",
-          body: "Ladies and gentlemen, once again we're sorry for this evening's delay in departing. The captain has now turned off the seatbelt sign, and cabin crew will begin the inflight service shortly.",
-        },
-      },
-      {
-        circumstanceIds: ["night"],
-        announcement: {
-          code: "102.J2",
-          title: "AFTER TAKE-OFF - NIGHT FLIGHT",
-          body: "Ladies and gentlemen, the captain has now turned off the seatbelt sign. Cabin lighting has been dimmed for the remainder of this evening's flight — individual reading lights can be found above your seat.",
-        },
+        variantIds: [V081A, V081],
+        text: "Just so you know, the aircraft is being refuelled. For your safety while we do this, please switch off all phones, tablets and other devices. Please stay seated with your seat belt unfastened. And remember, smoking and vaping are not allowed.",
       },
     ],
   },
   {
-    id: "arrival",
-    name: "Arrival",
+    id: "line-5",
     groups: [
+      { variantIds: [V080], text: "If you need a hand, we'll be happy to help. Have a lovely flight!" },
       {
-        circumstanceIds: ["standard", "delayed", "night", "vip"],
-        announcement: {
-          code: "110.J2",
-          title: "ARRIVAL",
-          body: "Ladies and gentlemen, we'll shortly be landing at [destination]. Please ensure your seatbelt is fastened, seat back and table are stowed, and window blinds are open.",
-        },
+        variantIds: [V080A, V081A],
+        text: "If there is anything we can help you with, please let a member of the cabin crew know.",
       },
-      {
-        circumstanceIds: ["fuel-stop"],
-        announcement: {
-          code: "111.J2",
-          title: "ARRIVAL - CONNECTING FLIGHT",
-          body: "Ladies and gentlemen, we'll shortly be landing at [destination]. If you are continuing on this aircraft to [final destination], please remain in your seat during the technical stop.",
-        },
-      },
+      { variantIds: [V081], text: "If you need a hand, we'll be happy to help. Have a lovely flight!" },
     ],
   },
 ];
+
+export const BOARDING_PHASE: PramsPhase = {
+  id: "boarding",
+  name: "Boarding",
+  updateLabel: "July 2026 Update",
+  approvalStatus: "ready_for_review",
+  variants: BOARDING_VARIANTS,
+  lines: BOARDING_LINES,
+  source: "Onboard PRAMS Grid — July 26 Changes.xlsx, “Boarding Charters” sheet",
+};
+
+/** Phases named in the brief that aren't transcribed from the workbook yet. */
+export const UPCOMING_PHASES = ["Safety Demonstration", "After Take-off", "Arrival"];
