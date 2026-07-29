@@ -1,0 +1,154 @@
+/**
+ * IMA Signal — design tokens.
+ *
+ * Single source of truth for colour, type, spacing, radius, shadow and
+ * motion. Nothing in components should hard-code a raw colour, shadow or
+ * timing value — extend this file instead so official IMA brand assets can
+ * later replace TEMP_* values without touching component code.
+ *
+ * Values marked TEMP_ are placeholders pending real IMA brand guidelines.
+ */
+
+:root {
+  /* ---- Neutral scale (cool "ink" graphite, not warm gray) ---- */
+  --ink-50: #f7f8f8;
+  --ink-100: #eef0f2;
+  --ink-150: #e4e7eb;
+  --ink-200: #d7dbe0;
+  --ink-300: #b9c0c9;
+  --ink-400: #8d96a3;
+  --ink-500: #6b7480;
+  --ink-600: #4f5661;
+  --ink-700: #383d46;
+  --ink-800: #24272e;
+  --ink-900: #14161b;
+  --ink-950: #0b0c0f;
+
+  /* ---- Surfaces ---- */
+  --surface: #f9f8f6; /* warm paper — editorial base, not clinical white */
+  --surface-raised: #ffffff;
+  --surface-sunken: #f1efea;
+  --surface-overlay: rgb(14 17 22 / 55%);
+
+  /* ---- Brand (TEMP — replace with official IMA marks when supplied) ---- */
+  --brand-primary: #1b4b4f; /* TEMP_BRAND_PRIMARY: deep control-room teal */
+  --brand-primary-600: #123638;
+  --brand-primary-100: #e3edec;
+  --brand-signal: #c9791f; /* TEMP_BRAND_SIGNAL: the "signal" amber — attention / in-progress */
+  --brand-signal-600: #a35f13;
+  --brand-signal-100: #fbebd6;
+
+  /* ---- Semantic status ---- */
+  --success: #1e7a52;
+  --success-100: #e3f3ea;
+  --critical: #b3261e;
+  --critical-100: #fbe7e5;
+  --important: #c25e1d;
+  --important-100: #fbeadb;
+  --minor: #8a6d2f;
+  --minor-100: #f3eedc;
+  --uncertain: #5b5f73;
+  --uncertain-100: #eaeaf1;
+  --comment: #3d5aa6;
+  --comment-100: #e7ecf7;
+
+  /* ---- Text ---- */
+  --text-primary: var(--ink-900);
+  --text-secondary: var(--ink-600);
+  --text-muted: var(--ink-500);
+  --text-inverse: var(--ink-50);
+  --text-on-brand: #ffffff;
+
+  /* ---- Borders ---- */
+  --border-subtle: var(--ink-150);
+  --border-default: var(--ink-200);
+  --border-strong: var(--ink-300);
+
+  /* ---- Radius (restrained — precision, not "bubbly SaaS") ---- */
+  --radius-xs: 0.1875rem;
+  --radius-sm: 0.3125rem;
+  --radius-md: 0.4375rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+  --radius-full: 999px;
+
+  /* ---- Shadow (low elevation, ink-tinted, never pure black) ---- */
+  --shadow-xs: 0 1px 2px rgb(14 17 22 / 4%);
+  --shadow-sm: 0 1px 3px rgb(14 17 22 / 6%), 0 1px 2px rgb(14 17 22 / 4%);
+  --shadow-md: 0 6px 16px rgb(14 17 22 / 8%), 0 2px 4px rgb(14 17 22 / 4%);
+  --shadow-lg: 0 16px 32px rgb(14 17 22 / 10%), 0 4px 10px rgb(14 17 22 / 5%);
+
+  /* ---- Motion ---- */
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 280ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+
+  /* ---- Layout widths ----
+   * content: standard pages (dashboard, project overview, forms)
+   * wide: breakout for transcript comparison / batch review tables
+   * reading: constrained column for scripts and long-form copy
+   */
+  --width-content: 74rem; /* 1184px */
+  --width-wide: 100rem; /* 1600px */
+  --width-reading: 42rem; /* ~720px, ~74ch at body size */
+
+  /*
+   * Breakpoints intentionally use Tailwind's defaults (sm 640 / md 768 /
+   * lg 1024 / xl 1280 / 2xl 1536) rather than redefining them — documented
+   * here so the design system is fully specified in one place.
+   */
+}
+
+.dark {
+  --surface: var(--ink-900);
+  --surface-raised: #1b1e24;
+  --surface-sunken: #0f1114;
+  --surface-overlay: rgb(0 0 0 / 65%);
+
+  --brand-primary: #3a8b8f;
+  --brand-primary-600: #2a696d;
+  --brand-primary-100: #172b2c;
+  --brand-signal: #dd9a45;
+  --brand-signal-600: #c9791f;
+  --brand-signal-100: #2c2213;
+
+  --success: #3fa377;
+  --success-100: #12291f;
+  --critical: #e2564d;
+  --critical-100: #2e1614;
+  --important: #dd8748;
+  --important-100: #2e2013;
+  --minor: #c2a463;
+  --minor-100: #2a2415;
+  --uncertain: #9198ac;
+  --uncertain-100: #1e2028;
+  --comment: #7f9be0;
+  --comment-100: #1a2338;
+
+  --text-primary: var(--ink-50);
+  --text-secondary: var(--ink-300);
+  --text-muted: var(--ink-400);
+  --text-inverse: var(--ink-900);
+
+  --border-subtle: rgb(255 255 255 / 8%);
+  --border-default: rgb(255 255 255 / 13%);
+  --border-strong: rgb(255 255 255 / 20%);
+
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 20%);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 24%);
+  --shadow-md: 0 6px 16px rgb(0 0 0 / 32%);
+  --shadow-lg: 0 16px 32px rgb(0 0 0 / 40%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

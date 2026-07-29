@@ -1,0 +1,122 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "../styles/tokens.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Fonts */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
+
+  /* Surfaces */
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-overlay: var(--surface-overlay);
+
+  /* shadcn primitive tokens — mapped onto the IMA Signal brand so every
+     base component (Button, Badge, Dialog, ...) is on-brand by default. */
+  --color-background: var(--surface);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--surface-raised);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--surface-raised);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--brand-primary);
+  --color-primary-foreground: var(--text-on-brand);
+  --color-secondary: var(--ink-100);
+  --color-secondary-foreground: var(--ink-800);
+  --color-muted: var(--ink-100);
+  --color-muted-foreground: var(--text-muted);
+  --color-accent: var(--ink-100);
+  --color-accent-foreground: var(--ink-900);
+  --color-destructive: var(--critical);
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--border-default);
+  --color-input: var(--border-default);
+  --color-ring: var(--brand-primary);
+
+  /* Ink neutral scale as utilities (bg-ink-500, text-ink-300, ...) */
+  --color-ink-50: var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-150: var(--ink-150);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-ink-900: var(--ink-900);
+  --color-ink-950: var(--ink-950);
+
+  /* Brand accent utilities */
+  --color-brand: var(--brand-primary);
+  --color-brand-600: var(--brand-primary-600);
+  --color-brand-100: var(--brand-primary-100);
+  --color-signal: var(--brand-signal);
+  --color-signal-600: var(--brand-signal-600);
+  --color-signal-100: var(--brand-signal-100);
+
+  /* QC / workflow semantic utilities */
+  --color-success: var(--success);
+  --color-success-100: var(--success-100);
+  --color-critical: var(--critical);
+  --color-critical-100: var(--critical-100);
+  --color-important: var(--important);
+  --color-important-100: var(--important-100);
+  --color-minor: var(--minor);
+  --color-minor-100: var(--minor-100);
+  --color-uncertain: var(--uncertain);
+  --color-uncertain-100: var(--uncertain-100);
+  --color-comment: var(--comment);
+  --color-comment-100: var(--comment-100);
+
+  /* Text utilities */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-inverse: var(--text-inverse);
+
+  /* Radius scale */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+
+  /* Shadow scale */
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  /* Layout widths */
+  --width-content: var(--width-content);
+  --width-wide: var(--width-wide);
+  --width-reading: var(--width-reading);
+
+  /* Motion */
+  --ease-standard: var(--ease-standard);
+  --ease-emphasized: var(--ease-emphasized);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-surface text-text-primary;
+  }
+  html {
+    @apply font-sans;
+  }
+  ::selection {
+    background: var(--brand-signal-100);
+    color: var(--ink-900);
+  }
+}
