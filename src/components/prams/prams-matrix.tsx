@@ -1,153 +1,127 @@
 "use client";
 
 import { useState } from "react";
-import { Layers, CircleDashed, Route as RouteIcon, X, type LucideIcon } from "lucide-react";
+import { X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import type { PramsRow, PramsSectionKind } from "@/lib/mock/prams";
-import type { Script } from "@/types/domain";
-
-const KIND_META: Record<
-  PramsSectionKind,
-  { label: string; icon: LucideIcon; hint: string; rowTint: string }
-> = {
-  shared: {
-    label: "Shared",
-    icon: Layers,
-    hint: "Same wording across every variant — edit once, it moves everywhere.",
-    rowTint: "bg-brand-100/40",
-  },
-  optional: {
-    label: "Optional",
-    icon: CircleDashed,
-    hint: "Only some variants include this section.",
-    rowTint: "",
-  },
-  variant: {
-    label: "Variant-specific",
-    icon: RouteIcon,
-    hint: "Genuinely different wording for each variant.",
-    rowTint: "",
-  },
-};
+import {
+  PRAMS_CIRCUMSTANCES,
+  getSectionRuns,
+  type PramsSection,
+} from "@/lib/mock/prams";
 
 interface Selection {
   sectionId: string;
-  scriptId: string;
+  code: string;
 }
 
-export function PramsMatrix({ scripts, initialRows }: { scripts: Script[]; initialRows: PramsRow[] }) {
-  const [rows, setRows] = useState(initialRows);
+export function PramsMatrix({ initialSections }: { initialSections: PramsSection[] }) {
+  const [sections, setSections] = useState(initialSections);
   const [selection, setSelection] = useState<Selection | null>(null);
-  const [hoveredSection, setHoveredSection] = useState<string | null>(null);
 
-  const selectedRow = selection ? rows.find((r) => r.section.id === selection.sectionId) : undefined;
-  const selectedCell = selectedRow?.cells[selection?.scriptId ?? ""];
-
-  function updateSharedRow(sectionId: string, text: string) {
-    setRows((prev) =>
-      prev.map((row) => {
-        if (row.section.id !== sectionId) return row;
-        const cells = { ...row.cells };
-        for (const scriptId of Object.keys(cells)) {
-          cells[scriptId] = { ...cells[scriptId], text };
-        }
-        return { ...row, cells };
-      }),
+  function updateAnnouncementBody(code: string, body: string) {
+    setSections((prev) =>
+      prev.map((section) => ({
+        ...section,
+        groups: section.groups.map((group) =>
+          group.announcement.code === code
+            ? { ...group, announcement: { ...group.announcement, body } }
+            : group,
+        ),
+      })),
     );
   }
 
-  function updateCell(sectionId: string, scriptId: string, patch: Partial<PramsCellUpdate>) {
-    setRows((prev) =>
-      prev.map((row) => {
-        if (row.section.id !== sectionId) return row;
-        const cell = row.cells[scriptId];
-        return { ...row, cells: { ...row.cells, [scriptId]: { ...cell, ...patch } } };
-      }),
-    );
-  }
+  const selectedSection = selection ? sections.find((s) => s.id === selection.sectionId) : undefined;
+  const selectedGroup = selectedSection?.groups.find((g) => g.announcement.code === selection?.code);
+  const selectedCircumstanceLabels = selectedGroup
+    ? PRAMS_CIRCUMSTANCES.filter((c) => selectedGroup.circumstanceIds.includes(c.id)).map((c) => c.label)
+    : [];
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center gap-4 text-xs text-text-secondary">
-        {Object.entries(KIND_META).map(([kind, meta]) => (
-          <div key={kind} className="flex items-center gap-1.5">
-            <meta.icon className="size-3.5 text-ink-500" strokeWidth={2.25} />
-            <span className="font-medium text-ink-800">{meta.label}</span>
-            <span className="text-text-muted">— {meta.hint}</span>
-          </div>
-        ))}
+      <div className="flex flex-wrap items-center gap-5 text-xs text-text-secondary">
+        <div className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-full bg-brand-100 ring-1 ring-inset ring-brand/30" />
+          <span className="font-medium text-ink-800">Shared announcement</span>
+          <span className="text-text-muted">— same recording used across circumstances</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-full bg-surface-raised ring-1 ring-inset ring-border-strong" />
+          <span className="font-medium text-ink-800">Circumstance-specific</span>
+          <span className="text-text-muted">— its own recording</span>
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-border">
-        <table className="w-full min-w-[900px] border-collapse text-sm">
+        <table className="w-full min-w-[860px] border-collapse text-sm">
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 w-48 border-b border-border bg-surface-raised px-4 py-3 text-left text-xs font-medium text-text-muted uppercase">
-                Section
+              <th className="sticky left-0 z-10 w-40 border-b border-border bg-surface-raised px-4 py-3 text-left text-xs font-medium tracking-wide text-text-muted uppercase">
+                Phase
               </th>
-              {scripts.map((script) => (
+              {PRAMS_CIRCUMSTANCES.map((c) => (
                 <th
-                  key={script.id}
-                  className="border-b border-l border-border-subtle bg-surface-raised px-4 py-3 text-left align-top text-xs font-semibold text-ink-900"
+                  key={c.id}
+                  className="border-b border-l border-border-subtle bg-surface-raised px-4 py-3 text-left text-xs font-semibold text-ink-900"
                 >
-                  {script.title}
-                  <span className="mt-0.5 block font-mono text-[10px] font-normal text-text-muted">
-                    {script.variantCode}
-                  </span>
+                  {c.label}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => {
-              const meta = KIND_META[row.section.kind];
-              const isHovered = hoveredSection === row.section.id;
+            {sections.map((section) => {
+              const runs = getSectionRuns(section, PRAMS_CIRCUMSTANCES);
+              const codeCount = new Map<string, number>();
+              for (const group of section.groups) {
+                codeCount.set(
+                  group.announcement.code,
+                  (codeCount.get(group.announcement.code) ?? 0) + group.circumstanceIds.length,
+                );
+              }
+
               return (
-                <tr
-                  key={row.section.id}
-                  onMouseEnter={() => setHoveredSection(row.section.id)}
-                  onMouseLeave={() => setHoveredSection(null)}
-                  className={cn("transition-colors", meta.rowTint)}
-                >
+                <tr key={section.id}>
                   <th
                     scope="row"
-                    className={cn(
-                      "sticky left-0 z-10 border-b border-border-subtle bg-surface-raised px-4 py-3 text-left align-top font-medium text-ink-900 transition-colors",
-                      isHovered && "bg-ink-100",
-                    )}
+                    className="sticky left-0 z-10 border-b border-border-subtle bg-surface-raised px-4 py-3 text-left align-top font-medium text-ink-900"
                   >
-                    <span className="flex items-center gap-1.5">
-                      <meta.icon className="size-3.5 shrink-0 text-ink-500" strokeWidth={2.25} />
-                      {row.section.label}
-                    </span>
+                    {section.name}
                   </th>
-                  {scripts.map((script) => {
-                    const cell = row.cells[script.id];
+                  {runs.map((run) => {
+                    const shared = (codeCount.get(run.announcement.code) ?? 0) > 1;
                     const isSelected =
-                      selection?.sectionId === row.section.id && selection?.scriptId === script.id;
+                      selection?.sectionId === section.id && selection?.code === run.announcement.code;
                     return (
                       <td
-                        key={script.id}
-                        className={cn(
-                          "border-b border-l border-border-subtle px-4 py-3 align-top transition-colors",
-                          isHovered && row.section.kind === "shared" && "bg-brand-100/70",
-                        )}
+                        key={run.startIndex}
+                        colSpan={run.span}
+                        className="border-b border-l border-border-subtle p-1.5 align-top"
                       >
                         <button
                           type="button"
-                          onClick={() => setSelection({ sectionId: row.section.id, scriptId: script.id })}
+                          onClick={() => setSelection({ sectionId: section.id, code: run.announcement.code })}
                           className={cn(
-                            "w-full rounded-md px-2 py-1.5 text-left text-[13px] leading-snug transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+                            "w-full rounded-md px-2.5 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
                             isSelected
                               ? "bg-brand text-white"
-                              : cell.included
-                                ? "text-ink-800 hover:bg-ink-100"
-                                : "border border-dashed border-border-strong text-text-muted italic hover:bg-ink-100",
+                              : shared
+                                ? "bg-brand-100/50 hover:bg-brand-100"
+                                : "hover:bg-ink-100",
                           )}
                         >
-                          {cell.included ? cell.text : "Not included"}
+                          <span
+                            className={cn(
+                              "block font-mono text-[11px]",
+                              isSelected ? "text-white/80" : "text-text-muted",
+                            )}
+                          >
+                            {run.announcement.code}
+                          </span>
+                          <span className="block text-[13px] leading-snug font-medium">
+                            {run.announcement.title}
+                          </span>
                         </button>
                       </td>
                     );
@@ -159,20 +133,18 @@ export function PramsMatrix({ scripts, initialRows }: { scripts: Script[]; initi
         </table>
       </div>
 
-      {selection && selectedRow && selectedCell && (
+      {selection && selectedSection && selectedGroup && (
         <div className="rounded-lg border border-border bg-surface-raised p-5">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-medium tracking-wide text-brand uppercase">
-                {selectedRow.section.label}
+              <p className="font-mono text-xs font-medium tracking-wide text-brand uppercase">
+                {selectedGroup.announcement.code} · {selectedSection.name}
               </p>
+              <p className="mt-1 text-sm font-medium text-ink-900">{selectedGroup.announcement.title}</p>
               <p className="mt-1 text-sm text-text-secondary">
-                {selectedRow.section.kind === "shared" &&
-                  `Editing this updates all ${scripts.length} variants — they all use identical wording here.`}
-                {selectedRow.section.kind === "variant" &&
-                  `This only changes ${scripts.find((s) => s.id === selection.scriptId)?.title}. Other variants are unaffected.`}
-                {selectedRow.section.kind === "optional" &&
-                  `Optional — toggle whether ${scripts.find((s) => s.id === selection.scriptId)?.title} includes this section.`}
+                {selectedCircumstanceLabels.length === PRAMS_CIRCUMSTANCES.length
+                  ? "Used for every circumstance — editing this updates all of them."
+                  : `Used for: ${selectedCircumstanceLabels.join(", ")}. Editing this updates ${selectedCircumstanceLabels.length > 1 ? "all of them" : "only this one"} — other circumstances are unaffected.`}
               </p>
             </div>
             <button
@@ -185,41 +157,14 @@ export function PramsMatrix({ scripts, initialRows }: { scripts: Script[]; initi
             </button>
           </div>
 
-          {selectedRow.section.kind === "optional" && (
-            <label className="mb-3 flex items-center gap-2 text-sm text-ink-800">
-              <Switch
-                checked={selectedCell.included}
-                onCheckedChange={(checked) =>
-                  updateCell(selectedRow.section.id, selection.scriptId, {
-                    included: checked,
-                    text: checked ? selectedCell.text || "Free 22kg baggage allowance included." : "",
-                  })
-                }
-              />
-              Included in this variant
-            </label>
-          )}
-
           <Textarea
-            value={selectedCell.text}
-            disabled={selectedRow.section.kind === "optional" && !selectedCell.included}
-            onChange={(e) => {
-              if (selectedRow.section.kind === "shared") {
-                updateSharedRow(selectedRow.section.id, e.target.value);
-              } else {
-                updateCell(selectedRow.section.id, selection.scriptId, { text: e.target.value });
-              }
-            }}
-            rows={3}
+            value={selectedGroup.announcement.body}
+            onChange={(e) => updateAnnouncementBody(selectedGroup.announcement.code, e.target.value)}
+            rows={4}
             className="text-sm"
           />
         </div>
       )}
     </div>
   );
-}
-
-interface PramsCellUpdate {
-  included: boolean;
-  text: string;
 }
