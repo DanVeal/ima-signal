@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, Inbox, UploadCloud, ShieldCheck, CalendarRange } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { PageHeader } from "@/components/nav/page-container";
-import { Panel } from "@/components/layout/panel";
+import { Radio, CheckCircle2, ShieldCheck, CalendarRange } from "lucide-react";
+import { PageContainer, Section } from "@/components/nav/page-container";
 import { EmptyState } from "@/components/states/empty-state";
 import { AttentionRow } from "@/components/dashboard/attention-row";
 import { DeadlineBadge } from "@/components/status/deadline-badge";
@@ -21,13 +19,6 @@ import {
   getVersionsByStatus,
   getOpenChangeRequestsForOrganisation,
 } from "@/lib/mock/queries";
-
-function greeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-}
 
 export function DashboardContent() {
   const { currentUser } = useDemoUser();
@@ -54,88 +45,84 @@ export function DashboardContent() {
   const recentVersions = getRecentAudioVersions(6).filter((v) => projectIds.has(v.project.id));
   const recentlyApproved = getRecentlyApproved(4).filter((v) => projectIds.has(v.project.id));
 
-  const firstName = currentUser.fullName.split(" ")[0];
+  const uniqueAttention = attentionItems.filter(
+    (item) => !overdueItems.some((o) => o.audioVersion.id === item.audioVersion.id),
+  );
+  const totalNeedingAttention = overdueItems.length + uniqueAttention.length;
+
+  const headline =
+    totalNeedingAttention === 0
+      ? "You're all clear"
+      : totalNeedingAttention === 1
+        ? "1 recording needs your attention"
+        : `${totalNeedingAttention} recordings need your attention`;
+
+  const subline =
+    totalNeedingAttention === 0
+      ? "Nothing is waiting on you right now — new uploads and review requests will land here."
+      : overdueItems.length > 0
+        ? `${overdueItems.length} of these ${overdueItems.length === 1 ? "is" : "are"} overdue. Ranked by urgency.`
+        : "Ranked by urgency across your projects.";
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Home"
-        title={`${greeting()}, ${firstName}`}
-        description={`${organisation?.name ?? ""} · here's what's moving across your projects today.`}
-      />
+    <PageContainer>
+      <div className="mb-12 animate-in fade-in slide-in-from-bottom-1 duration-500">
+        <p className="mb-3 flex items-center gap-1.5 text-xs font-medium tracking-wide text-brand uppercase">
+          <Radio className="size-3.5" strokeWidth={2.5} />
+          {organisation?.name} workspace
+        </p>
+        <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-ink-900 sm:text-5xl">
+          {headline}
+        </h1>
+        <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-text-secondary">{subline}</p>
+      </div>
 
-      <div className="space-y-6">
-        <Panel
-          title="Needs your attention"
-          description="Ranked by what's currently sitting with you."
-        >
-          {overdueItems.length === 0 && attentionItems.length === 0 ? (
+      <div className="space-y-12">
+        <section>
+          {totalNeedingAttention === 0 ? (
             <EmptyState
               icon={CheckCircle2}
-              title="You're all caught up"
-              description="Nothing is waiting on you right now. New uploads and review requests will appear here."
+              title="Signal clear"
+              description="Nothing needs your review right now."
             />
           ) : (
-            <div className="-mx-5 -my-5">
+            <div className="overflow-hidden rounded-lg border border-border-subtle">
               {overdueItems.map((item) => (
                 <AttentionRow key={`overdue-${item.audioVersion.id}`} item={item} overdue />
               ))}
-              {attentionItems
-                .filter((item) => !overdueItems.some((o) => o.audioVersion.id === item.audioVersion.id))
-                .map((item) => (
-                  <AttentionRow key={item.audioVersion.id} item={item} />
-                ))}
+              {uniqueAttention.map((item) => (
+                <AttentionRow key={item.audioVersion.id} item={item} />
+              ))}
             </div>
           )}
-        </Panel>
+        </section>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Panel title="Waiting for IMA review" href="/review-queue">
-            <BucketList
-              rows={waitingForIma}
-              emptyLabel="Nothing waiting on IMA review."
-              icon={Inbox}
-            />
-          </Panel>
-          <Panel title="Waiting for Jet2 review" href="/review-queue">
-            <BucketList
-              rows={waitingForJet2}
-              emptyLabel="Nothing waiting on Jet2 review."
-              icon={Inbox}
-            />
-          </Panel>
-          <Panel title="Changes waiting for the studio">
-            {studioChangeRequests.length === 0 ? (
-              <EmptyState
-                icon={UploadCloud}
-                title="No open change requests"
-                description="Coastal Sound Studios has no outstanding wording changes."
-              />
-            ) : (
-              <ul className="space-y-3">
-                {studioChangeRequests.map((cr) => (
-                  <li key={cr.id} className="text-sm">
-                    <p className="font-medium text-ink-900">
-                      &ldquo;{cr.requestedReplacement || cr.note}&rdquo;
-                    </p>
-                    <p className="text-xs text-text-muted">
-                      Due {cr.dueDate ? formatDate(cr.dueDate) : "no date set"}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
+        <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-3">
+          <StatLink
+            href="/review-queue"
+            count={waitingForIma.length}
+            label="Waiting for IMA review"
+          />
+          <StatLink
+            href="/review-queue"
+            count={waitingForJet2.length}
+            label="Waiting for Jet2 review"
+          />
+          <StatLink
+            href="/review-queue"
+            count={studioChangeRequests.length}
+            label="Changes waiting on the studio"
+          />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Panel title="Upcoming deadlines" description="Projects sorted by live date.">
-            <ul className="space-y-1">
+        <div className="grid grid-cols-1 gap-x-10 gap-y-10 lg:grid-cols-2">
+          <Section title="Upcoming deadlines" description="Projects sorted by live date.">
+            <ul>
               {upcomingDeadlines.map((project) => (
                 <li key={project.id}>
                   <Link
                     href={`/projects/${project.id}`}
-                    className="flex items-center justify-between gap-3 rounded-md px-2 py-2.5 -mx-2 transition-colors hover:bg-ink-50"
+                    className="-mx-2 flex items-center justify-between gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-ink-50"
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-medium text-ink-900">
@@ -151,15 +138,15 @@ export function DashboardContent() {
                 </li>
               ))}
             </ul>
-          </Panel>
+          </Section>
 
-          <Panel title="Recent versions" description="Latest uploads and approvals.">
-            <ul className="space-y-1">
+          <Section title="Recent versions" description="Latest uploads and approvals.">
+            <ul>
               {recentlyApproved.map((entry) => (
                 <li key={`approved-${entry.version.id}`}>
                   <Link
                     href={`/projects/${entry.project.id}/audio/${entry.version.audioItemId}`}
-                    className="flex items-center justify-between gap-3 rounded-md px-2 py-2.5 -mx-2 transition-colors hover:bg-ink-50"
+                    className="-mx-2 flex items-center justify-between gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-ink-50"
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-medium text-ink-900">
@@ -180,7 +167,7 @@ export function DashboardContent() {
                   <li key={`recent-${entry.version.id}`}>
                     <Link
                       href={`/projects/${entry.project.id}/audio/${entry.version.audioItemId}`}
-                      className="flex items-center justify-between gap-3 rounded-md px-2 py-2.5 -mx-2 transition-colors hover:bg-ink-50"
+                      className="-mx-2 flex items-center justify-between gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-ink-50"
                     >
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-medium text-ink-900">
@@ -195,40 +182,24 @@ export function DashboardContent() {
                   </li>
                 ))}
             </ul>
-          </Panel>
+          </Section>
         </div>
       </div>
-    </>
+    </PageContainer>
   );
 }
 
-function BucketList({
-  rows,
-  emptyLabel,
-  icon,
-}: {
-  rows: { project: { id: string; name: string }; script: { title: string }; audioVersion: { id: string; audioItemId: string; versionNumber: number } }[];
-  emptyLabel: string;
-  icon: LucideIcon;
-}) {
-  if (rows.length === 0) {
-    return <EmptyState icon={icon} title="Nothing here" description={emptyLabel} />;
-  }
+function StatLink({ href, count, label }: { href: string; count: number; label: string }) {
   return (
-    <ul className="space-y-1">
-      {rows.map((row) => (
-        <li key={row.audioVersion.id}>
-          <Link
-            href={`/projects/${row.project.id}/audio/${row.audioVersion.audioItemId}`}
-            className="flex items-center justify-between gap-3 rounded-md px-2 py-2 -mx-2 transition-colors hover:bg-ink-50"
-          >
-            <span className="min-w-0 truncate text-sm text-ink-800">{row.script.title}</span>
-            <span className="shrink-0 font-mono text-xs text-text-muted">
-              V{row.audioVersion.versionNumber}
-            </span>
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <Link href={href as never} className="group block">
+      <p
+        className={`text-3xl font-semibold tabular-nums transition-colors ${
+          count > 0 ? "text-ink-900 group-hover:text-brand" : "text-ink-300"
+        }`}
+      >
+        {count}
+      </p>
+      <p className="mt-1 text-sm text-text-secondary group-hover:text-ink-800">{label}</p>
+    </Link>
   );
 }

@@ -7,9 +7,9 @@ import {
 } from "@/components/ui/tooltip";
 
 function band(confidence: number): { label: string; tone: string } {
-  if (confidence >= 0.85) return { label: "High confidence", tone: "text-success" };
-  if (confidence >= 0.65) return { label: "Medium confidence", tone: "text-signal-600" };
-  return { label: "Low confidence", tone: "text-critical" };
+  if (confidence >= 0.85) return { label: "Strong signal", tone: "text-success" };
+  if (confidence >= 0.65) return { label: "Fair signal", tone: "text-signal-600" };
+  return { label: "Weak signal", tone: "text-critical" };
 }
 
 /**

@@ -70,7 +70,7 @@ export function ScriptPane({
   segments.push(<span key="tail">{body.slice(cursor)}</span>);
 
   return (
-    <p className="text-base leading-loose text-ink-800 sm:text-[17px]" aria-label="Approved script">
+    <p className="text-[14px] leading-[1.85] text-text-secondary" aria-label="Approved script">
       {segments}
     </p>
   );

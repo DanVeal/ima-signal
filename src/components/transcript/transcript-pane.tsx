@@ -61,7 +61,7 @@ export function TranscriptPane({
 
   return (
     <div
-      className="text-base leading-loose text-ink-800 sm:text-[17px]"
+      className="text-[19px] leading-[2] font-normal text-ink-800 sm:text-[21px]"
       aria-label="Transcript"
       role="group"
     >
@@ -83,8 +83,8 @@ export function TranscriptPane({
                   : undefined
               }
               className={cn(
-                "rounded px-0.5 py-0.5 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/50",
-                isActive && "bg-brand text-white",
+                "inline-block rounded-md px-0.5 py-0.5 outline-none transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-ring/50",
+                isActive && "scale-[1.04] bg-brand text-white shadow-[0_2px_10px_-2px_var(--brand-primary)]",
                 !isActive && isSelected && "bg-comment-100",
                 !isActive && !isSelected && "hover:bg-ink-100",
                 diff && !isActive && "underline decoration-2 underline-offset-4",

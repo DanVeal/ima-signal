@@ -1,10 +1,11 @@
 import { cn } from "@/lib/utils";
-import { SignalDot } from "./signal-dot";
+import { ImaMark } from "./ima-mark";
 
 /**
- * TEMP_BRAND_MARK — placeholder wordmark. Swap for the official IMA
- * lockup when brand assets are supplied; every consumer of <Logo /> will
- * pick up the change automatically.
+ * The real IMA mark (supplied directly, see ima-mark.tsx) paired with the
+ * "Signal" product name in our own display type. IMA Signal is an IMA
+ * product first — this lockup is deliberately IMA-only; the active client
+ * workspace is shown separately (see <WorkspaceBadge />), never merged in.
  */
 export function Logo({
   className,
@@ -13,19 +14,21 @@ export function Logo({
   className?: string;
   size?: "sm" | "md" | "lg";
 }) {
+  const markHeight = {
+    sm: "h-4",
+    md: "h-5",
+    lg: "h-7",
+  }[size];
   const textSize = {
     sm: "text-base",
     md: "text-lg",
-    lg: "text-2xl",
+    lg: "text-[2rem]",
   }[size];
 
   return (
-    <span className={cn("inline-flex items-center gap-2 font-display", textSize, className)}>
-      <SignalDot size={size === "lg" ? "md" : "sm"} />
-      <span className="flex items-baseline gap-1.5">
-        <span className="font-semibold tracking-tight text-ink-900">IMA</span>
-        <span className="italic font-normal text-brand">Signal</span>
-      </span>
+    <span className={cn("inline-flex items-center gap-2", className)}>
+      <ImaMark className={cn("w-auto text-ink-900", markHeight)} />
+      <span className={cn("font-display italic font-normal text-brand", textSize)}>Signal</span>
     </span>
   );
 }

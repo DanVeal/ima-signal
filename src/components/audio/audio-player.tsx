@@ -18,7 +18,7 @@ export function AudioPlayer({ seed }: { seed: string }) {
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-4 rounded-xl bg-surface-sunken p-5 sm:flex-row sm:items-center">
       <div className="flex shrink-0 items-center gap-1">
         <Button
           variant="ghost"
@@ -32,9 +32,9 @@ export function AudioPlayer({ seed }: { seed: string }) {
           size="icon"
           aria-label={isPlaying ? "Pause" : "Play"}
           onClick={toggle}
-          className="size-10 rounded-full"
+          className="size-12 rounded-full shadow-sm transition-transform active:scale-95"
         >
-          {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
+          {isPlaying ? <Pause className="size-5" /> : <Play className="size-5" />}
         </Button>
         <Button
           variant="ghost"
@@ -50,7 +50,7 @@ export function AudioPlayer({ seed }: { seed: string }) {
         <Waveform seed={seed} />
       </div>
 
-      <div className="flex shrink-0 items-center justify-between gap-3 sm:justify-start">
+      <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:justify-center sm:gap-1.5">
         <span className="font-mono text-xs tabular-nums text-text-secondary">
           {formatTimecode(currentMs)} / {formatTimecode(durationMs)}
         </span>
@@ -58,7 +58,7 @@ export function AudioPlayer({ seed }: { seed: string }) {
           variant="outline"
           size="sm"
           onClick={nextRate}
-          className="font-mono"
+          className="h-6 rounded-full font-mono text-xs"
           aria-label="Change playback speed"
         >
           {playbackRate}×

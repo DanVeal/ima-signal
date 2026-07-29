@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Menu, Search } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "@/components/brand/logo";
+import { WorkspaceBadge } from "@/components/brand/workspace-badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useDemoUser } from "@/lib/demo-user-context";
@@ -24,13 +25,17 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border-subtle bg-surface/90 backdrop-blur-sm">
-      <div className="mx-auto flex h-16 max-w-(--width-wide) items-center gap-6 px-4 sm:px-6 lg:px-10">
-        <Link href="/" className="flex shrink-0 items-center">
-          <Logo />
-        </Link>
+    <header className="sticky top-0 z-40 border-b border-border-subtle/70 bg-surface/80 backdrop-blur-md">
+      <div className="mx-auto flex h-14 max-w-(--width-wide) items-center gap-4 px-4 sm:px-6 lg:px-10">
+        <div className="flex shrink-0 items-center gap-2.5">
+          <Link href="/" className="flex items-center">
+            <Logo />
+          </Link>
+          <span aria-hidden className="h-4 w-px bg-border-default" />
+          <WorkspaceBadge />
+        </div>
 
-        <nav className="hidden flex-1 items-center gap-1 lg:flex" aria-label="Primary">
+        <nav className="hidden flex-1 items-center gap-0.5 lg:flex" aria-label="Primary">
           {links.map((link) => {
             const active = isActive(pathname, link.href);
             return (
@@ -39,20 +44,19 @@ export function SiteHeader() {
                 href={link.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  active ? "text-ink-900" : "text-text-secondary hover:text-ink-900",
+                  "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                  active
+                    ? "bg-brand-100 text-brand"
+                    : "text-text-secondary hover:bg-ink-100 hover:text-ink-900",
                 )}
               >
                 {link.label}
-                {active && (
-                  <span className="absolute inset-x-3 -bottom-[1px] h-0.5 rounded-full bg-brand" />
-                )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon"
@@ -74,9 +78,10 @@ export function SiteHeader() {
             </SheetTrigger>
             <SheetContent side="left" className="w-72 p-0">
               <SheetHeader className="border-b border-border-subtle px-5 py-4">
-                <SheetTitle>
+                <SheetTitle className="flex items-center gap-2.5">
                   <Logo />
                 </SheetTitle>
+                <WorkspaceBadge className="-ml-1" />
               </SheetHeader>
               <nav className="flex flex-col gap-1 p-3" aria-label="Primary">
                 {links.map((link) => {

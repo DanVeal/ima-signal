@@ -194,10 +194,10 @@ export function AudioReviewWorkspace({
           {project.name}
         </Link>
 
-        <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold tracking-tight text-ink-900 sm:text-2xl">
+              <h1 className="text-2xl font-semibold tracking-tight text-ink-900 sm:text-3xl">
                 {script.title}
               </h1>
               <Badge variant="outline" className="font-mono text-[11px]">
@@ -221,51 +221,50 @@ export function AudioReviewWorkspace({
           </div>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-8">
           <AudioPlayer seed={version.id} />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-              <div className="rounded-lg border border-border bg-surface-raised p-5">
-                <h2 className="mb-3 text-xs font-semibold tracking-wide text-text-muted uppercase">
-                  Approved script
-                  {approvedScriptVersion && (
-                    <span className="ml-2 normal-case text-ink-400">
-                      V{approvedScriptVersion.versionNumber}
-                    </span>
-                  )}
-                </h2>
-                {versionScript ? (
-                  <ScriptPane body={versionScript.body} differences={version.qc?.differences ?? []} />
-                ) : (
-                  <p className="text-sm text-text-muted">No approved script linked to this version.</p>
-                )}
-              </div>
+        <div
+          key={selectedVersionId}
+          className="grid animate-in fade-in grid-cols-1 gap-x-10 gap-y-8 duration-300 lg:grid-cols-[220px_minmax(0,1fr)_360px] xl:grid-cols-[260px_minmax(0,1fr)_380px]"
+        >
+          <div>
+            <h2 className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-text-muted uppercase">
+              Approved script
+              {approvedScriptVersion && (
+                <span className="normal-case text-ink-400">V{approvedScriptVersion.versionNumber}</span>
+              )}
+            </h2>
+            {versionScript ? (
+              <ScriptPane body={versionScript.body} differences={version.qc?.differences ?? []} />
+            ) : (
+              <p className="text-sm text-text-muted">No approved script linked to this version.</p>
+            )}
+          </div>
 
-              <div className="rounded-lg border border-border bg-surface-raised p-5">
-                <h2 className="mb-3 text-xs font-semibold tracking-wide text-text-muted uppercase">
-                  Transcript · V{version.versionNumber}
-                </h2>
-                {version.transcript && version.transcript.length > 0 ? (
-                  <TranscriptPane
-                    words={version.transcript}
-                    differences={version.qc?.differences ?? []}
-                    comments={versionComments}
-                    selection={selection}
-                    onSelectionChange={setSelection}
-                    onOpenComment={() => setSidebarTab("comments")}
-                  />
-                ) : (
-                  <EmptyState
-                    icon={FileAudio}
-                    title="Transcript processing"
-                    description="Word-level transcript isn't available for this demo variant yet."
-                    className="py-8"
-                  />
-                )}
-              </div>
+          <div className="space-y-6">
+            <div>
+              <h2 className="mb-4 text-xs font-semibold tracking-wide text-text-muted uppercase">
+                Transcript · V{version.versionNumber}
+              </h2>
+              {version.transcript && version.transcript.length > 0 ? (
+                <TranscriptPane
+                  words={version.transcript}
+                  differences={version.qc?.differences ?? []}
+                  comments={versionComments}
+                  selection={selection}
+                  onSelectionChange={setSelection}
+                  onOpenComment={() => setSidebarTab("comments")}
+                />
+              ) : (
+                <EmptyState
+                  icon={FileAudio}
+                  title="Transcript processing"
+                  description="Word-level transcript isn't available for this demo variant yet."
+                  className="py-8"
+                />
+              )}
             </div>
 
             {selection && (
@@ -279,12 +278,10 @@ export function AudioReviewWorkspace({
             )}
           </div>
 
-          <aside className="space-y-4">
-            <div className="rounded-lg border border-border bg-surface-raised p-5">
-              <QcSummary qc={version.qc} overallConfidence={version.overallConfidence} />
-            </div>
+          <aside className="space-y-6 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto lg:pb-6">
+            <QcSummary qc={version.qc} overallConfidence={version.overallConfidence} />
 
-            <div className="rounded-lg border border-border bg-surface-raised p-4">
+            <div className="border-t border-border-subtle pt-5">
               <Tabs value={sidebarTab} onValueChange={setSidebarTab}>
                 <TabsList className="w-full">
                   <TabsTrigger value="differences" className="flex-1">
@@ -297,10 +294,10 @@ export function AudioReviewWorkspace({
                     Changes
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value="differences" className="mt-4">
+                <TabsContent value="differences" className="mt-4 animate-in fade-in duration-200">
                   <DifferencesList differences={version.qc?.differences ?? []} />
                 </TabsContent>
-                <TabsContent value="comments" className="mt-4 space-y-4">
+                <TabsContent value="comments" className="mt-4 animate-in fade-in space-y-4 duration-200">
                   <CommentComposer onSubmit={handleGeneralComment} />
                   <CommentThread
                     comments={versionComments}
@@ -309,13 +306,13 @@ export function AudioReviewWorkspace({
                     onReply={handleReply}
                   />
                 </TabsContent>
-                <TabsContent value="changes" className="mt-4">
+                <TabsContent value="changes" className="mt-4 animate-in fade-in duration-200">
                   <ChangeRequestList changeRequests={versionChangeRequests} />
                 </TabsContent>
               </Tabs>
             </div>
 
-            <div className="rounded-lg border border-border bg-surface-raised p-5">
+            <div className="border-t border-border-subtle pt-5">
               <h2 className="mb-3 text-xs font-semibold tracking-wide text-text-muted uppercase">
                 Approval
               </h2>

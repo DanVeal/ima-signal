@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Search, FolderClosed } from "lucide-react";
-import { PageHeader } from "@/components/nav/page-container";
+import { PageContainer } from "@/components/nav/page-container";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EmptyState } from "@/components/states/empty-state";
-import { ProjectCard } from "@/components/projects/project-card";
+import { ProjectRow } from "@/components/projects/project-row";
 import { useDemoUser } from "@/lib/demo-user-context";
 import { getCampaign, getOrganisation, getProjectsForOrganisation } from "@/lib/mock/queries";
 import type { ProjectStatus } from "@/types/domain";
@@ -52,26 +52,25 @@ export function ProjectsListContent() {
   }, [projects, query, status]);
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Projects"
-        title="Projects"
-        description="Every radio production brief across your organisation, from first draft to delivery."
-      />
+    <PageContainer>
+      <p className="mb-2 text-xs font-medium tracking-wide text-brand uppercase">Projects</p>
+      <h1 className="mb-8 text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl">
+        Every production, in one place
+      </h1>
 
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1 sm:max-w-sm">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-text-muted" />
+      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-text-muted" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search projects, campaigns, job numbers…"
-            className="pl-9"
+            className="h-12 rounded-xl border-border-strong/60 pl-11 text-[15px] shadow-xs"
             aria-label="Search projects"
           />
         </div>
         <Select value={status} onValueChange={(v) => setStatus(v as ProjectStatus | "all")}>
-          <SelectTrigger className="sm:w-56" aria-label="Filter by status">
+          <SelectTrigger className="h-12 rounded-xl sm:w-56" aria-label="Filter by status">
             <SelectValue>
               {(value: ProjectStatus | "all") =>
                 STATUS_OPTIONS.find((option) => option.value === value)?.label ?? value
@@ -95,12 +94,12 @@ export function ProjectsListContent() {
           description="Try clearing the search or status filter."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div>
           {filtered.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectRow key={project.id} project={project} />
           ))}
         </div>
       )}
-    </>
+    </PageContainer>
   );
 }
