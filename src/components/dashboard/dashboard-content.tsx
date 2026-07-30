@@ -5,6 +5,7 @@ import { Radio, CheckCircle2, ShieldCheck, CalendarRange } from "lucide-react";
 import { PageContainer, Section } from "@/components/nav/page-container";
 import { EmptyState } from "@/components/states/empty-state";
 import { AttentionRow } from "@/components/dashboard/attention-row";
+import { PramsDashboardSummary } from "@/components/dashboard/prams-dashboard-summary";
 import { DeadlineBadge } from "@/components/status/deadline-badge";
 import { AudioStatusBadge } from "@/components/status/audio-status-badge";
 import { useDemoUser } from "@/lib/demo-user-context";
@@ -96,6 +97,8 @@ export function DashboardContent() {
             </div>
           )}
         </section>
+
+        <PramsDashboardSummary />
 
         <div className="grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-3">
           <StatLink
