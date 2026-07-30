@@ -149,7 +149,9 @@ export type Database = {
           created_at: string
           id: string
           project_id: string
+          reference_code_raw: string | null
           section_id: string | null
+          source_import_id: string | null
           status: Database["public"]["Enums"]["prams_announcement_version_status"]
           tags: Json
           title_at_import: string
@@ -161,7 +163,9 @@ export type Database = {
           created_at?: string
           id?: string
           project_id: string
+          reference_code_raw?: string | null
           section_id?: string | null
+          source_import_id?: string | null
           status?: Database["public"]["Enums"]["prams_announcement_version_status"]
           tags?: Json
           title_at_import: string
@@ -173,7 +177,9 @@ export type Database = {
           created_at?: string
           id?: string
           project_id?: string
+          reference_code_raw?: string | null
           section_id?: string | null
+          source_import_id?: string | null
           status?: Database["public"]["Enums"]["prams_announcement_version_status"]
           tags?: Json
           title_at_import?: string
@@ -201,6 +207,13 @@ export type Database = {
             referencedRelation: "prams_sections"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "prams_announcement_versions_source_import_id_fkey"
+            columns: ["source_import_id"]
+            isOneToOne: false
+            referencedRelation: "prams_workbook_imports"
+            referencedColumns: ["id"]
+          },
         ]
       }
       prams_announcements: {
@@ -210,6 +223,7 @@ export type Database = {
           current_title: string
           id: string
           notes: string | null
+          original_reference_code: string | null
           reference_code: string
           updated_at: string
         }
@@ -219,6 +233,7 @@ export type Database = {
           current_title: string
           id?: string
           notes?: string | null
+          original_reference_code?: string | null
           reference_code: string
           updated_at?: string
         }
@@ -228,10 +243,102 @@ export type Database = {
           current_title?: string
           id?: string
           notes?: string | null
+          original_reference_code?: string | null
           reference_code?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      prams_matrix_cells: {
+        Row: {
+          announcement_version_id: string
+          created_at: string
+          id: string
+          row_id: string
+          source_import_id: string | null
+        }
+        Insert: {
+          announcement_version_id: string
+          created_at?: string
+          id?: string
+          row_id: string
+          source_import_id?: string | null
+        }
+        Update: {
+          announcement_version_id?: string
+          created_at?: string
+          id?: string
+          row_id?: string
+          source_import_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prams_matrix_cells_announcement_version_id_fkey"
+            columns: ["announcement_version_id"]
+            isOneToOne: false
+            referencedRelation: "prams_announcement_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prams_matrix_cells_row_id_fkey"
+            columns: ["row_id"]
+            isOneToOne: false
+            referencedRelation: "prams_matrix_rows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prams_matrix_cells_source_import_id_fkey"
+            columns: ["source_import_id"]
+            isOneToOne: false
+            referencedRelation: "prams_workbook_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prams_matrix_rows: {
+        Row: {
+          created_at: string
+          id: string
+          row_key: string
+          section_id: string
+          sort_order: number
+          source_import_id: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          row_key: string
+          section_id: string
+          sort_order: number
+          source_import_id?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          row_key?: string
+          section_id?: string
+          sort_order?: number
+          source_import_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prams_matrix_rows_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "prams_sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prams_matrix_rows_source_import_id_fkey"
+            columns: ["source_import_id"]
+            isOneToOne: false
+            referencedRelation: "prams_workbook_imports"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       prams_sections: {
         Row: {
@@ -241,6 +348,7 @@ export type Database = {
           project_id: string
           slug: string
           sort_order: number
+          source_import_id: string | null
           source_sheet_name: string | null
         }
         Insert: {
@@ -250,6 +358,7 @@ export type Database = {
           project_id: string
           slug: string
           sort_order: number
+          source_import_id?: string | null
           source_sheet_name?: string | null
         }
         Update: {
@@ -259,6 +368,7 @@ export type Database = {
           project_id?: string
           slug?: string
           sort_order?: number
+          source_import_id?: string | null
           source_sheet_name?: string | null
         }
         Relationships: [
@@ -267,6 +377,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prams_sections_source_import_id_fkey"
+            columns: ["source_import_id"]
+            isOneToOne: false
+            referencedRelation: "prams_workbook_imports"
             referencedColumns: ["id"]
           },
         ]
@@ -318,6 +435,199 @@ export type Database = {
             columns: ["superseded_by_update_id"]
             isOneToOne: false
             referencedRelation: "prams_updates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prams_wording_group_members: {
+        Row: {
+          created_at: string
+          id: string
+          is_current: boolean
+          matrix_cell_id: string
+          replaces_membership_id: string | null
+          wording_group_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          matrix_cell_id: string
+          replaces_membership_id?: string | null
+          wording_group_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          matrix_cell_id?: string
+          replaces_membership_id?: string | null
+          wording_group_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prams_wording_group_members_matrix_cell_id_fkey"
+            columns: ["matrix_cell_id"]
+            isOneToOne: false
+            referencedRelation: "prams_matrix_cells"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prams_wording_group_members_replaces_membership_id_fkey"
+            columns: ["replaces_membership_id"]
+            isOneToOne: false
+            referencedRelation: "prams_wording_group_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prams_wording_group_members_wording_group_id_fkey"
+            columns: ["wording_group_id"]
+            isOneToOne: false
+            referencedRelation: "prams_wording_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prams_wording_groups: {
+        Row: {
+          created_at: string
+          created_by_user_id: string | null
+          id: string
+          row_id: string
+          source: string
+          source_import_id: string | null
+          text: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          row_id: string
+          source: string
+          source_import_id?: string | null
+          text?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          row_id?: string
+          source?: string
+          source_import_id?: string | null
+          text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prams_wording_groups_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prams_wording_groups_row_id_fkey"
+            columns: ["row_id"]
+            isOneToOne: false
+            referencedRelation: "prams_matrix_rows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prams_wording_groups_source_import_id_fkey"
+            columns: ["source_import_id"]
+            isOneToOne: false
+            referencedRelation: "prams_workbook_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prams_workbook_import_diffs: {
+        Row: {
+          created_at: string
+          diff_type: string
+          id: string
+          import_id: string
+          payload: Json
+          reference_code: string | null
+          row_key: string | null
+          section_slug: string | null
+        }
+        Insert: {
+          created_at?: string
+          diff_type: string
+          id?: string
+          import_id: string
+          payload?: Json
+          reference_code?: string | null
+          row_key?: string | null
+          section_slug?: string | null
+        }
+        Update: {
+          created_at?: string
+          diff_type?: string
+          id?: string
+          import_id?: string
+          payload?: Json
+          reference_code?: string | null
+          row_key?: string | null
+          section_slug?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prams_workbook_import_diffs_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "prams_workbook_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prams_workbook_imports: {
+        Row: {
+          completed_at: string | null
+          file_hash: string | null
+          file_name: string
+          id: string
+          imported_by_user_id: string | null
+          project_id: string
+          started_at: string
+          status: string
+          summary: Json
+        }
+        Insert: {
+          completed_at?: string | null
+          file_hash?: string | null
+          file_name: string
+          id?: string
+          imported_by_user_id?: string | null
+          project_id: string
+          started_at?: string
+          status?: string
+          summary?: Json
+        }
+        Update: {
+          completed_at?: string | null
+          file_hash?: string | null
+          file_name?: string
+          id?: string
+          imported_by_user_id?: string | null
+          project_id?: string
+          started_at?: string
+          status?: string
+          summary?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prams_workbook_imports_imported_by_user_id_fkey"
+            columns: ["imported_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prams_workbook_imports_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -434,6 +744,172 @@ export type Database = {
           },
         ]
       }
+      script_lines: {
+        Row: {
+          id: string
+          revision_id: string
+          sort_order: number
+          text: string
+        }
+        Insert: {
+          id?: string
+          revision_id: string
+          sort_order: number
+          text: string
+        }
+        Update: {
+          id?: string
+          revision_id?: string
+          sort_order?: number
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "script_lines_revision_id_fkey"
+            columns: ["revision_id"]
+            isOneToOne: false
+            referencedRelation: "script_revisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      script_revisions: {
+        Row: {
+          approved_at: string | null
+          approved_by_user_id: string | null
+          created_at: string
+          created_by_user_id: string | null
+          id: string
+          is_approved_for_recording: boolean
+          notes: string | null
+          revision_number: number
+          variant_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by_user_id?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          is_approved_for_recording?: boolean
+          notes?: string | null
+          revision_number: number
+          variant_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by_user_id?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          is_approved_for_recording?: boolean
+          notes?: string | null
+          revision_number?: number
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "script_revisions_approved_by_user_id_fkey"
+            columns: ["approved_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "script_revisions_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "script_revisions_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "script_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      script_variants: {
+        Row: {
+          column_order: number | null
+          created_at: string
+          departure_airport: string | null
+          destination: string | null
+          id: string
+          offer_label: string | null
+          region_label: string | null
+          script_id: string
+          updated_at: string
+          variant_code: string
+        }
+        Insert: {
+          column_order?: number | null
+          created_at?: string
+          departure_airport?: string | null
+          destination?: string | null
+          id?: string
+          offer_label?: string | null
+          region_label?: string | null
+          script_id: string
+          updated_at?: string
+          variant_code: string
+        }
+        Update: {
+          column_order?: number | null
+          created_at?: string
+          departure_airport?: string | null
+          destination?: string | null
+          id?: string
+          offer_label?: string | null
+          region_label?: string | null
+          script_id?: string
+          updated_at?: string
+          variant_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "script_variants_script_id_fkey"
+            columns: ["script_id"]
+            isOneToOne: false
+            referencedRelation: "scripts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scripts: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scripts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_profiles: {
         Row: {
           auth_user_id: string
@@ -484,6 +960,14 @@ export type Database = {
         Args: { target_project_id: string }
         Returns: boolean
       }
+      create_variant_override: {
+        Args: {
+          p_matrix_cell_id: string
+          p_new_text: string
+          p_wording_group_id: string
+        }
+        Returns: string
+      }
       current_organisation_id: { Args: never; Returns: string }
       current_organisation_type: {
         Args: never
@@ -512,7 +996,17 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      edit_shared_wording: {
+        Args: { p_new_text: string; p_wording_group_id: string }
+        Returns: string
+      }
       is_ima_manager: { Args: never; Returns: boolean }
+      normalize_reference_code: { Args: { input: string }; Returns: string }
+      prams_project_id_for_row: { Args: { p_row_id: string }; Returns: string }
+      remerge_wording_cells: {
+        Args: { p_matrix_cell_ids: string[]; p_text: string }
+        Returns: string
+      }
     }
     Enums: {
       organisation_type: "ima" | "jet2" | "studio"
