@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment } from "react";
-import { ChevronDown, Eye } from "lucide-react";
+import { ChevronDown, Eye, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +14,17 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useDemoUser } from "@/lib/demo-user-context";
 import { getAllOrganisations, getAllUsers } from "@/lib/mock/queries";
+import { signOut } from "@/lib/supabase/actions";
 import { ROLE_LABEL } from "./nav-links";
 
 /**
- * Phase 1 has no Supabase Auth session yet, so there is no real "sign in".
- * This lets reviewers preview how navigation and permissions change across
- * every role ahead of Phase 2 — clearly labelled as a preview affordance,
- * never presented as a real account switcher.
+ * Phase 2A adds a real Supabase Auth session (see /login and middleware.ts)
+ * — every page behind this switcher already requires a real signed-in user,
+ * and every query is subject to real RLS regardless of what's previewed
+ * here. This switcher itself is still a UI-only preview affordance for
+ * seeing navigation/permissions render as each role, never a real account
+ * switch — real authorization is enforced at the database, not by this
+ * control.
  */
 export function RoleSwitcher() {
   const { currentUser, setCurrentUserId } = useDemoUser();
@@ -80,6 +84,11 @@ export function RoleSwitcher() {
             </DropdownMenuGroup>
           </Fragment>
         ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => signOut()} className="flex items-center gap-2 text-critical">
+          <LogOut className="size-3.5" />
+          Sign out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

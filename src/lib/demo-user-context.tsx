@@ -1,10 +1,13 @@
 "use client";
 
 /**
- * Phase 1 has no Supabase Auth yet. This context simulates "who is signed
- * in" purely so navigation, the dashboard and permission-aware UI can be
- * previewed against every role before Phase 2 wires up real sessions. It
- * is a demo affordance only — every place it's surfaced in the UI says so.
+ * Phase 2A adds a real Supabase Auth session (see /login, middleware.ts,
+ * src/lib/supabase/) gating every route this context is used in — but the
+ * rest of the frontend still runs on mock data (src/lib/mock/), so this
+ * context remains a client-only "preview as" affordance for seeing
+ * navigation/dashboard/permission-aware UI render against every role. It is
+ * not a substitute for the real session, and nothing here is trusted for
+ * authorization — that's the database's job (RLS), not this context's.
  */
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { users } from "@/lib/mock/data";

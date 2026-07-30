@@ -2,7 +2,12 @@ import { PageContainer, PageHeader } from "@/components/nav/page-container";
 import { Panel } from "@/components/layout/panel";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ROLE_LABEL } from "@/components/nav/nav-links";
-import { getAllOrganisations, getAllUsers } from "@/lib/mock/queries";
+import { createClient } from "@/lib/supabase/server";
+import { getOrganisations } from "@/lib/supabase/repository";
+import { toOrganisationDomain, toUserProfileDomain } from "@/lib/supabase/mappers";
+
+// Requires a signed-in session (real Supabase Auth + RLS) — never prerendered at build time.
+export const dynamic = "force-dynamic";
 
 const ORG_TYPE_LABEL: Record<string, string> = {
   ima: "Producing organisation",
@@ -10,9 +15,24 @@ const ORG_TYPE_LABEL: Record<string, string> = {
   studio: "Recording studio",
 };
 
-export default function PeoplePage() {
-  const organisations = getAllOrganisations();
-  const users = getAllUsers();
+/**
+ * Phase 2A proof-of-foundation: this page reads organisations and user
+ * profiles from the real Supabase database (via RLS as the signed-in user),
+ * not src/lib/mock/. It was chosen as the first page to convert because it
+ * has no dependency on tables that don't exist yet (scripts, audio, etc.) —
+ * see docs/phase-2a-limitations.md for why every other page still reads
+ * mock data for now.
+ */
+export default async function PeoplePage() {
+  const supabase = await createClient();
+  const [orgRows, { data: userRows, error }] = await Promise.all([
+    getOrganisations(supabase),
+    supabase.from("user_profiles").select("*").order("full_name"),
+  ]);
+  if (error) throw error;
+
+  const organisations = orgRows.map(toOrganisationDomain);
+  const users = (userRows ?? []).map(toUserProfileDomain);
 
   return (
     <PageContainer>
