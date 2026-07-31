@@ -53,7 +53,7 @@ export function ApprovalPanel({
           <Lock className="size-4" />
           Approved and locked
         </p>
-        <p className="mt-1 text-xs text-ink-700">
+        <p className="mt-1 text-xs text-text-emphasis">
           Approved {audioVersion.approvedAt ? formatDateTime(audioVersion.approvedAt) : ""}. A new
           version would need to be uploaded and reviewed separately — this version can&apos;t be
           changed.

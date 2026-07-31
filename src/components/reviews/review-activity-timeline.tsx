@@ -28,8 +28,8 @@ export function ReviewActivityTimeline({ events }: { events: ReviewActivityEvent
               <Icon className="size-4" strokeWidth={1.75} />
             </span>
             <div className="min-w-0 pt-1">
-              <p className="text-sm text-ink-800">
-                <span className="font-medium text-ink-900">{event.actorName}</span>{" "}
+              <p className="text-sm text-text-emphasis">
+                <span className="font-medium text-text-primary">{event.actorName}</span>{" "}
                 {activityVerb(event.action)}
               </p>
               <p className="mt-0.5 text-xs text-text-muted">{formatDateTime(event.createdAt)}</p>

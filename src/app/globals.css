@@ -78,6 +78,7 @@
   /* Text utilities */
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
+  --color-text-emphasis: var(--text-emphasis);
   --color-text-muted: var(--text-muted);
   --color-text-inverse: var(--text-inverse);
 

@@ -27,7 +27,7 @@ export function Logo({
 
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
-      <ImaMark className={cn("w-auto text-ink-900", markHeight)} />
+      <ImaMark className={cn("w-auto text-text-primary", markHeight)} />
       <span className={cn("font-display italic font-normal text-brand", textSize)}>Signal</span>
     </span>
   );

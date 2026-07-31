@@ -48,7 +48,7 @@ export function PramsProjectOverview({ project }: { project: Project }) {
             const value = stats[tile.key];
             const content = (
               <>
-                <p className="text-2xl font-semibold tabular-nums text-ink-900 group-hover:text-brand">
+                <p className="text-2xl font-semibold tabular-nums text-text-primary group-hover:text-brand">
                   {value}
                 </p>
                 <p className="mt-1 text-xs text-text-secondary">{tile.label}</p>

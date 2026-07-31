@@ -29,7 +29,7 @@ export function RealVariantList({ projectId, rows }: { projectId: string; rows: 
             className="group flex flex-col gap-3 px-5 py-4 transition-colors hover:bg-ink-50 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-ink-900">{row.label}</p>
+              <p className="truncate text-sm font-medium text-text-primary">{row.label}</p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">

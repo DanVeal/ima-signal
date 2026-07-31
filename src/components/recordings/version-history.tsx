@@ -60,7 +60,7 @@ export function VersionHistory({
             </Badge>
 
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-ink-900">
+              <p className="truncate text-sm font-medium text-text-primary">
                 {v.originalFilename}
                 {v.restoredFromVersionId && (
                   <span className="ml-2 inline-flex items-center gap-1 text-xs font-normal text-text-muted">

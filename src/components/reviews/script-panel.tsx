@@ -41,7 +41,7 @@ export function ScriptPanel({ data }: { data: ScriptPanelData }) {
               <span className="w-6 shrink-0 select-none text-right font-mono text-xs text-text-muted">
                 {line.sortOrder + 1}
               </span>
-              <p className="min-w-0 flex-1 text-[15px] leading-relaxed whitespace-pre-wrap text-ink-800">
+              <p className="min-w-0 flex-1 text-[15px] leading-relaxed whitespace-pre-wrap text-text-emphasis">
                 {line.text ?? <span className="text-text-muted italic">— blank —</span>}
               </p>
             </li>

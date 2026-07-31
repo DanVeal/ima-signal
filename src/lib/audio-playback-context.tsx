@@ -20,6 +20,13 @@ import {
   useRef,
   useState,
 } from "react";
+import { useLocalStorageState } from "@/lib/use-local-storage-state";
+import {
+  DEFAULT_PLAYBACK_RATE,
+  DEFAULT_SKIP_SECONDS,
+  PLAYBACK_RATE_KEY,
+  SKIP_SECONDS_KEY,
+} from "@/lib/playback-preferences";
 
 interface AudioPlaybackContextValue {
   currentMs: number;
@@ -51,9 +58,18 @@ export function AudioPlaybackProvider({
 }) {
   const [currentMs, setCurrentMs] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackRate, setPlaybackRateState] = useState(1);
+  const [playbackRate, setPlaybackRateState] = useState(DEFAULT_PLAYBACK_RATE);
+  const [preferredRate] = useLocalStorageState(PLAYBACK_RATE_KEY, DEFAULT_PLAYBACK_RATE);
   const frameRef = useRef<number | null>(null);
   const lastTickRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    // Applies the user's saved default once on mount only — a later change
+    // in Settings shouldn't retroactively alter an in-progress session.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPlaybackRateState(preferredRate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -148,7 +164,17 @@ export function RealAudioPlaybackProvider({
   const [durationMs, setDurationMs] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBuffering, setIsBuffering] = useState(true);
-  const [playbackRate, setPlaybackRateState] = useState(1);
+  const [playbackRate, setPlaybackRateState] = useState(DEFAULT_PLAYBACK_RATE);
+  const [preferredRate] = useLocalStorageState(PLAYBACK_RATE_KEY, DEFAULT_PLAYBACK_RATE);
+
+  useEffect(() => {
+    // Applies the user's saved default once on mount only — a later change
+    // in Settings shouldn't retroactively alter an in-progress session.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPlaybackRateState(preferredRate);
+    if (audioRef.current) audioRef.current.playbackRate = preferredRate;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -229,6 +255,8 @@ export function RealAudioPlaybackProvider({
     if (audioRef.current) audioRef.current.playbackRate = rate;
   }, []);
 
+  const [skipSeconds] = useLocalStorageState(SKIP_SECONDS_KEY, DEFAULT_SKIP_SECONDS);
+
   useEffect(() => {
     const isEditable = (el: EventTarget | null) =>
       el instanceof HTMLElement && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
@@ -240,16 +268,16 @@ export function RealAudioPlaybackProvider({
         toggle();
       } else if (e.code === "ArrowRight") {
         e.preventDefault();
-        skip(5000);
+        skip(skipSeconds * 1000);
       } else if (e.code === "ArrowLeft") {
         e.preventDefault();
-        skip(-5000);
+        skip(-skipSeconds * 1000);
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [toggle, skip]);
+  }, [toggle, skip, skipSeconds]);
 
   return (
     <AudioPlaybackContext.Provider

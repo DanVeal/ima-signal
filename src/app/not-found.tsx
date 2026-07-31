@@ -11,7 +11,7 @@ export default function NotFound() {
         <Compass className="size-6" strokeWidth={1.75} />
       </div>
       <div className="space-y-1.5">
-        <h1 className="text-xl font-semibold text-ink-900">We couldn&apos;t find that page</h1>
+        <h1 className="text-xl font-semibold text-text-primary">We couldn&apos;t find that page</h1>
         <p className="max-w-sm text-sm text-text-muted">
           The project, script or recording you&apos;re looking for may have moved, or you may not
           have access to it.

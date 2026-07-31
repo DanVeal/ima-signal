@@ -61,11 +61,11 @@ export function ReviewSidebar({
         <div className="space-y-1.5 text-sm">
           <div className="flex items-center justify-between">
             <span className="text-text-secondary">Open comments</span>
-            <span className="font-medium text-ink-900">{openComments}</span>
+            <span className="font-medium text-text-primary">{openComments}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-text-secondary">Open change requests</span>
-            <span className="font-medium text-ink-900">{openChangeRequests}</span>
+            <span className="font-medium text-text-primary">{openChangeRequests}</span>
           </div>
         </div>
       </div>
@@ -82,7 +82,7 @@ export function ReviewSidebar({
                   <AvatarFallback className="bg-ink-100 text-[10px] font-medium text-ink-700">{p.avatarInitials}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <p className="truncate text-sm text-ink-800">{p.fullName}</p>
+                  <p className="truncate text-sm text-text-emphasis">{p.fullName}</p>
                   <p className="truncate text-[11px] text-text-muted">{p.roleAtTime.replaceAll("_", " ")}</p>
                 </div>
               </li>
@@ -99,7 +99,7 @@ export function ReviewSidebar({
           <ul className="space-y-2.5">
             {latestActivity.slice(0, 5).map((event) => (
               <li key={event.id} className="text-xs">
-                <p className="text-ink-800">
+                <p className="text-text-emphasis">
                   <span className="font-medium">{event.actorName}</span> · {event.action.replaceAll("_", " ")}
                 </p>
                 <p className="text-text-muted">{formatDateTime(event.createdAt)}</p>

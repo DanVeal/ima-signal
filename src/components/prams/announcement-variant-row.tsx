@@ -20,7 +20,7 @@ export function AnnouncementVariantRow({
     >
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate text-sm font-medium text-ink-900">{variant.fullReference}</p>
+          <p className="truncate text-sm font-medium text-text-primary">{variant.fullReference}</p>
           {variant.tags.map((tag) => (
             <span
               key={tag}

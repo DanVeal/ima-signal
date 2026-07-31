@@ -6,7 +6,7 @@ function DateStat({ label, date }: { label: string; date: string | null }) {
   return (
     <div>
       <p className="text-[11px] font-medium tracking-wide text-text-muted uppercase">{label}</p>
-      <p className="mt-0.5 text-sm font-medium text-ink-900">{date ? formatDate(date) : "—"}</p>
+      <p className="mt-0.5 text-sm font-medium text-text-primary">{date ? formatDate(date) : "—"}</p>
     </div>
   );
 }
@@ -28,7 +28,7 @@ export function RealProjectMeta({ project }: { project: ProjectDetail }) {
                 {initialsFromName(project.ownerName)}
               </AvatarFallback>
             </Avatar>
-            <span className="text-sm text-ink-800">{project.ownerName}</span>
+            <span className="text-sm text-text-emphasis">{project.ownerName}</span>
           </div>
         ) : (
           <p className="mt-1.5 text-sm text-text-muted">Not assigned</p>
@@ -37,7 +37,7 @@ export function RealProjectMeta({ project }: { project: ProjectDetail }) {
 
       <div className="col-span-2 sm:col-span-1">
         <p className="text-[11px] font-medium tracking-wide text-text-muted uppercase">Recording studio</p>
-        <p className="mt-1.5 text-sm text-ink-800">{project.studioName ?? "Not assigned"}</p>
+        <p className="mt-1.5 text-sm text-text-emphasis">{project.studioName ?? "Not assigned"}</p>
       </div>
 
       <div className="col-span-2 sm:col-span-2">
@@ -51,7 +51,7 @@ export function RealProjectMeta({ project }: { project: ProjectDetail }) {
                 </AvatarFallback>
               </Avatar>
             ))}
-            <span className="ml-3 self-center text-sm text-ink-800">{project.jet2ReviewerNames.join(", ")}</span>
+            <span className="ml-3 self-center text-sm text-text-emphasis">{project.jet2ReviewerNames.join(", ")}</span>
           </div>
         ) : (
           <p className="mt-1.5 text-sm text-text-muted">None assigned yet</p>

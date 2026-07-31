@@ -29,7 +29,7 @@ export function ProductivityWidgets() {
           >
             <PlayCircle className="size-8 shrink-0 text-brand" />
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-ink-900">{lastRecording.label}</p>
+              <p className="truncate text-sm font-medium text-text-primary">{lastRecording.label}</p>
               <p className="text-xs text-text-muted">Last opened recording</p>
             </div>
           </Link>
@@ -50,7 +50,7 @@ export function ProductivityWidgets() {
                     className="-mx-2 flex items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-ink-50"
                   >
                     <Icon className="size-3.5 shrink-0 text-text-muted" />
-                    <span className="min-w-0 flex-1 truncate text-sm text-ink-800">{item.label}</span>
+                    <span className="min-w-0 flex-1 truncate text-sm text-text-emphasis">{item.label}</span>
                   </Link>
                 </li>
               );

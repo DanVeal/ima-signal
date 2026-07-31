@@ -123,7 +123,7 @@ export function SiteHeader() {
                 <p className="mb-2 text-[11px] font-medium tracking-wide text-text-muted uppercase">
                   Previewing as
                 </p>
-                <p className="text-sm font-medium text-ink-800">{currentUser.fullName}</p>
+                <p className="text-sm font-medium text-text-emphasis">{currentUser.fullName}</p>
                 <p className="text-xs text-text-muted">{ROLE_LABEL[currentUser.role]}</p>
               </div>
             </SheetContent>

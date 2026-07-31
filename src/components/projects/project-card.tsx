@@ -24,7 +24,7 @@ export function ProjectCard({ project }: { project: ProjectListRow }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="truncate text-[15px] font-semibold text-ink-900 group-hover:text-brand">{project.name}</h3>
+          <h3 className="truncate text-[15px] font-semibold text-text-primary group-hover:text-brand">{project.name}</h3>
           <p className="mt-0.5 truncate text-xs text-text-muted">
             {[project.campaignName, project.studioName].filter(Boolean).join(" · ") || project.jobNumber}
           </p>

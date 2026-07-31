@@ -193,7 +193,7 @@ export function AudioReviewWorkspace({
       <PageContainer width="wide">
         <Link
           href={(backHref ?? `/projects/${project.id}`) as never}
-          className="mb-3 inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-ink-900"
+          className="mb-3 inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-text-primary"
         >
           <ChevronLeft className="size-3.5" />
           {backLabel ?? project.name}
@@ -202,7 +202,7 @@ export function AudioReviewWorkspace({
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight text-ink-900 sm:text-3xl">
+              <h1 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
                 {script.title}
               </h1>
               <Badge variant="outline" className="font-mono text-[11px]">

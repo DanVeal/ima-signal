@@ -17,7 +17,7 @@ export function RealProjectSummary({ project }: { project: ProjectDetail }) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <div className="rounded-lg border border-border bg-surface-raised p-5 lg:col-span-2">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-ink-900">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-text-primary">
           <FileText className="size-4 text-brand" />
           Description
         </h3>
@@ -28,7 +28,7 @@ export function RealProjectSummary({ project }: { project: ProjectDetail }) {
 
       <div className="space-y-4">
         <div className="rounded-lg border border-border bg-surface-raised p-5">
-          <h3 className="text-sm font-semibold text-ink-900">Review progress</h3>
+          <h3 className="text-sm font-semibold text-text-primary">Review progress</h3>
           <p className="mt-2 text-xs text-text-muted">
             {project.progress.approved}/{project.progress.total} recordings approved
           </p>
@@ -53,7 +53,7 @@ export function RealProjectSummary({ project }: { project: ProjectDetail }) {
               {project.openChangeRequestCount} open change request
               {project.openChangeRequestCount === 1 ? "" : "s"}
             </h3>
-            <p className="mt-1 text-xs text-ink-800">Waiting on the studio or the next reviewer to address.</p>
+            <p className="mt-1 text-xs text-text-emphasis">Waiting on the studio or the next reviewer to address.</p>
           </div>
         )}
       </div>

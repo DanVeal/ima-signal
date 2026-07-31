@@ -61,7 +61,7 @@ export function TranscriptPane({
 
   return (
     <div
-      className="text-[19px] leading-[2] font-normal text-ink-800 sm:text-[21px]"
+      className="text-[19px] leading-[2] font-normal text-text-emphasis sm:text-[21px]"
       aria-label="Transcript"
       role="group"
     >

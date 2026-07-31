@@ -18,7 +18,7 @@ function QueueRow({ item }: { item: ReviewQueueEntry }) {
       className="group flex flex-col gap-3 border-b border-border-subtle px-5 py-4 transition-colors last:border-b-0 hover:bg-ink-50 sm:flex-row sm:items-center sm:justify-between"
     >
       <div className="min-w-0">
-        <p className="truncate text-sm font-medium text-ink-900">{item.audioItem.label}</p>
+        <p className="truncate text-sm font-medium text-text-primary">{item.audioItem.label}</p>
         <p className="truncate text-xs text-text-muted">{item.audioItem.projectName}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2">

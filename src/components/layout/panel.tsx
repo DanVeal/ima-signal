@@ -21,7 +21,7 @@ export function Panel({
     <section className={cn("rounded-lg border border-border bg-surface-raised", className)}>
       <div className="flex items-start justify-between gap-4 border-b border-border-subtle px-5 py-4">
         <div>
-          <h2 className="text-sm font-semibold text-ink-900">{title}</h2>
+          <h2 className="text-sm font-semibold text-text-primary">{title}</h2>
           {description && <p className="mt-0.5 text-xs text-text-muted">{description}</p>}
         </div>
         {href && (

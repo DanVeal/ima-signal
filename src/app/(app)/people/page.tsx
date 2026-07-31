@@ -63,7 +63,7 @@ export default async function PeoplePage() {
                           </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-ink-900">{user.fullName}</p>
+                          <p className="truncate text-sm font-medium text-text-primary">{user.fullName}</p>
                           <p className="truncate text-xs text-text-muted">{ROLE_LABEL[user.role]}</p>
                         </div>
                       </li>

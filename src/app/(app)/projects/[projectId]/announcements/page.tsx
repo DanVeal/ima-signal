@@ -19,7 +19,7 @@ export default async function PramsAnnouncementsPage({
     <PageContainer width="wide">
       <Link
         href={`/projects/${projectId}`}
-        className="mb-4 inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-ink-900"
+        className="mb-4 inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-text-primary"
       >
         <ChevronLeft className="size-3.5" />
         {project.name}

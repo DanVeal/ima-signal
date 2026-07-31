@@ -90,7 +90,7 @@ export default async function PramsRegistryPage() {
             {sections.map(({ section, variantCount }) => (
               <div key={section.id} className="flex items-center justify-between px-5 py-3.5">
                 <div>
-                  <p className="text-sm font-medium text-ink-900">{section.name}</p>
+                  <p className="text-sm font-medium text-text-primary">{section.name}</p>
                   <p className="text-xs text-text-muted">
                     {section.available ? "Transcribed from workbook" : "Structure only — not yet transcribed"}
                   </p>
@@ -135,7 +135,7 @@ export default async function PramsRegistryPage() {
                           </span>
                         ))}
                       </div>
-                      <p className={group.text ? "text-sm text-ink-900" : "text-sm text-text-muted italic"}>
+                      <p className={group.text ? "text-sm text-text-primary" : "text-sm text-text-muted italic"}>
                         {group.text ?? "(intentionally blank)"}
                       </p>
                     </div>

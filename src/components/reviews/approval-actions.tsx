@@ -36,7 +36,7 @@ function NoteAction({
         }
       />
       <PopoverContent className="w-72 space-y-2">
-        <p className="text-xs font-medium text-ink-800">{label} — optional note</p>
+        <p className="text-xs font-medium text-text-emphasis">{label} — optional note</p>
         <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add context…" className="min-h-16 text-sm" />
         <div className="flex justify-end gap-1.5">
           <Button size="xs" variant="ghost" onClick={() => setOpen(false)}>

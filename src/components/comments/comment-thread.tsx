@@ -60,7 +60,7 @@ export function CommentThread({
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-xs font-medium text-ink-900">{author?.fullName}</p>
+                  <p className="text-xs font-medium text-text-primary">{author?.fullName}</p>
                   <p className="text-[11px] text-text-muted">
                     {org?.name} · {formatDateTime(comment.createdAt)}
                   </p>
@@ -75,7 +75,7 @@ export function CommentThread({
             {comment.selectedText && (
               <button
                 onClick={() => comment.startMs !== undefined && seek(comment.startMs)}
-                className="mt-2 block w-full rounded-md bg-comment-100 px-2.5 py-1.5 text-left text-xs text-ink-800 hover:bg-comment-100/70"
+                className="mt-2 block w-full rounded-md bg-comment-100 px-2.5 py-1.5 text-left text-xs text-ink-700 hover:bg-comment-100/70"
               >
                 <span className="font-mono text-comment">
                   {comment.startMs !== undefined ? formatTimecode(comment.startMs) : ""}
@@ -84,8 +84,8 @@ export function CommentThread({
               </button>
             )}
 
-            <p className="mt-2 text-sm text-ink-800">{comment.body}</p>
-            <span className="mt-1.5 inline-block rounded-full bg-ink-100 px-2 py-0.5 text-[11px] text-text-secondary">
+            <p className="mt-2 text-sm text-text-emphasis">{comment.body}</p>
+            <span className="mt-1.5 inline-block rounded-full bg-ink-100 px-2 py-0.5 text-[11px] text-ink-600">
               {CATEGORY_LABEL[comment.category]}
             </span>
 
@@ -95,9 +95,9 @@ export function CommentThread({
                   const replyAuthor = getUser(reply.authorUserId);
                   return (
                     <li key={reply.id} className="text-xs">
-                      <span className="font-medium text-ink-900">{replyAuthor?.fullName}</span>{" "}
+                      <span className="font-medium text-text-primary">{replyAuthor?.fullName}</span>{" "}
                       <span className="text-text-muted">{formatDateTime(reply.createdAt)}</span>
-                      <p className="mt-0.5 text-ink-800">{reply.body}</p>
+                      <p className="mt-0.5 text-text-emphasis">{reply.body}</p>
                     </li>
                   );
                 })}

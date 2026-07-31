@@ -43,7 +43,7 @@ export function ReviewHeader({
     <div className="mb-8 flex flex-col gap-5 border-b border-border-subtle pb-6 sm:flex-row sm:items-start sm:justify-between">
       <div>
         <p className="mb-2 text-xs font-medium tracking-wide text-brand uppercase">Recording · Review</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl">{label}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">{label}</h1>
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-text-secondary">
           {currentVersion && (
             <>

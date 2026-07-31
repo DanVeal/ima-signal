@@ -146,7 +146,7 @@ export function PramsMatrix({
     <div className="space-y-6">
       <Link
         href={backHref as never}
-        className="inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-ink-900"
+        className="inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-text-primary"
       >
         <ChevronLeft className="size-3.5" />
         {backLabel}
@@ -154,7 +154,7 @@ export function PramsMatrix({
 
       <>
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-ink-900 uppercase">{phase.name}</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-text-primary uppercase">{phase.name}</h2>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-text-secondary">
             <span>{countWord(phase.variants.length)} announcement variants</span>
             <span className="text-ink-300">·</span>
@@ -180,7 +180,7 @@ export function PramsMatrix({
                       key={v.id}
                       className="border-b border-l border-border-subtle bg-surface-raised px-4 py-3 text-left align-top first:border-l-0"
                     >
-                      <span className="block text-[13px] leading-snug font-semibold text-ink-900">
+                      <span className="block text-[13px] leading-snug font-semibold text-text-primary">
                         {v.fullReference}
                       </span>
                       {v.tags.length > 0 && (
@@ -223,8 +223,8 @@ export function PramsMatrix({
                                 : isBlank
                                   ? "text-text-muted italic hover:bg-ink-100"
                                   : isShared
-                                    ? "bg-brand-100/50 text-ink-900 hover:bg-brand-100"
-                                    : "text-ink-900 hover:bg-ink-100",
+                                    ? "bg-brand-100/50 text-text-primary hover:bg-brand-100"
+                                    : "text-text-primary hover:bg-ink-100",
                             )}
                           >
                             {isBlank ? "—" : group.text}
@@ -253,7 +253,7 @@ export function PramsMatrix({
                       </p>
                       <ul className="mt-1.5 space-y-0.5">
                         {selectedVariants.map((v) => (
-                          <li key={v.id} className="text-sm font-medium text-ink-900">
+                          <li key={v.id} className="text-sm font-medium text-text-primary">
                             {v.fullReference}
                           </li>
                         ))}
@@ -269,7 +269,7 @@ export function PramsMatrix({
                   type="button"
                   onClick={() => setSelection(null)}
                   aria-label="Close editor"
-                  className="rounded-md p-1 text-text-muted hover:bg-ink-100 hover:text-ink-800"
+                  className="rounded-md p-1 text-text-muted hover:bg-ink-100 hover:text-ink-700"
                 >
                   <X className="size-4" />
                 </button>
@@ -331,7 +331,7 @@ export function PramsMatrix({
               {phase.variants
                 .filter((v) => pendingSharedEdit.variantIds.includes(v.id))
                 .map((v) => (
-                  <li key={v.id} className="text-sm font-medium text-ink-900">
+                  <li key={v.id} className="text-sm font-medium text-text-primary">
                     {v.fullReference}
                   </li>
                 ))}
@@ -341,7 +341,7 @@ export function PramsMatrix({
               <p className="mb-1.5 text-xs font-medium tracking-wide text-text-muted uppercase">
                 Proposed wording
               </p>
-              <p className="rounded-md border border-border-subtle bg-white px-3 py-2 text-sm text-ink-900">
+              <p className="rounded-md border border-border-subtle bg-white px-3 py-2 text-sm text-text-primary">
                 {pendingSharedEdit.newText}
               </p>
             </div>
@@ -364,7 +364,7 @@ export function PramsMatrix({
                         "rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
                         pendingSharedEdit.overrideVariantId === v.id
                           ? "bg-brand text-white"
-                          : "bg-ink-100 text-text-secondary hover:bg-ink-200",
+                          : "bg-ink-100 text-ink-600 hover:bg-ink-200",
                       )}
                     >
                       {v.fullReference}

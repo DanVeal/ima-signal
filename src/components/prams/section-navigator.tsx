@@ -47,7 +47,7 @@ export function SectionNavigator({ projectId }: { projectId: string }) {
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-semibold text-ink-900">{section.name}</p>
+                      <p className="truncate text-sm font-semibold text-text-primary">{section.name}</p>
                       {!section.available && (
                         <span className="rounded-full bg-ink-100 px-2 py-0.5 text-[10px] font-medium tracking-wide text-text-muted uppercase">
                           Not yet transcribed

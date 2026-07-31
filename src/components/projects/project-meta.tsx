@@ -7,7 +7,7 @@ function DateStat({ label, date }: { label: string; date: string }) {
   return (
     <div>
       <p className="text-[11px] font-medium tracking-wide text-text-muted uppercase">{label}</p>
-      <p className="mt-0.5 text-sm font-medium text-ink-900">{formatDate(date)}</p>
+      <p className="mt-0.5 text-sm font-medium text-text-primary">{formatDate(date)}</p>
     </div>
   );
 }
@@ -32,7 +32,7 @@ export function ProjectMeta({ project }: { project: Project }) {
               {owner?.avatarInitials}
             </AvatarFallback>
           </Avatar>
-          <span className="text-sm text-ink-800">{owner?.fullName}</span>
+          <span className="text-sm text-text-emphasis">{owner?.fullName}</span>
         </div>
       </div>
 
@@ -40,7 +40,7 @@ export function ProjectMeta({ project }: { project: Project }) {
         <p className="text-[11px] font-medium tracking-wide text-text-muted uppercase">
           Recording studio
         </p>
-        <p className="mt-1.5 text-sm text-ink-800">{studio?.name}</p>
+        <p className="mt-1.5 text-sm text-text-emphasis">{studio?.name}</p>
       </div>
 
       <div className="col-span-2 sm:col-span-2">
@@ -55,7 +55,7 @@ export function ProjectMeta({ project }: { project: Project }) {
               </AvatarFallback>
             </Avatar>
           ))}
-          <span className="ml-3 self-center text-sm text-ink-800">
+          <span className="ml-3 self-center text-sm text-text-emphasis">
             {reviewers.map((r) => r!.fullName).join(", ")}
           </span>
         </div>

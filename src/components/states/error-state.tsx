@@ -24,7 +24,7 @@ export function ErrorState({
         <AlertTriangle className="size-5" strokeWidth={1.75} />
       </div>
       <div className="space-y-1">
-        <p className="text-sm font-medium text-ink-800">{title}</p>
+        <p className="text-sm font-medium text-text-emphasis">{title}</p>
         <p className="mx-auto max-w-sm text-sm text-text-muted">{description}</p>
       </div>
       {onRetry && (
@@ -57,7 +57,7 @@ export function PermissionDeniedState({
         <Lock className="size-5" strokeWidth={1.75} />
       </div>
       <div className="space-y-1">
-        <p className="text-sm font-medium text-ink-800">{title}</p>
+        <p className="text-sm font-medium text-text-emphasis">{title}</p>
         <p className="mx-auto max-w-sm text-sm text-text-muted">{description}</p>
       </div>
     </div>

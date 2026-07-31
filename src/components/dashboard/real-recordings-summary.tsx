@@ -53,7 +53,7 @@ export async function RealRecordingsSummary() {
               className="flex items-center gap-4 rounded-lg border border-border bg-surface-raised px-4 py-2.5 transition-colors hover:border-brand/40 hover:bg-brand-100/10"
             >
               <div className="w-40 shrink-0">
-                <p className="truncate text-sm font-medium text-ink-900">{v.label.split(" — ")[0]}</p>
+                <p className="truncate text-sm font-medium text-text-primary">{v.label.split(" — ")[0]}</p>
                 <p className="truncate text-xs text-text-muted">{v.projectName}</p>
               </div>
               <div className="min-w-0 flex-1">
@@ -89,7 +89,7 @@ function StatTile({
         <Icon className="size-3.5" />
         <span className="text-xs">{label}</span>
       </div>
-      <p className={`text-2xl font-semibold tabular-nums ${tone === "warning" && value > 0 ? "text-important" : "text-ink-900"}`}>
+      <p className={`text-2xl font-semibold tabular-nums ${tone === "warning" && value > 0 ? "text-important" : "text-text-primary"}`}>
         {value}
       </p>
     </div>

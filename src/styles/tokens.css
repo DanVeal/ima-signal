@@ -55,6 +55,8 @@
   /* ---- Text ---- */
   --text-primary: var(--ink-900);
   --text-secondary: var(--ink-600);
+  /* Between primary and secondary — headings/labels that want more weight than secondary text without being the page's single strongest heading. */
+  --text-emphasis: var(--ink-800);
   --text-muted: var(--ink-500);
   --text-inverse: var(--ink-50);
   --text-on-brand: #ffffff;
@@ -129,6 +131,7 @@
 
   --text-primary: var(--ink-50);
   --text-secondary: var(--ink-300);
+  --text-emphasis: var(--ink-150);
   --text-muted: var(--ink-400);
   --text-inverse: var(--ink-900);
 

@@ -117,7 +117,7 @@ export function TranscriptPanel({
             {scriptLines.map((line, i) => (
               <li key={i} className="flex gap-4 px-4 py-2.5">
                 <span className="w-6 shrink-0 select-none text-right font-mono text-xs text-text-muted">{line.sortOrder + 1}</span>
-                <p className="min-w-0 flex-1 text-[15px] leading-relaxed whitespace-pre-wrap text-ink-800">{line.text}</p>
+                <p className="min-w-0 flex-1 text-[15px] leading-relaxed whitespace-pre-wrap text-text-emphasis">{line.text}</p>
               </li>
             ))}
           </ol>
@@ -130,7 +130,7 @@ export function TranscriptPanel({
               </p>
             </div>
             <div className="max-h-[360px] overflow-y-auto p-4">
-              <p className="text-[15px] leading-relaxed whitespace-pre-wrap text-ink-800">{transcript.currentVersion.fullText}</p>
+              <p className="text-[15px] leading-relaxed whitespace-pre-wrap text-text-emphasis">{transcript.currentVersion.fullText}</p>
             </div>
           </div>
         ) : (
@@ -198,7 +198,7 @@ export function TranscriptPanel({
                     } ${isActive ? "bg-brand-100/15" : ""}`}
                   >
                     <span className="w-6 shrink-0 select-none text-right font-mono text-xs text-text-muted">{line.sortOrder + 1}</span>
-                    <p className="min-w-0 flex-1 text-[15px] leading-relaxed whitespace-pre-wrap text-ink-800">{line.text}</p>
+                    <p className="min-w-0 flex-1 text-[15px] leading-relaxed whitespace-pre-wrap text-text-emphasis">{line.text}</p>
                   </li>
                 );
               })}
@@ -229,7 +229,7 @@ export function TranscriptPanel({
                   >
                     <span className="w-12 shrink-0 select-none pt-0.5 font-mono text-[11px] text-text-muted">{formatTimecode(segment.startMs)}</span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[15px] leading-relaxed whitespace-pre-wrap text-ink-800">{segment.text}</p>
+                      <p className="text-[15px] leading-relaxed whitespace-pre-wrap text-text-emphasis">{segment.text}</p>
                       {pronunciation.length > 0 && (
                         <p className="mt-1 text-[11px] text-violet-700 dark:text-violet-300">
                           Possible pronunciation: {pronunciation.map((p) => p.word).join(", ")}
@@ -257,7 +257,7 @@ export function TranscriptPanel({
                   key={f.id}
                   onClick={() => onSelectFinding(f)}
                   className={`cursor-pointer rounded px-0.5 transition-colors ${
-                    f.classification === "perfect" ? "text-ink-800" : CLASSIFICATION_CLASS[f.classification]
+                    f.classification === "perfect" ? "text-text-emphasis" : CLASSIFICATION_CLASS[f.classification]
                   } ${isMissing ? "line-through decoration-red-400" : ""} ${highlightedFindingId === f.id ? "ring-2 ring-brand/50" : ""} ${
                     visible ? "" : "opacity-40"
                   }`}
@@ -292,13 +292,13 @@ export function TranscriptPanel({
                   {f.confidence != null && <span className="text-[11px] text-text-muted">{Math.round(f.confidence * 100)}% confidence</span>}
                 </div>
                 {f.scriptText && (
-                  <p className="text-sm text-ink-800">
+                  <p className="text-sm text-text-emphasis">
                     <span className="text-text-muted">Script: </span>
                     {f.scriptText}
                   </p>
                 )}
                 {f.transcriptText && (
-                  <p className="text-sm text-ink-800">
+                  <p className="text-sm text-text-emphasis">
                     <span className="text-text-muted">Heard: </span>
                     {f.transcriptText}
                   </p>

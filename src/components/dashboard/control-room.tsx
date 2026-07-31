@@ -77,7 +77,7 @@ export async function ControlRoom() {
   return (
     <div className="space-y-12">
       <div>
-        <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-ink-900 sm:text-5xl">{headline}</h1>
+        <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-text-primary sm:text-5xl">{headline}</h1>
         <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-text-secondary">{subline}</p>
       </div>
 
@@ -136,7 +136,7 @@ function AttentionList({ items }: { items: AttentionItem[] }) {
         >
           <ShieldAlert className="size-4 shrink-0 text-amber-500" />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-ink-900">{item.audioItem.label}</p>
+            <p className="truncate text-sm font-medium text-text-primary">{item.audioItem.label}</p>
             <p className="truncate text-xs text-text-muted">
               {item.audioItem.projectName} · {item.message}
             </p>
@@ -170,7 +170,7 @@ function ReviewsAwaitingList({ items }: { items: ReviewAwaitingApproval[] }) {
             className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-ink-50"
           >
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-ink-900">{item.audioItem.label}</p>
+              <p className="truncate text-sm font-medium text-text-primary">{item.audioItem.label}</p>
               <p className="truncate text-xs text-text-muted">{item.audioItem.projectName}</p>
             </div>
             <Badge variant="outline" className="shrink-0 text-xs">
@@ -209,7 +209,7 @@ function AiQueueList({ items }: { items: AiQueueItem[] }) {
               <span className="size-2 shrink-0 rounded-full bg-ink-300" />
             )}
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-ink-900">{item.audioItem.label}</p>
+              <p className="truncate text-sm font-medium text-text-primary">{item.audioItem.label}</p>
               <p className="truncate text-xs text-text-muted">{item.audioItem.projectName}</p>
             </div>
             <span className="shrink-0 text-xs text-text-secondary">{JOB_TYPE_LABEL[item.jobType] ?? item.jobType}</span>
@@ -244,7 +244,7 @@ function HealthOverview({
         {Object.entries(counts).map(([rating, count]) => (
           <li key={rating} className="flex items-center gap-2 rounded-lg border border-border bg-surface-raised px-3 py-2">
             <span className={`size-2 shrink-0 rounded-full ${HEALTH_RATING_DOT[rating]}`} />
-            <span className="text-sm font-medium text-ink-900 tabular-nums">{count}</span>
+            <span className="text-sm font-medium text-text-primary tabular-nums">{count}</span>
             <span className="truncate text-xs text-text-muted">{HEALTH_RATING_LABEL[rating]}</span>
           </li>
         ))}
@@ -258,7 +258,7 @@ function HealthOverview({
                 className="-mx-2 flex items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-ink-50"
               >
                 <AlertTriangle className="size-3.5 shrink-0 text-amber-500" />
-                <span className="min-w-0 flex-1 truncate text-sm text-ink-800">{item.label}</span>
+                <span className="min-w-0 flex-1 truncate text-sm text-text-emphasis">{item.label}</span>
                 <span className="shrink-0 text-xs text-text-muted">{HEALTH_RATING_LABEL[item.rating]}</span>
               </Link>
             </li>
@@ -289,7 +289,7 @@ function UpcomingDeliveriesList({ items }: { items: UpcomingDelivery[] }) {
             className="-mx-2 flex items-center justify-between gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-ink-50"
           >
             <span className="min-w-0">
-              <span className="block truncate text-sm font-medium text-ink-900">{item.projectName}</span>
+              <span className="block truncate text-sm font-medium text-text-primary">{item.projectName}</span>
               <span className="flex items-center gap-1 text-xs text-text-muted">
                 <CalendarClock className="size-3" />
                 {item.nextDeadlineLabel}

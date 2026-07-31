@@ -33,8 +33,8 @@ export function ActivityFeed({
               <Icon className="size-3.5" strokeWidth={1.75} />
             </span>
             <div className="min-w-0">
-              <p className="text-sm text-ink-800">
-                <span className="font-medium text-ink-900">{event.actorName}</span> {activityVerb(event.action)}
+              <p className="text-sm text-text-emphasis">
+                <span className="font-medium text-text-primary">{event.actorName}</span> {activityVerb(event.action)}
                 {event.subtitle && <span className="text-text-muted"> · {event.subtitle}</span>}
               </p>
               <p className="mt-0.5 text-xs text-text-muted">{formatDateTime(event.createdAt)}</p>

@@ -54,7 +54,7 @@ export function HealthSummary({ health }: { health: HealthSnapshotDetail | null 
               }`}
             />
             <div className="min-w-0">
-              <p className="font-medium text-ink-800">{CATEGORY_LABEL[score.category]}</p>
+              <p className="font-medium text-text-emphasis">{CATEGORY_LABEL[score.category]}</p>
               <p className="text-text-muted">{score.summary}</p>
             </div>
           </li>

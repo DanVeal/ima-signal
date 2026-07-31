@@ -41,7 +41,7 @@ export function CommentComposer({
       className="space-y-3 rounded-md border border-border bg-surface-sunken p-3"
     >
       {selectedText && (
-        <div className="rounded-md border border-comment/25 bg-comment-100 px-2.5 py-2 text-xs text-ink-800">
+        <div className="rounded-md border border-comment/25 bg-comment-100 px-2.5 py-2 text-xs text-ink-700">
           <p className="font-medium text-comment">
             {startMs !== undefined && endMs !== undefined
               ? `${formatTimecode(startMs)}–${formatTimecode(endMs)}`

@@ -61,11 +61,11 @@ export function DifferencesList({ differences }: { differences: QcDifference[] }
                 <dl className="mt-2 space-y-1 text-xs">
                   <div className="flex gap-1.5">
                     <dt className="shrink-0 text-text-muted">Expected</dt>
-                    <dd className="text-ink-800">&ldquo;{diff.expectedText}&rdquo;</dd>
+                    <dd className="text-text-emphasis">&ldquo;{diff.expectedText}&rdquo;</dd>
                   </div>
                   <div className="flex gap-1.5">
                     <dt className="shrink-0 text-text-muted">Recorded</dt>
-                    <dd className="text-ink-800">&ldquo;{diff.actualText}&rdquo;</dd>
+                    <dd className="text-text-emphasis">&ldquo;{diff.actualText}&rdquo;</dd>
                   </div>
                 </dl>
                 {diff.scriptSectionRef && (

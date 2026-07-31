@@ -72,7 +72,7 @@ export function QcSummary({
             className="flex items-center justify-between rounded-md border border-border-subtle px-3 py-2"
           >
             <span className="text-xs text-text-secondary">{SEVERITY_COPY[severity]}</span>
-            <span className="font-mono text-sm font-medium text-ink-900">{count}</span>
+            <span className="font-mono text-sm font-medium text-text-primary">{count}</span>
           </div>
         ))}
       </div>

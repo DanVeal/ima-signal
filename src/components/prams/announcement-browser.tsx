@@ -133,7 +133,7 @@ export function AnnouncementBrowser({ projectId }: { projectId: string }) {
         <button
           type="button"
           onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-          className="w-full rounded-lg border border-border-subtle py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-ink-50 hover:text-ink-900"
+          className="w-full rounded-lg border border-border-subtle py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-ink-50 hover:text-text-primary"
         >
           Load more ({results.length - visibleCount} remaining)
         </button>

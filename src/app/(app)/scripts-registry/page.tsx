@@ -82,7 +82,7 @@ export default async function ScriptsRegistryPage() {
             <div key={variant.id} className="rounded-lg border border-border p-4">
               <div className="mb-2 flex items-baseline justify-between gap-3">
                 <div>
-                  <p className="text-sm font-medium text-ink-900">
+                  <p className="text-sm font-medium text-text-primary">
                     {variant.variant_code}
                     <span className="ml-2 text-xs font-normal text-text-muted">{script.title}</span>
                   </p>
@@ -100,7 +100,7 @@ export default async function ScriptsRegistryPage() {
               {revision ? (
                 <div className="space-y-1 rounded-md bg-surface-sunken px-3 py-2">
                   {revision.script_lines.map((line) => (
-                    <p key={line.id} className="text-sm text-ink-900">
+                    <p key={line.id} className="text-sm text-text-primary">
                       {line.text}
                     </p>
                   ))}

@@ -45,7 +45,7 @@ export function RoleSwitcher() {
           </AvatarFallback>
         </Avatar>
         <span className="hidden text-left sm:block">
-          <span className="block text-xs leading-tight font-medium text-ink-800">
+          <span className="block text-xs leading-tight font-medium text-text-emphasis">
             {currentUser.fullName}
           </span>
           <span className="block text-[11px] leading-tight text-text-muted">
@@ -76,7 +76,7 @@ export function RoleSwitcher() {
                     </AvatarFallback>
                   </Avatar>
                   <span className="flex flex-col">
-                    <span className="text-xs font-medium text-ink-800">{user.fullName}</span>
+                    <span className="text-xs font-medium text-text-emphasis">{user.fullName}</span>
                     <span className="text-[11px] text-text-muted">{ROLE_LABEL[user.role]}</span>
                   </span>
                 </DropdownMenuItem>

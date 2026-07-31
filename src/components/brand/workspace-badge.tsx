@@ -18,7 +18,7 @@ export function WorkspaceBadge({ className }: { className?: string }) {
       )}
     >
       <Jet2Mark className="h-3 w-auto" />
-      <ChevronsUpDown className="size-3 text-ink-400 group-hover:text-ink-600" />
+      <ChevronsUpDown className="size-3 text-ink-400 group-hover:text-text-secondary" />
     </button>
   );
 }

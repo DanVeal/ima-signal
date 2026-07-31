@@ -17,7 +17,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
         <AlertTriangle className="size-6" strokeWidth={1.75} />
       </div>
       <div className="space-y-1.5">
-        <h1 className="text-xl font-semibold text-ink-900">Something went wrong</h1>
+        <h1 className="text-xl font-semibold text-text-primary">Something went wrong</h1>
         <p className="max-w-sm text-sm text-text-muted">
           This page hit an unexpected error. Try again, or head back to Home if it keeps happening.
         </p>

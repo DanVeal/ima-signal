@@ -508,7 +508,7 @@ function ListView({ rows, projectId, uploaders, jobStatusByVersionId, healthByVe
               aria-disabled={!row.audioItemId}
             >
               <div className="w-36 shrink-0">
-                <p className="truncate text-sm font-medium text-ink-900">{row.code}</p>
+                <p className="truncate text-sm font-medium text-text-primary">{row.code}</p>
                 <p className="truncate text-xs text-text-muted">{row.label.replace(`${row.code} — `, "")}</p>
               </div>
 
@@ -622,7 +622,7 @@ function TableView({
                   </TableCell>
                 )}
                 <TableCell className="whitespace-normal">
-                  <p className="font-medium text-ink-900">{row.code}</p>
+                  <p className="font-medium text-text-primary">{row.code}</p>
                   <p className="text-xs text-text-muted">{row.label.replace(`${row.code} — `, "")}</p>
                 </TableCell>
                 {columns.duration && (

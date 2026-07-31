@@ -24,7 +24,7 @@ export function ApprovalCard({ approval, versionNumber }: { approval: ApprovalRe
           </Badge>
         )}
       </div>
-      {approval.note && <p className="mt-1.5 text-sm whitespace-pre-wrap text-ink-800">{approval.note}</p>}
+      {approval.note && <p className="mt-1.5 text-sm whitespace-pre-wrap text-text-emphasis">{approval.note}</p>}
       <p className="mt-1.5 text-[11px] text-text-muted">
         {approval.decidedByName} · {formatDateTime(approval.createdAt)}
       </p>

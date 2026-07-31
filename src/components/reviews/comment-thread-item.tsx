@@ -95,7 +95,7 @@ export function CommentThreadItem({
           <button
             type="button"
             onClick={() => onSeek(thread.startMs!)}
-            className="inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-sunken px-2 py-0.5 font-mono text-[11px] text-ink-700 hover:bg-ink-100"
+            className="inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-sunken px-2 py-0.5 font-mono text-[11px] text-text-emphasis hover:bg-ink-100 dark:hover:bg-ink-800"
           >
             <Clock className="size-3" />
             {formatTimecode(thread.startMs)}
@@ -140,7 +140,7 @@ export function CommentThreadItem({
               </Avatar>
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-sm font-medium text-ink-900">{comment.authorName}</span>
+                  <span className="text-sm font-medium text-text-primary">{comment.authorName}</span>
                   <span className="text-[11px] text-text-muted">{formatDateTime(comment.createdAt)}</span>
                   {comment.editedAt && !isDeleted && <span className="text-[11px] text-text-muted">(edited)</span>}
                 </div>
@@ -171,7 +171,7 @@ export function CommentThreadItem({
                     </div>
                   </div>
                 ) : (
-                  <p className="mt-0.5 text-sm whitespace-pre-wrap text-ink-800">{comment.body}</p>
+                  <p className="mt-0.5 text-sm whitespace-pre-wrap text-text-emphasis">{comment.body}</p>
                 )}
               </div>
               {isOwn && !isDeleted && !isEditing && (

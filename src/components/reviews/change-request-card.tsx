@@ -61,7 +61,7 @@ export function ChangeRequestCard({
           <button
             type="button"
             onClick={() => onSeek(changeRequest.timecodeMs!)}
-            className="inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-sunken px-2 py-0.5 font-mono text-[11px] text-ink-700 hover:bg-ink-100"
+            className="inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-sunken px-2 py-0.5 font-mono text-[11px] text-text-emphasis hover:bg-ink-100 dark:hover:bg-ink-800"
           >
             <Clock className="size-3" />
             {formatTimecode(changeRequest.timecodeMs)}
@@ -81,7 +81,7 @@ export function ChangeRequestCard({
         </Badge>
       </div>
 
-      <p className="text-sm whitespace-pre-wrap text-ink-800">{changeRequest.message}</p>
+      <p className="text-sm whitespace-pre-wrap text-text-emphasis">{changeRequest.message}</p>
 
       <div className="mt-2 flex items-center justify-between">
         <p className="text-[11px] text-text-muted">

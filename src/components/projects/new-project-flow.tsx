@@ -46,7 +46,7 @@ export function NewProjectFlow() {
   if (!type) {
     return (
       <div className="space-y-5">
-        <p className="text-sm font-medium text-ink-900">What kind of project is this?</p>
+        <p className="text-sm font-medium text-text-primary">What kind of project is this?</p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {TYPE_OPTIONS.map((option) => {
             const Icon = option.icon;
@@ -60,7 +60,7 @@ export function NewProjectFlow() {
                 <span className="flex size-9 items-center justify-center rounded-full bg-ink-100 text-ink-600 group-hover:bg-brand-100 group-hover:text-brand">
                   <Icon className="size-4.5" strokeWidth={2} />
                 </span>
-                <span className="text-[15px] font-semibold text-ink-900">{option.label}</span>
+                <span className="text-[15px] font-semibold text-text-primary">{option.label}</span>
                 <span className="text-sm text-text-secondary">{option.description}</span>
                 <span className="mt-1 font-mono text-[11px] text-text-muted">{option.hierarchy}</span>
               </button>
@@ -78,7 +78,7 @@ export function NewProjectFlow() {
       <button
         type="button"
         onClick={() => setType(null)}
-        className="text-xs font-medium text-text-muted hover:text-ink-900"
+        className="text-xs font-medium text-text-muted hover:text-text-primary"
       >
         ← Change project type
       </button>

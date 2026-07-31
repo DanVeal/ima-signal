@@ -99,7 +99,7 @@ export function UploadWorkflow({ targets }: { targets: MatchTarget[] }) {
         }`}
       >
         <UploadCloud className="size-8 text-text-muted" />
-        <p className="text-sm font-medium text-ink-900">Drag and drop audio files, or click to browse</p>
+        <p className="text-sm font-medium text-text-primary">Drag and drop audio files, or click to browse</p>
         <p className="text-xs text-text-muted">
           WAV, MP3, AAC, FLAC — filenames are matched against variant/reference codes automatically.
         </p>
@@ -158,7 +158,7 @@ function SummaryStat({
     <div className="flex items-baseline gap-1.5">
       <span
         className={`font-mono text-sm font-semibold tabular-nums ${
-          tone === "success" ? "text-success" : tone === "warning" ? "text-important" : "text-ink-900"
+          tone === "success" ? "text-success" : tone === "warning" ? "text-important" : "text-text-primary"
         }`}
       >
         {value}
@@ -190,7 +190,7 @@ function UploadFileRow({
     <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-raised px-3 py-2.5">
       <FileAudio className="size-4 shrink-0 text-text-muted" />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm text-ink-900">{row.fileName}</p>
+        <p className="truncate text-sm text-text-primary">{row.fileName}</p>
         <p className="truncate text-xs text-text-muted">
           {formatFileSize(row.fileSizeBytes)}
           {row.match && row.match.warnings.length > 0 && (

@@ -42,14 +42,14 @@ export function ChangeRequestList({ changeRequests }: { changeRequests: ChangeRe
               <div className="mt-2 space-y-1 text-xs">
                 <p className="text-text-muted">
                   Change{" "}
-                  <span className="text-ink-800 line-through decoration-critical">
+                  <span className="text-text-emphasis line-through decoration-critical">
                     &ldquo;{cr.selectedText}&rdquo;
                   </span>{" "}
                   to <span className="font-medium text-success">&ldquo;{cr.requestedReplacement}&rdquo;</span>
                 </p>
               </div>
             )}
-            {cr.note && <p className="mt-2 text-sm text-ink-800">{cr.note}</p>}
+            {cr.note && <p className="mt-2 text-sm text-text-emphasis">{cr.note}</p>}
 
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-text-muted">
               <span>
@@ -59,7 +59,7 @@ export function ChangeRequestList({ changeRequests }: { changeRequests: ChangeRe
             </div>
 
             {cr.resolutionNote && (
-              <p className="mt-2 rounded-md bg-success-100 px-2.5 py-1.5 text-xs text-ink-800">
+              <p className="mt-2 rounded-md bg-success-100 px-2.5 py-1.5 text-xs text-ink-700">
                 {cr.resolutionNote}
               </p>
             )}

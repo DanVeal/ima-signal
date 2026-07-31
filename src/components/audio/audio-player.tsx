@@ -4,9 +4,10 @@ import { Play, Pause, RotateCcw, RotateCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Waveform, type WaveformCommentMarker, type WaveformFindingMarker } from "./waveform";
 import { useAudioPlayback } from "@/lib/audio-playback-context";
+import { usePlaybackPreferences, PLAYBACK_RATE_OPTIONS } from "@/lib/playback-preferences";
 import { formatTimecode } from "@/lib/format";
 
-const RATES = [0.75, 1, 1.25, 1.5];
+const RATES = PLAYBACK_RATE_OPTIONS;
 
 /**
  * `seed` drives the mock-data fallback waveform (see waveform.tsx); pass
@@ -32,9 +33,10 @@ export function AudioPlayer({
 }) {
   const { isPlaying, isBuffering, toggle, skip, currentMs, durationMs, playbackRate, setPlaybackRate } =
     useAudioPlayback();
+  const { skipSeconds } = usePlaybackPreferences();
 
   const nextRate = () => {
-    const idx = RATES.indexOf(playbackRate);
+    const idx = (RATES as readonly number[]).indexOf(playbackRate);
     setPlaybackRate(RATES[(idx + 1) % RATES.length]);
   };
 
@@ -44,8 +46,8 @@ export function AudioPlayer({
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Back 5 seconds"
-          onClick={() => skip(-5000)}
+          aria-label={`Back ${skipSeconds} seconds`}
+          onClick={() => skip(-skipSeconds * 1000)}
         >
           <RotateCcw className="size-4" />
         </Button>
@@ -69,8 +71,8 @@ export function AudioPlayer({
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Forward 5 seconds"
-          onClick={() => skip(5000)}
+          aria-label={`Forward ${skipSeconds} seconds`}
+          onClick={() => skip(skipSeconds * 1000)}
         >
           <RotateCw className="size-4" />
         </Button>

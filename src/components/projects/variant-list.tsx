@@ -32,7 +32,7 @@ export function VariantList({ projectId }: { projectId: string }) {
           >
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <p className="truncate text-sm font-medium text-ink-900">{row.script.title}</p>
+                <p className="truncate text-sm font-medium text-text-primary">{row.script.title}</p>
                 {row.script.versions.some((v) => v.isApprovedForRecording) ? (
                   <span className="inline-flex items-center gap-1 text-[11px] font-medium text-success">
                     <ShieldCheck className="size-3" />

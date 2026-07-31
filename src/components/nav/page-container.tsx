@@ -42,7 +42,7 @@ export function PageHeader({
         {eyebrow && (
           <p className="mb-2 text-xs font-medium tracking-wide text-brand uppercase">{eyebrow}</p>
         )}
-        <h1 className="text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl">{title}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">{title}</h1>
         {description && (
           <p className="mt-2.5 max-w-2xl text-[15px] leading-relaxed text-text-secondary">
             {description}
@@ -78,7 +78,7 @@ export function Section({
     <section className={cn(className)}>
       <div className="mb-4 flex items-baseline justify-between gap-4 border-b border-border-subtle pb-3">
         <div>
-          <h2 className="text-[15px] font-semibold text-ink-900">{title}</h2>
+          <h2 className="text-[15px] font-semibold text-text-primary">{title}</h2>
           {description && <p className="mt-0.5 text-xs text-text-muted">{description}</p>}
         </div>
         {href && (
