@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Mic } from "lucide-react";
+import { Mic, FolderClosed, ListTree, Rows3 } from "lucide-react";
 import { PageContainer, PageHeader, Section } from "@/components/nav/page-container";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/states/empty-state";
 import { createClient } from "@/lib/supabase/server";
 import {
   getMatrixForSection,
@@ -35,7 +36,11 @@ export default async function PramsRegistryPage() {
     return (
       <PageContainer>
         <PageHeader eyebrow="PRAMS" title="Announcement registry" />
-        <p className="text-sm text-text-muted">No PRAMS project found in the database yet.</p>
+        <EmptyState
+          icon={FolderClosed}
+          title="No PRAMS project found"
+          description="Create a PRAMS project to see its announcement registry here."
+        />
       </PageContainer>
     );
   }
@@ -72,6 +77,14 @@ export default async function PramsRegistryPage() {
         description={`${totalAnnouncements} announcement variants across ${sections.length} sections — read live from prams_announcements / prams_announcement_versions / prams_sections.`}
         className="mb-10"
       >
+        {sections.length === 0 ? (
+          <EmptyState
+            icon={ListTree}
+            title="No sections yet"
+            description="Sections appear here once the update's structure has been imported."
+            className="py-10"
+          />
+        ) : (
         <div className="overflow-hidden rounded-lg border border-border">
           <div className="divide-y divide-border-subtle">
             {sections.map(({ section, variantCount }) => (
@@ -89,6 +102,7 @@ export default async function PramsRegistryPage() {
             ))}
           </div>
         </div>
+        )}
       </Section>
 
       {boarding && (
@@ -96,6 +110,14 @@ export default async function PramsRegistryPage() {
           title="Boarding matrix (live)"
           description="Each row's CURRENT wording groups — read from prams_matrix_rows / prams_matrix_cells / prams_wording_groups / prams_wording_group_members. Sharing shown here is a real membership relationship, never inferred from matching text."
         >
+          {boardingMatrix.length === 0 ? (
+            <EmptyState
+              icon={Rows3}
+              title="No matrix rows yet"
+              description="Boarding matrix rows appear here once the section has been imported."
+              className="py-10"
+            />
+          ) : (
           <div className="space-y-3">
             {boardingMatrix.map(({ row, groups }) => (
               <div key={row.id} className="rounded-lg border border-border p-4">
@@ -122,6 +144,7 @@ export default async function PramsRegistryPage() {
               </div>
             ))}
           </div>
+          )}
         </Section>
       )}
     </PageContainer>

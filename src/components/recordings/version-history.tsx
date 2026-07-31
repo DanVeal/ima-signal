@@ -6,6 +6,7 @@ import { History, RotateCcw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { InlineError } from "@/components/states/inline-error";
 import { formatDateTime, formatDuration, formatFileSize } from "@/lib/format";
 import { restoreAudioVersion } from "@/lib/audio-upload/actions";
 import type { RecordingVersionSummary } from "@/lib/audio/queries";
@@ -43,7 +44,7 @@ export function VersionHistory({
 
   return (
     <div className="space-y-2">
-      {error && <p className="text-sm text-critical">{error}</p>}
+      {error && <InlineError message={error} />}
       {versions.map((v) => {
         const isCurrent = v.id === currentVersionId;
         const uploader = v.uploadedByUserId ? uploaders.get(v.uploadedByUserId) : undefined;

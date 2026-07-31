@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Mic, UploadCloud, AlertCircle } from "lucide-react";
 import { Section } from "@/components/nav/page-container";
 import { StaticWaveform } from "@/components/audio/static-waveform";
+import { EmptyState } from "@/components/states/empty-state";
 import { createClient } from "@/lib/supabase/server";
 import { getRecordingsDashboardStats } from "@/lib/audio/queries";
 import { formatDateTime, formatDuration } from "@/lib/format";
@@ -36,7 +37,14 @@ export async function RealRecordingsSummary() {
         <StatTile icon={AlertCircle} label="Missing audio" value={stats.missingAudioCount} tone={stats.missingAudioCount > 0 ? "warning" : undefined} />
       </div>
 
-      {stats.latest.length > 0 && (
+      {stats.latest.length === 0 ? (
+        <EmptyState
+          icon={Mic}
+          title="No recordings yet"
+          description="Uploaded takes will show up here as soon as a studio delivers one."
+          className="py-10"
+        />
+      ) : (
         <div className="space-y-2">
           {stats.latest.map((v) => (
             <Link
@@ -62,6 +70,7 @@ export async function RealRecordingsSummary() {
     </Section>
   );
 }
+
 
 function StatTile({
   icon: Icon,

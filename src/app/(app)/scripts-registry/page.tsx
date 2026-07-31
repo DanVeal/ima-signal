@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Mic } from "lucide-react";
+import { Mic, FolderClosed, FileText } from "lucide-react";
 import { PageContainer, PageHeader, Section } from "@/components/nav/page-container";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/states/empty-state";
 import { createClient } from "@/lib/supabase/server";
 import { getLatestRevisionWithLines, getProjects, getScriptsForProject } from "@/lib/supabase/repository";
 
@@ -30,7 +31,11 @@ export default async function ScriptsRegistryPage() {
     return (
       <PageContainer>
         <PageHeader eyebrow="Standard Radio" title="Scripts" />
-        <p className="text-sm text-text-muted">No Standard Radio project found in the database yet.</p>
+        <EmptyState
+          icon={FolderClosed}
+          title="No Standard Radio project found"
+          description="Create a Standard Radio project to see its scripts here."
+        />
       </PageContainer>
     );
   }
@@ -64,6 +69,14 @@ export default async function ScriptsRegistryPage() {
         title="Variants"
         description={`${variantsWithRevisions.length} variants across ${scripts.length} script${scripts.length === 1 ? "" : "s"}.`}
       >
+        {variantsWithRevisions.length === 0 ? (
+          <EmptyState
+            icon={FileText}
+            title="No variants yet"
+            description="Script variants appear here once they've been added to this project."
+            className="py-10"
+          />
+        ) : (
         <div className="space-y-3">
           {variantsWithRevisions.map(({ script, variant, revision }) => (
             <div key={variant.id} className="rounded-lg border border-border p-4">
@@ -98,6 +111,7 @@ export default async function ScriptsRegistryPage() {
             </div>
           ))}
         </div>
+        )}
       </Section>
     </PageContainer>
   );

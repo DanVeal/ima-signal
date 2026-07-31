@@ -52,6 +52,8 @@ export function ProjectsListContent({ projects }: { projects: ProjectListRow[] }
     [projects, pinned.ids],
   );
 
+  const hasFilters = query.trim().length > 0 || status !== "all" || type !== "all";
+
   const filtered = useMemo(() => {
     return projects.filter((project) => {
       const matchesQuery =
@@ -134,8 +136,20 @@ export function ProjectsListContent({ projects }: { projects: ProjectListRow[] }
       {filtered.length === 0 ? (
         <EmptyState
           icon={FolderClosed}
-          title="No projects match your filters"
-          description="Try clearing the search or status filter."
+          title={hasFilters ? "No projects match your filters" : "No projects yet"}
+          description={
+            hasFilters
+              ? "Try clearing the search, status, or type filter."
+              : "Start your first production and it'll show up here."
+          }
+          action={
+            !hasFilters && (
+              <Button size="sm" render={<Link href="/projects/new" />}>
+                <Plus className="size-3.5" />
+                New project
+              </Button>
+            )
+          }
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">

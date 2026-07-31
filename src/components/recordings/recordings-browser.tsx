@@ -366,8 +366,19 @@ export function RecordingsBrowser({
       {filteredRows.length === 0 ? (
         <EmptyState
           icon={Mic}
-          title="No recordings match"
-          description="Try widening your search or filter."
+          title={hasFilters ? "No recordings match" : "No recordings yet"}
+          description={
+            hasFilters
+              ? "Try widening your search or filter."
+              : "Upload the studio's first take to get started."
+          }
+          action={
+            !hasFilters && (
+              <Button size="sm" render={<Link href={`/projects/${projectId}/recordings/upload`} />}>
+                Upload a recording
+              </Button>
+            )
+          }
         />
       ) : viewMode === "table" ? (
         <TableView

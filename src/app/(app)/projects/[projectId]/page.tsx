@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ListTree } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/nav/page-container";
 import { ProjectStatusBadge } from "@/components/status/project-status-badge";
 import { DeadlineBadge } from "@/components/status/deadline-badge";
@@ -7,6 +8,7 @@ import { RealProjectSummary } from "@/components/projects/real-project-summary";
 import { RealVariantList } from "@/components/projects/real-variant-list";
 import { ActivityFeed } from "@/components/activity/activity-feed";
 import { RecordVisit } from "@/components/productivity/record-visit";
+import { EmptyState } from "@/components/states/empty-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/server";
 import { getProjectDetail } from "@/lib/projects/queries";
@@ -61,6 +63,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
           </TabsContent>
           <TabsContent value="scripts" className="mt-5">
             {project.type === "prams" ? (
+              sections.length === 0 ? (
+                <EmptyState
+                  icon={ListTree}
+                  title="No sections yet"
+                  description="Sections appear here once the update's structure has been imported."
+                />
+              ) : (
               <div className="overflow-hidden rounded-lg border border-border">
                 <div className="divide-y divide-border-subtle">
                   {sections.map(({ section, variantCount }) => (
@@ -78,6 +87,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
                   ))}
                 </div>
               </div>
+              )
             ) : (
               <RealVariantList projectId={project.id} rows={recordings} />
             )}
