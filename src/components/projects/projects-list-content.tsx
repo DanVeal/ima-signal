@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Search, FolderClosed, Plus } from "lucide-react";
-import { PageContainer } from "@/components/nav/page-container";
+import { PageHeader } from "@/components/nav/page-container";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,10 +14,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EmptyState } from "@/components/states/empty-state";
-import { ProjectRow } from "@/components/projects/project-row";
-import { useDemoUser } from "@/lib/demo-user-context";
-import { getCampaign, getOrganisation, getProjectsForOrganisation } from "@/lib/mock/queries";
-import type { ProjectStatus, ProjectType } from "@/types/domain";
+import { Section } from "@/components/nav/page-container";
+import { ProjectCard } from "@/components/projects/project-card";
+import { usePinnedProjects } from "@/lib/productivity/project-marks";
+import type { ProjectListRow } from "@/lib/projects/queries";
+import type { Database } from "@/lib/supabase/database.types";
+
+type ProjectStatus = Database["public"]["Enums"]["project_status"];
+type ProjectType = Database["public"]["Enums"]["project_type"];
 
 const STATUS_OPTIONS: { value: ProjectStatus | "all"; label: string }[] = [
   { value: "all", label: "All statuses" },
@@ -38,21 +42,21 @@ const TYPE_OPTIONS: { value: ProjectType | "all"; label: string }[] = [
   { value: "prams", label: "PRAMS" },
 ];
 
-export function ProjectsListContent() {
-  const { currentUser } = useDemoUser();
-  const organisation = getOrganisation(currentUser.organisationId);
+export function ProjectsListContent({ projects }: { projects: ProjectListRow[] }) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<ProjectStatus | "all">("all");
   const [type, setType] = useState<ProjectType | "all">("all");
-
-  const projects = getProjectsForOrganisation(organisation?.type ?? "ima", currentUser.organisationId);
+  const pinned = usePinnedProjects();
+  const pinnedProjects = useMemo(
+    () => projects.filter((project) => pinned.ids.includes(project.id)),
+    [projects, pinned.ids],
+  );
 
   const filtered = useMemo(() => {
     return projects.filter((project) => {
-      const campaign = getCampaign(project.campaignId);
       const matchesQuery =
         query.trim().length === 0 ||
-        [project.name, project.jobNumber, campaign?.name ?? ""].some((field) =>
+        [project.name, project.jobNumber, project.campaignName ?? ""].some((field) =>
           field.toLowerCase().includes(query.trim().toLowerCase()),
         );
       const matchesStatus = status === "all" || project.status === status;
@@ -62,19 +66,17 @@ export function ProjectsListContent() {
   }, [projects, query, status, type]);
 
   return (
-    <PageContainer>
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="mb-2 text-xs font-medium tracking-wide text-brand uppercase">Projects</p>
-          <h1 className="text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl">
-            Every production, in one place
-          </h1>
-        </div>
-        <Button render={<Link href="/projects/new" />}>
-          <Plus className="size-3.5" />
-          New project
-        </Button>
-      </div>
+    <>
+      <PageHeader
+        eyebrow="Projects"
+        title="Every production, in one place"
+        actions={
+          <Button render={<Link href="/projects/new" />}>
+            <Plus className="size-3.5" />
+            New project
+          </Button>
+        }
+      />
 
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
@@ -119,6 +121,16 @@ export function ProjectsListContent() {
         </Select>
       </div>
 
+      {pinnedProjects.length > 0 && (
+        <Section title="Pinned" className="mb-8">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {pinnedProjects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        </Section>
+      )}
+
       {filtered.length === 0 ? (
         <EmptyState
           icon={FolderClosed}
@@ -126,12 +138,12 @@ export function ProjectsListContent() {
           description="Try clearing the search or status filter."
         />
       ) : (
-        <div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((project) => (
-            <ProjectRow key={project.id} project={project} />
+            <ProjectCard key={project.id} project={project} />
           ))}
         </div>
       )}
-    </PageContainer>
+    </>
   );
 }

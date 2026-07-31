@@ -295,7 +295,7 @@ function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
           title="Script & transcript"
           description="The intended wording, what was actually said, and where they differ — Signal only flags; you decide."
         >
-          <div className="mb-4">
+          <div id="ai-panel" className="mb-4">
             <AiJobStatus
               transcriptionJob={transcriptionJob}
               canGenerate={aiPermissions.canGenerate && !!currentVersion}

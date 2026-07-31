@@ -9,6 +9,7 @@ import { WorkspaceBadge } from "@/components/brand/workspace-badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useDemoUser } from "@/lib/demo-user-context";
+import { useCommandPalette } from "@/lib/command-palette-context";
 import { navLinksForRole, ROLE_LABEL } from "./nav-links";
 import { RoleSwitcher } from "./role-switcher";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ function isActive(pathname: string, href: string) {
 export function SiteHeader() {
   const pathname = usePathname();
   const { currentUser } = useDemoUser();
+  const { setOpen: setCommandPaletteOpen } = useCommandPalette();
   const links = navLinksForRole(currentUser.role);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -58,10 +60,23 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-1">
           <Button
+            variant="outline"
+            className="hidden text-text-muted sm:inline-flex"
+            aria-label="Search IMA Signal"
+            onClick={() => setCommandPaletteOpen(true)}
+          >
+            <Search className="size-4" />
+            <span className="hidden lg:inline">Search...</span>
+            <kbd className="hidden rounded border border-border-subtle bg-surface-sunken px-1.5 py-0.5 font-mono text-[10px] text-text-muted lg:inline">
+              ⌘K
+            </kbd>
+          </Button>
+          <Button
             variant="ghost"
             size="icon"
-            className="hidden sm:inline-flex"
+            className="sm:hidden"
             aria-label="Search IMA Signal"
+            onClick={() => setCommandPaletteOpen(true)}
           >
             <Search className="size-4" />
           </Button>

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/nav/page-container";
 import { ReviewWorkspace } from "@/components/reviews/review-workspace";
+import { RecordVisit } from "@/components/productivity/record-visit";
 import { createClient } from "@/lib/supabase/server";
 import { getAudioItemDetail, getUploaderNames } from "@/lib/audio/queries";
 import { getPlaybackUrl } from "@/lib/audio-upload/actions";
@@ -82,6 +83,14 @@ export default async function RecordingDetailPage({
 
   return (
     <PageContainer width="wide">
+      <RecordVisit
+        item={{
+          id: audioItemId,
+          type: "recording",
+          label: detail.label,
+          url: `/projects/${projectId}/recordings/${audioItemId}`,
+        }}
+      />
       <ReviewWorkspace
         data={{
           audioItemId,

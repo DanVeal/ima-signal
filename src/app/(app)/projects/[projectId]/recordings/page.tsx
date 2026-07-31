@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { UploadCloud } from "lucide-react";
 import { PageContainer, PageHeader, Section } from "@/components/nav/page-container";
 import { Button } from "@/components/ui/button";
-import { BulkTranscriptionQueue } from "@/components/intelligence/bulk-transcription-queue";
+import { RecordingsBrowser } from "@/components/recordings/recordings-browser";
 import { createClient } from "@/lib/supabase/server";
 import { getProjectById } from "@/lib/supabase/repository";
 import { getRecordingsForProject, getUploaderNames } from "@/lib/audio/queries";
@@ -61,9 +61,9 @@ export default async function RecordingsPage({
 
       <Section
         title="Recordings"
-        description="Current version shown per variant/reference — full history on each recording's page. Select recordings to generate transcripts in bulk."
+        description="Current version shown per variant/reference — full history on each recording's page. Search, sort, filter, switch views, or select recordings to generate transcripts in bulk."
       >
-        <BulkTranscriptionQueue
+        <RecordingsBrowser
           projectId={projectId}
           rows={rows}
           uploaders={uploaders}

@@ -2,65 +2,91 @@ import { notFound } from "next/navigation";
 import { PageContainer, PageHeader } from "@/components/nav/page-container";
 import { ProjectStatusBadge } from "@/components/status/project-status-badge";
 import { DeadlineBadge } from "@/components/status/deadline-badge";
-import { ProjectMeta } from "@/components/projects/project-meta";
-import { BriefPanel } from "@/components/projects/brief-panel";
-import { VariantList } from "@/components/projects/variant-list";
-import { ActivityList } from "@/components/activity/activity-list";
-import { PramsProjectOverview } from "@/components/prams/prams-project-overview";
+import { RealProjectMeta } from "@/components/projects/real-project-meta";
+import { RealProjectSummary } from "@/components/projects/real-project-summary";
+import { RealVariantList } from "@/components/projects/real-variant-list";
+import { ActivityFeed } from "@/components/activity/activity-feed";
+import { RecordVisit } from "@/components/productivity/record-visit";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getActivityForProject, getCampaign, getProjectById } from "@/lib/mock/queries";
+import { createClient } from "@/lib/supabase/server";
+import { getProjectDetail } from "@/lib/projects/queries";
+import { getActivityForProject } from "@/lib/activity/queries";
+import { getRecordingsForProject } from "@/lib/audio/queries";
+import { getPramsSectionSummary } from "@/lib/supabase/repository";
 
-export default async function ProjectPage({
-  params,
-}: {
-  params: Promise<{ projectId: string }>;
-}) {
+// Requires a signed-in session (real Supabase Auth + RLS) — never prerendered at build time.
+export const dynamic = "force-dynamic";
+
+export default async function ProjectPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const project = getProjectById(projectId);
+  const supabase = await createClient();
+  const project = await getProjectDetail(supabase, projectId);
   if (!project) notFound();
 
-  if (project.type === "prams") {
-    return (
-      <PageContainer width="wide">
-        <PramsProjectOverview project={project} />
-      </PageContainer>
-    );
-  }
+  const [recordings, activity, sections] = await Promise.all([
+    project.type === "standard_radio" ? getRecordingsForProject(supabase, projectId) : Promise.resolve([]),
+    getActivityForProject(supabase, projectId),
+    project.type === "prams" ? getPramsSectionSummary(supabase, projectId) : Promise.resolve([]),
+  ]);
 
-  const campaign = getCampaign(project.campaignId);
-  const activity = getActivityForProject(project.id);
+  const secondTabLabel = project.type === "prams" ? "Sections" : "Scripts & variants";
 
   return (
     <PageContainer>
+      <RecordVisit
+        item={{ id: project.id, type: "project", label: project.name, subtitle: project.jobNumber, url: `/projects/${project.id}` }}
+      />
       <PageHeader
-        eyebrow={`${campaign?.name} · ${project.jobNumber}`}
+        eyebrow={`${project.campaignName ?? project.jobNumber} · ${project.jobNumber}`}
         title={project.name}
-        description={project.description}
         actions={
           <div className="flex items-center gap-2">
-            <ProjectStatusBadge status={project.status} />
-            <DeadlineBadge date={project.liveDate} />
+            {project.type === "standard_radio" && <ProjectStatusBadge status={project.status} />}
+            {project.status !== "delivered" && project.liveDate && <DeadlineBadge date={project.liveDate} />}
           </div>
         }
       />
 
       <div className="space-y-6">
-        <ProjectMeta project={project} />
+        <RealProjectMeta project={project} />
 
         <Tabs defaultValue="overview">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="scripts">Scripts &amp; variants</TabsTrigger>
+            <TabsTrigger value="scripts">{secondTabLabel}</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="mt-5">
-            <BriefPanel project={project} />
+            <RealProjectSummary project={project} />
           </TabsContent>
           <TabsContent value="scripts" className="mt-5">
-            <VariantList projectId={project.id} />
+            {project.type === "prams" ? (
+              <div className="overflow-hidden rounded-lg border border-border">
+                <div className="divide-y divide-border-subtle">
+                  {sections.map(({ section, variantCount }) => (
+                    <div key={section.id} className="flex items-center justify-between px-5 py-3.5">
+                      <div>
+                        <p className="text-sm font-medium text-ink-900">{section.name}</p>
+                        <p className="text-xs text-text-muted">
+                          {section.available ? "Transcribed from workbook" : "Structure only — not yet transcribed"}
+                        </p>
+                      </div>
+                      <span className="text-sm tabular-nums text-text-secondary">
+                        {variantCount} variant{variantCount === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <RealVariantList projectId={project.id} rows={recordings} />
+            )}
           </TabsContent>
           <TabsContent value="activity" className="mt-5">
-            <ActivityList events={activity} />
+            <ActivityFeed
+              events={activity}
+              emptyDescription="Actions taken on this project will build a full, readable history here."
+            />
           </TabsContent>
         </Tabs>
       </div>
