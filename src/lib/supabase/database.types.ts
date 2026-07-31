@@ -38,6 +38,7 @@ export type Database = {
         Row: {
           action: string
           actor_user_id: string | null
+          audio_item_id: string | null
           created_at: string
           entity_label: string
           entity_type: string
@@ -49,6 +50,7 @@ export type Database = {
         Insert: {
           action: string
           actor_user_id?: string | null
+          audio_item_id?: string | null
           created_at?: string
           entity_label: string
           entity_type: string
@@ -60,6 +62,7 @@ export type Database = {
         Update: {
           action?: string
           actor_user_id?: string | null
+          audio_item_id?: string | null
           created_at?: string
           entity_label?: string
           entity_type?: string
@@ -77,6 +80,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "activity_events_audio_item_id_fkey"
+            columns: ["audio_item_id"]
+            isOneToOne: false
+            referencedRelation: "audio_items"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "activity_events_organisation_id_fkey"
             columns: ["organisation_id"]
             isOneToOne: false
@@ -88,6 +98,58 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approvals: {
+        Row: {
+          audio_item_id: string
+          audio_version_id: string
+          created_at: string
+          decided_by_user_id: string
+          decision: string
+          id: string
+          note: string | null
+        }
+        Insert: {
+          audio_item_id: string
+          audio_version_id: string
+          created_at?: string
+          decided_by_user_id: string
+          decision: string
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          audio_item_id?: string
+          audio_version_id?: string
+          created_at?: string
+          decided_by_user_id?: string
+          decision?: string
+          id?: string
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approvals_audio_item_id_fkey"
+            columns: ["audio_item_id"]
+            isOneToOne: false
+            referencedRelation: "audio_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approvals_audio_version_id_fkey"
+            columns: ["audio_version_id"]
+            isOneToOne: false
+            referencedRelation: "audio_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approvals_decided_by_user_id_fkey"
+            columns: ["decided_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -251,6 +313,251 @@ export type Database = {
             columns: ["organisation_id"]
             isOneToOne: false
             referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      change_requests: {
+        Row: {
+          audio_item_id: string
+          audio_version_id: string
+          category: string
+          created_at: string
+          created_by_user_id: string
+          id: string
+          message: string
+          priority: string
+          resolved_at: string | null
+          resolved_by_user_id: string | null
+          status: string
+          timecode_ms: number | null
+        }
+        Insert: {
+          audio_item_id: string
+          audio_version_id: string
+          category: string
+          created_at?: string
+          created_by_user_id: string
+          id?: string
+          message: string
+          priority: string
+          resolved_at?: string | null
+          resolved_by_user_id?: string | null
+          status?: string
+          timecode_ms?: number | null
+        }
+        Update: {
+          audio_item_id?: string
+          audio_version_id?: string
+          category?: string
+          created_at?: string
+          created_by_user_id?: string
+          id?: string
+          message?: string
+          priority?: string
+          resolved_at?: string | null
+          resolved_by_user_id?: string | null
+          status?: string
+          timecode_ms?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "change_requests_audio_item_id_fkey"
+            columns: ["audio_item_id"]
+            isOneToOne: false
+            referencedRelation: "audio_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "change_requests_audio_version_id_fkey"
+            columns: ["audio_version_id"]
+            isOneToOne: false
+            referencedRelation: "audio_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "change_requests_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "change_requests_resolved_by_user_id_fkey"
+            columns: ["resolved_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comment_edits: {
+        Row: {
+          comment_id: string
+          edited_at: string
+          id: string
+          previous_body: string
+        }
+        Insert: {
+          comment_id: string
+          edited_at?: string
+          id?: string
+          previous_body: string
+        }
+        Update: {
+          comment_id?: string
+          edited_at?: string
+          id?: string
+          previous_body?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_edits_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comment_thread_resolutions: {
+        Row: {
+          action: string
+          actor_user_id: string
+          created_at: string
+          id: string
+          thread_id: string
+        }
+        Insert: {
+          action: string
+          actor_user_id: string
+          created_at?: string
+          id?: string
+          thread_id: string
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string
+          created_at?: string
+          id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_thread_resolutions_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_thread_resolutions_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "comment_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comment_threads: {
+        Row: {
+          audio_item_id: string
+          audio_version_id: string
+          created_at: string
+          created_by_user_id: string
+          end_ms: number | null
+          id: string
+          is_timecoded: boolean
+          start_ms: number | null
+        }
+        Insert: {
+          audio_item_id: string
+          audio_version_id: string
+          created_at?: string
+          created_by_user_id: string
+          end_ms?: number | null
+          id?: string
+          is_timecoded?: boolean
+          start_ms?: number | null
+        }
+        Update: {
+          audio_item_id?: string
+          audio_version_id?: string
+          created_at?: string
+          created_by_user_id?: string
+          end_ms?: number | null
+          id?: string
+          is_timecoded?: boolean
+          start_ms?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_threads_audio_item_id_fkey"
+            columns: ["audio_item_id"]
+            isOneToOne: false
+            referencedRelation: "audio_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_threads_audio_version_id_fkey"
+            columns: ["audio_version_id"]
+            isOneToOne: false
+            referencedRelation: "audio_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_threads_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comments: {
+        Row: {
+          author_user_id: string
+          body: string
+          created_at: string
+          deleted_at: string | null
+          edited_at: string | null
+          id: string
+          mentioned_user_ids: string[]
+          thread_id: string
+        }
+        Insert: {
+          author_user_id: string
+          body: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          mentioned_user_ids?: string[]
+          thread_id: string
+        }
+        Update: {
+          author_user_id?: string
+          body?: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          mentioned_user_ids?: string[]
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_user_id_fkey"
+            columns: ["author_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "comment_threads"
             referencedColumns: ["id"]
           },
         ]
@@ -878,6 +1185,77 @@ export type Database = {
           },
         ]
       }
+      review_participants: {
+        Row: {
+          first_seen_at: string
+          id: string
+          review_id: string
+          role_at_time: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          first_seen_at?: string
+          id?: string
+          review_id: string
+          role_at_time: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          first_seen_at?: string
+          id?: string
+          review_id?: string
+          role_at_time?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_participants_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          audio_item_id: string
+          created_at: string
+          id: string
+          status: Database["public"]["Enums"]["review_status"]
+          updated_at: string
+        }
+        Insert: {
+          audio_item_id: string
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["review_status"]
+          updated_at?: string
+        }
+        Update: {
+          audio_item_id?: string
+          created_at?: string
+          id?: string
+          status?: Database["public"]["Enums"]["review_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_audio_item_id_fkey"
+            columns: ["audio_item_id"]
+            isOneToOne: true
+            referencedRelation: "audio_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       script_lines: {
         Row: {
           id: string
@@ -1090,6 +1468,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      archive_review: { Args: { p_review_id: string }; Returns: undefined }
       audio_item_project_id: {
         Args: { p_audio_item_id: string }
         Returns: string
@@ -1102,9 +1481,30 @@ export type Database = {
         Args: { target_project_id: string }
         Returns: boolean
       }
+      can_comment_on_review: {
+        Args: { target_project_id: string }
+        Returns: boolean
+      }
+      can_decide_review: {
+        Args: { target_project_id: string }
+        Returns: boolean
+      }
       can_upload_audio_for_project: {
         Args: { target_project_id: string }
         Returns: boolean
+      }
+      cancel_change_request: {
+        Args: { p_change_request_id: string }
+        Returns: undefined
+      }
+      create_approval: {
+        Args: {
+          p_audio_item_id: string
+          p_audio_version_id: string
+          p_decision: string
+          p_note: string
+        }
+        Returns: string
       }
       create_audio_version: {
         Args: {
@@ -1120,6 +1520,17 @@ export type Database = {
           p_sample_rate_hz: number
           p_storage_path: string
           p_waveform_peaks: Json
+        }
+        Returns: string
+      }
+      create_change_request: {
+        Args: {
+          p_audio_item_id: string
+          p_audio_version_id: string
+          p_category: string
+          p_message: string
+          p_priority: string
+          p_timecode_ms: number
         }
         Returns: string
       }
@@ -1159,19 +1570,60 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      current_user_profile_id: { Args: never; Returns: string }
+      edit_comment: {
+        Args: { p_comment_id: string; p_new_body: string }
+        Returns: undefined
+      }
       edit_shared_wording: {
         Args: { p_new_text: string; p_wording_group_id: string }
         Returns: string
       }
+      ensure_review_participant: {
+        Args: { p_review_id: string; p_user_id: string }
+        Returns: undefined
+      }
       is_ima_manager: { Args: never; Returns: boolean }
       normalize_reference_code: { Args: { input: string }; Returns: string }
+      post_comment: {
+        Args: {
+          p_audio_item_id: string
+          p_audio_version_id: string
+          p_body: string
+          p_end_ms: number
+          p_is_timecoded: boolean
+          p_mentioned_user_ids: string[]
+          p_start_ms: number
+          p_thread_id: string
+        }
+        Returns: string
+      }
       prams_project_id_for_row: { Args: { p_row_id: string }; Returns: string }
       remerge_wording_cells: {
         Args: { p_matrix_cell_ids: string[]; p_text: string }
         Returns: string
       }
+      reopen_thread: { Args: { p_thread_id: string }; Returns: string }
+      resolve_change_request: {
+        Args: { p_change_request_id: string; p_note: string }
+        Returns: undefined
+      }
+      resolve_thread: { Args: { p_thread_id: string }; Returns: string }
       restore_audio_version: {
         Args: { p_audio_version_id: string }
+        Returns: string
+      }
+      soft_delete_comment: {
+        Args: { p_comment_id: string }
+        Returns: undefined
+      }
+      start_review: { Args: { p_review_id: string }; Returns: undefined }
+      withdraw_approval: {
+        Args: {
+          p_audio_item_id: string
+          p_audio_version_id: string
+          p_note: string
+        }
         Returns: string
       }
     }
@@ -1190,6 +1642,14 @@ export type Database = {
         | "approved"
         | "delivered"
       project_type: "standard_radio" | "prams"
+      review_status:
+        | "draft"
+        | "ready_for_review"
+        | "in_review"
+        | "changes_requested"
+        | "approved"
+        | "superseded"
+        | "archived"
       user_role:
         | "ima_admin"
         | "ima_producer"
@@ -1343,6 +1803,15 @@ export const Constants = {
         "delivered",
       ],
       project_type: ["standard_radio", "prams"],
+      review_status: [
+        "draft",
+        "ready_for_review",
+        "in_review",
+        "changes_requested",
+        "approved",
+        "superseded",
+        "archived",
+      ],
       user_role: [
         "ima_admin",
         "ima_producer",

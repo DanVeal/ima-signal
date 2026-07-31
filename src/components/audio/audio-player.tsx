@@ -2,7 +2,7 @@
 
 import { Play, Pause, RotateCcw, RotateCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Waveform } from "./waveform";
+import { Waveform, type WaveformCommentMarker } from "./waveform";
 import { useAudioPlayback } from "@/lib/audio-playback-context";
 import { formatTimecode } from "@/lib/format";
 
@@ -13,7 +13,19 @@ const RATES = [0.75, 1, 1.25, 1.5];
  * `peaks` (real data, from audio_versions.waveform_peaks) when available —
  * every Phase 2C.1 recording has one.
  */
-export function AudioPlayer({ seed, peaks }: { seed: string; peaks?: number[] | null }) {
+export function AudioPlayer({
+  seed,
+  peaks,
+  markers,
+  onMarkerClick,
+  onRequestComment,
+}: {
+  seed: string;
+  peaks?: number[] | null;
+  markers?: WaveformCommentMarker[];
+  onMarkerClick?: (id: string) => void;
+  onRequestComment?: (ms: number) => void;
+}) {
   const { isPlaying, isBuffering, toggle, skip, currentMs, durationMs, playbackRate, setPlaybackRate } =
     useAudioPlayback();
 
@@ -58,8 +70,14 @@ export function AudioPlayer({ seed, peaks }: { seed: string; peaks?: number[] | 
         </Button>
       </div>
 
-      <div className="min-w-0 flex-1">
-        <Waveform seed={seed} peaks={peaks} />
+      <div className="min-w-0 flex-1 pb-3">
+        <Waveform
+          seed={seed}
+          peaks={peaks}
+          markers={markers}
+          onMarkerClick={onMarkerClick}
+          onRequestComment={onRequestComment}
+        />
       </div>
 
       <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:justify-center sm:gap-1.5">

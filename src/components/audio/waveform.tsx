@@ -1,8 +1,17 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { MessageSquarePlus } from "lucide-react";
 import { useAudioPlayback } from "@/lib/audio-playback-context";
 import { formatTimecode } from "@/lib/format";
+
+export interface WaveformCommentMarker {
+  id: string;
+  startMs: number;
+  endMs: number | null;
+  isResolved: boolean;
+  isHighlighted: boolean;
+}
 
 function seededBars(seed: string, count: number) {
   let hash = 0;
@@ -31,10 +40,18 @@ export function Waveform({
   seed,
   peaks,
   className,
+  markers,
+  onMarkerClick,
+  onRequestComment,
 }: {
   seed: string;
   peaks?: number[] | null;
   className?: string;
+  /** Timecoded comment threads to render as pins along the timeline — see docs/review-engine.md's Comments section. */
+  markers?: WaveformCommentMarker[];
+  onMarkerClick?: (id: string) => void;
+  /** When supplied, hovering shows a "+" affordance that opens a new timecoded comment at the hovered time instead of seeking. */
+  onRequestComment?: (ms: number) => void;
 }) {
   const { currentMs, durationMs, isPlaying, seek } = useAudioPlayback();
   const generated = useMemo(() => seededBars(seed, 72), [seed]);
@@ -83,13 +100,57 @@ export function Waveform({
         );
       })}
 
+      {durationMs > 0 &&
+        markers?.map((marker) => {
+          const startRatio = marker.startMs / durationMs;
+          const endRatio = marker.endMs != null ? marker.endMs / durationMs : startRatio;
+          return (
+            <span
+              key={marker.id}
+              role="button"
+              tabIndex={-1}
+              onClick={(e) => {
+                e.stopPropagation();
+                onMarkerClick?.(marker.id);
+              }}
+              title={formatTimecode(marker.startMs)}
+              className={`pointer-events-auto absolute -bottom-2.5 h-2 min-w-1 -translate-x-1/2 rounded-full transition-all ${
+                marker.isHighlighted
+                  ? "z-10 scale-125 bg-amber-500 shadow-[0_0_0_3px_var(--brand-primary-100)]"
+                  : marker.isResolved
+                    ? "bg-emerald-400/70 hover:bg-emerald-500"
+                    : "bg-amber-400/80 hover:bg-amber-500"
+              }`}
+              style={{
+                left: `${startRatio * 100}%`,
+                width: `${Math.max((endRatio - startRatio) * 100, 0.6)}%`,
+              }}
+            />
+          );
+        })}
+
       {hoverRatio !== null && (
         <div
-          className="pointer-events-none absolute bottom-full mb-2 -translate-x-1/2 rounded-md bg-ink-900 px-2 py-1 font-mono text-[11px] text-white shadow-md"
+          className="pointer-events-none absolute bottom-full mb-2 flex -translate-x-1/2 items-center gap-1.5 rounded-md bg-ink-900 py-1 pr-2 pl-2 font-mono text-[11px] text-white shadow-md"
           style={{ left: `${hoverRatio * 100}%` }}
         >
           {formatTimecode(hoverRatio * durationMs)}
         </div>
+      )}
+
+      {onRequestComment && hoverRatio !== null && (
+        <button
+          type="button"
+          aria-label="Add a comment at this time"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRequestComment(hoverRatio * durationMs);
+          }}
+          className="pointer-events-auto absolute top-1/2 z-20 flex size-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ink-900 text-white shadow-md transition-transform hover:scale-110"
+          style={{ left: `${hoverRatio * 100}%` }}
+        >
+          <MessageSquarePlus className="size-3.5" />
+        </button>
       )}
 
       <span
