@@ -17,6 +17,7 @@ import {
   usePlaybackPreferences,
 } from "@/lib/playback-preferences";
 import { useLocalStorageState } from "@/lib/use-local-storage-state";
+import { ONBOARDING_STORAGE_KEY } from "@/lib/onboarding";
 import type { getCurrentUserProfile } from "@/lib/supabase/repository";
 
 const ORG_TYPE_LABEL: Record<string, string> = {
@@ -207,6 +208,18 @@ export function SettingsContent({
                 </li>
               ))}
             </ul>
+            <div className="mt-4 border-t border-border-subtle pt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  window.localStorage.removeItem(ONBOARDING_STORAGE_KEY);
+                  window.location.reload();
+                }}
+              >
+                Replay the welcome tour
+              </Button>
+            </div>
           </Panel>
         </TabsContent>
 
