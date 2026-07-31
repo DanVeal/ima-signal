@@ -46,6 +46,26 @@ export function CommentThreadItem({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editBody, setEditBody] = useState("");
   const [busy, setBusy] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [resolving, setResolving] = useState(false);
+
+  async function handleDelete(commentId: string) {
+    setDeletingId(commentId);
+    try {
+      await onDelete(commentId);
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function handleResolveToggle() {
+    setResolving(true);
+    try {
+      await (thread.isResolved ? onReopen(thread.id) : onResolve(thread.id));
+    } finally {
+      setResolving(false);
+    }
+  }
 
   const visibleComments = thread.comments;
   const rootComment = visibleComments[0];
@@ -90,12 +110,12 @@ export function CommentThreadItem({
         <div className="ml-auto">
           {canModerate &&
             (thread.isResolved ? (
-              <Button size="xs" variant="ghost" onClick={() => onReopen(thread.id)}>
-                <RotateCcw className="size-3" /> Reopen
+              <Button size="xs" variant="ghost" disabled={resolving} onClick={handleResolveToggle}>
+                {resolving ? <Loader2 className="size-3 animate-spin" /> : <RotateCcw className="size-3" />} Reopen
               </Button>
             ) : (
-              <Button size="xs" variant="ghost" onClick={() => onResolve(thread.id)}>
-                <Check className="size-3" /> Resolve
+              <Button size="xs" variant="ghost" disabled={resolving} onClick={handleResolveToggle}>
+                {resolving ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />} Resolve
               </Button>
             ))}
         </div>
@@ -107,8 +127,12 @@ export function CommentThreadItem({
           const isOwn = comment.authorUserId === currentUserId;
           const isDeleted = !!comment.deletedAt;
           const isEditing = editingId === comment.id;
+          const isDeleting = deletingId === comment.id;
           return (
-            <div key={comment.id} className="flex gap-2.5">
+            <div
+              key={comment.id}
+              className={`flex gap-2.5 transition-opacity duration-150 ${isDeleting ? "pointer-events-none opacity-50" : ""}`}
+            >
               <Avatar className="size-6 shrink-0">
                 <AvatarFallback className="bg-ink-100 text-[10px] font-medium text-ink-700">
                   {comment.authorAvatarInitials}
@@ -168,8 +192,8 @@ export function CommentThreadItem({
                     >
                       <Pencil className="size-3.5" /> Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem variant="destructive" onClick={() => onDelete(comment.id)}>
-                      <Trash2 className="size-3.5" /> Delete
+                    <DropdownMenuItem variant="destructive" disabled={isDeleting} onClick={() => handleDelete(comment.id)}>
+                      {isDeleting ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />} Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

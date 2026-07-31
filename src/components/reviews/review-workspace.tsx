@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { startTransition, useMemo, useOptimistic, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Section } from "@/components/nav/page-container";
 import { AudioPlayer } from "@/components/audio/audio-player";
@@ -17,6 +17,7 @@ import { AiJobStatus } from "@/components/intelligence/ai-job-status";
 import type {
   ApprovalsForAudioItem,
   ChangeRequestRecord,
+  CommentRecord,
   CommentThread,
   MentionableUser,
   ReviewActivityEvent,
@@ -79,7 +80,6 @@ function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
     scriptData,
     review,
     participants,
-    threads,
     changeRequests,
     approvals,
     activity,
@@ -97,6 +97,18 @@ function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
   // job regardless of outcome — AiJobStatus treats a cancelled one the same
   // as "none yet" and offers Generate again.
   const transcriptionJob = aiJobs.find((j) => j.jobType === "transcription") ?? null;
+
+  // A new comment/reply appears instantly, not after the router.refresh()
+  // round trip — reconciled automatically once the real `threads` prop
+  // updates with the server's version (same id space, so no duplicate flash).
+  const [threads, applyOptimisticThreadUpdate] = useOptimistic<
+    CommentThread[],
+    { type: "new-thread"; thread: CommentThread } | { type: "reply"; threadId: string; comment: CommentRecord }
+  >(data.threads, (state, action) =>
+    action.type === "new-thread"
+      ? [...state, action.thread]
+      : state.map((t) => (t.id === action.threadId ? { ...t, comments: [...t.comments, action.comment] } : t)),
+  );
 
   const uploaderName = currentVersion?.uploadedByUserId
     ? (uploaders.get(currentVersion.uploadedByUserId)?.fullName ?? null)
@@ -163,6 +175,39 @@ function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
     mentionedUserIds: string[];
   }) {
     if (!currentVersion) return;
+    const now = new Date().toISOString();
+    const optimisticComment: CommentRecord = {
+      id: crypto.randomUUID(),
+      threadId: crypto.randomUUID(),
+      authorUserId: permissions.userId ?? "",
+      authorName: permissions.fullName,
+      authorAvatarInitials: permissions.avatarInitials,
+      body: input.body,
+      mentionedUserIds: input.mentionedUserIds,
+      createdAt: now,
+      editedAt: null,
+      deletedAt: null,
+      edits: [],
+    };
+    startTransition(() => {
+      applyOptimisticThreadUpdate({
+        type: "new-thread",
+        thread: {
+          id: optimisticComment.threadId,
+          audioItemId,
+          audioVersionId: currentVersion.id,
+          isTimecoded: input.isTimecoded,
+          startMs: input.timecodeMs,
+          endMs: null,
+          createdByUserId: permissions.userId ?? "",
+          createdAt: now,
+          comments: [optimisticComment],
+          isResolved: false,
+          lastResolutionAt: null,
+          lastResolutionByUserId: null,
+        },
+      });
+    });
     await reviewActions.postComment({
       audioItemId,
       audioVersionId: currentVersion.id,
@@ -194,6 +239,25 @@ function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
 
   async function handleReply(threadId: string, body: string) {
     if (!currentVersion) return;
+    startTransition(() => {
+      applyOptimisticThreadUpdate({
+        type: "reply",
+        threadId,
+        comment: {
+          id: crypto.randomUUID(),
+          threadId,
+          authorUserId: permissions.userId ?? "",
+          authorName: permissions.fullName,
+          authorAvatarInitials: permissions.avatarInitials,
+          body,
+          mentionedUserIds: [],
+          createdAt: new Date().toISOString(),
+          editedAt: null,
+          deletedAt: null,
+          edits: [],
+        },
+      });
+    });
     await reviewActions.postComment({ threadId, audioItemId, audioVersionId: currentVersion.id, isTimecoded: false, body });
     router.refresh();
   }

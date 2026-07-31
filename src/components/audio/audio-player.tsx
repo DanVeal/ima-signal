@@ -56,13 +56,15 @@ export function AudioPlayer({
           disabled={isBuffering && !isPlaying}
           className="size-12 rounded-full shadow-sm transition-transform active:scale-95"
         >
-          {isBuffering && !isPlaying ? (
-            <Loader2 className="size-5 animate-spin" />
-          ) : isPlaying ? (
-            <Pause className="size-5" />
-          ) : (
-            <Play className="size-5" />
-          )}
+          <span key={isBuffering && !isPlaying ? "buffering" : isPlaying ? "playing" : "paused"} className="animate-in fade-in zoom-in-75 duration-150">
+            {isBuffering && !isPlaying ? (
+              <Loader2 className="size-5 animate-spin" />
+            ) : isPlaying ? (
+              <Pause className="size-5" />
+            ) : (
+              <Play className="size-5" />
+            )}
+          </span>
         </Button>
         <Button
           variant="ghost"

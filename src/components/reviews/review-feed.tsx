@@ -187,7 +187,13 @@ export function ReviewFeed({
           description="Comments, change requests, and approval decisions will show up here as the review progresses."
         />
       ) : (
-        <div className="space-y-3">{visible.map((item) => item.render())}</div>
+        <div className="space-y-3">
+          {visible.map((item) => (
+            <div key={item.key} className="animate-in fade-in slide-in-from-bottom-1 duration-300">
+              {item.render()}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

@@ -202,11 +202,11 @@ export function Waveform({
       )}
 
       <span
-        className="pointer-events-none absolute top-0 bottom-0 w-px bg-ink-900"
+        className="pointer-events-none absolute top-0 bottom-0 w-px bg-ink-900 transition-[left] duration-150 ease-out"
         style={{ left: `${progress * 100}%` }}
       />
       <span
-        className={`pointer-events-none absolute -top-0.5 size-2 -translate-x-1/2 rounded-full bg-brand shadow-[0_0_0_3px_var(--brand-primary-100)] ${
+        className={`pointer-events-none absolute -top-0.5 size-2 -translate-x-1/2 rounded-full bg-brand shadow-[0_0_0_3px_var(--brand-primary-100)] transition-[left] duration-150 ease-out ${
           isPlaying ? "animate-pulse" : ""
         }`}
         style={{ left: `${progress * 100}%` }}
