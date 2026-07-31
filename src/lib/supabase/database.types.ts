@@ -102,6 +102,106 @@ export type Database = {
           },
         ]
       }
+      ai_jobs: {
+        Row: {
+          ai_model_metadata_id: string | null
+          attempts: number
+          audio_version_id: string
+          cancelled_at: string | null
+          claimed_at: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          job_type: Database["public"]["Enums"]["ai_job_type"]
+          last_error: string | null
+          max_attempts: number
+          requested_by_user_id: string | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["ai_job_status"]
+        }
+        Insert: {
+          ai_model_metadata_id?: string | null
+          attempts?: number
+          audio_version_id: string
+          cancelled_at?: string | null
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          job_type: Database["public"]["Enums"]["ai_job_type"]
+          last_error?: string | null
+          max_attempts?: number
+          requested_by_user_id?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["ai_job_status"]
+        }
+        Update: {
+          ai_model_metadata_id?: string | null
+          attempts?: number
+          audio_version_id?: string
+          cancelled_at?: string | null
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          job_type?: Database["public"]["Enums"]["ai_job_type"]
+          last_error?: string | null
+          max_attempts?: number
+          requested_by_user_id?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["ai_job_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_jobs_ai_model_metadata_id_fkey"
+            columns: ["ai_model_metadata_id"]
+            isOneToOne: false
+            referencedRelation: "ai_model_metadata"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_jobs_audio_version_id_fkey"
+            columns: ["audio_version_id"]
+            isOneToOne: false
+            referencedRelation: "audio_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_jobs_requested_by_user_id_fkey"
+            columns: ["requested_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_model_metadata: {
+        Row: {
+          created_at: string
+          id: string
+          model: string
+          model_version: string | null
+          prompt_version: string | null
+          provider: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          model: string
+          model_version?: string | null
+          prompt_version?: string | null
+          provider: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          model?: string
+          model_version?: string | null
+          prompt_version?: string | null
+          provider?: string
+        }
+        Relationships: []
+      }
       approvals: {
         Row: {
           audio_item_id: string
@@ -558,6 +658,138 @@ export type Database = {
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "comment_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comparison_findings: {
+        Row: {
+          classification: Database["public"]["Enums"]["diff_classification"]
+          comparison_result_id: string
+          confidence: number | null
+          created_at: string
+          end_ms: number | null
+          id: string
+          script_line_sort_order: number | null
+          script_text: string | null
+          sort_order: number
+          start_ms: number | null
+          transcript_segment_id: string | null
+          transcript_text: string | null
+        }
+        Insert: {
+          classification: Database["public"]["Enums"]["diff_classification"]
+          comparison_result_id: string
+          confidence?: number | null
+          created_at?: string
+          end_ms?: number | null
+          id?: string
+          script_line_sort_order?: number | null
+          script_text?: string | null
+          sort_order: number
+          start_ms?: number | null
+          transcript_segment_id?: string | null
+          transcript_text?: string | null
+        }
+        Update: {
+          classification?: Database["public"]["Enums"]["diff_classification"]
+          comparison_result_id?: string
+          confidence?: number | null
+          created_at?: string
+          end_ms?: number | null
+          id?: string
+          script_line_sort_order?: number | null
+          script_text?: string | null
+          sort_order?: number
+          start_ms?: number | null
+          transcript_segment_id?: string | null
+          transcript_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comparison_findings_comparison_result_id_fkey"
+            columns: ["comparison_result_id"]
+            isOneToOne: false
+            referencedRelation: "comparison_results"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comparison_findings_transcript_segment_id_fkey"
+            columns: ["transcript_segment_id"]
+            isOneToOne: false
+            referencedRelation: "transcript_segments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comparison_results: {
+        Row: {
+          ai_job_id: string
+          ai_model_metadata_id: string
+          audio_version_id: string
+          created_at: string
+          generated_at: string
+          id: string
+          match_ratio: number
+          script_revision_id: string
+          transcript_version_id: string
+        }
+        Insert: {
+          ai_job_id: string
+          ai_model_metadata_id: string
+          audio_version_id: string
+          created_at?: string
+          generated_at?: string
+          id?: string
+          match_ratio: number
+          script_revision_id: string
+          transcript_version_id: string
+        }
+        Update: {
+          ai_job_id?: string
+          ai_model_metadata_id?: string
+          audio_version_id?: string
+          created_at?: string
+          generated_at?: string
+          id?: string
+          match_ratio?: number
+          script_revision_id?: string
+          transcript_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comparison_results_ai_job_id_fkey"
+            columns: ["ai_job_id"]
+            isOneToOne: false
+            referencedRelation: "ai_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comparison_results_ai_model_metadata_id_fkey"
+            columns: ["ai_model_metadata_id"]
+            isOneToOne: false
+            referencedRelation: "ai_model_metadata"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comparison_results_audio_version_id_fkey"
+            columns: ["audio_version_id"]
+            isOneToOne: false
+            referencedRelation: "audio_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comparison_results_script_revision_id_fkey"
+            columns: ["script_revision_id"]
+            isOneToOne: false
+            referencedRelation: "script_revisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comparison_results_transcript_version_id_fkey"
+            columns: ["transcript_version_id"]
+            isOneToOne: false
+            referencedRelation: "transcript_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -1185,6 +1417,207 @@ export type Database = {
           },
         ]
       }
+      pronunciation_findings: {
+        Row: {
+          ai_job_id: string
+          ai_model_metadata_id: string
+          audio_version_id: string
+          category: Database["public"]["Enums"]["pronunciation_category"]
+          comparison_finding_id: string | null
+          confidence: number | null
+          created_at: string
+          end_ms: number | null
+          generated_at: string
+          id: string
+          start_ms: number | null
+          transcript_segment_id: string | null
+          transcript_version_id: string
+          word: string
+        }
+        Insert: {
+          ai_job_id: string
+          ai_model_metadata_id: string
+          audio_version_id: string
+          category: Database["public"]["Enums"]["pronunciation_category"]
+          comparison_finding_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          end_ms?: number | null
+          generated_at?: string
+          id?: string
+          start_ms?: number | null
+          transcript_segment_id?: string | null
+          transcript_version_id: string
+          word: string
+        }
+        Update: {
+          ai_job_id?: string
+          ai_model_metadata_id?: string
+          audio_version_id?: string
+          category?: Database["public"]["Enums"]["pronunciation_category"]
+          comparison_finding_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          end_ms?: number | null
+          generated_at?: string
+          id?: string
+          start_ms?: number | null
+          transcript_segment_id?: string | null
+          transcript_version_id?: string
+          word?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pronunciation_findings_ai_job_id_fkey"
+            columns: ["ai_job_id"]
+            isOneToOne: false
+            referencedRelation: "ai_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pronunciation_findings_ai_model_metadata_id_fkey"
+            columns: ["ai_model_metadata_id"]
+            isOneToOne: false
+            referencedRelation: "ai_model_metadata"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pronunciation_findings_audio_version_id_fkey"
+            columns: ["audio_version_id"]
+            isOneToOne: false
+            referencedRelation: "audio_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pronunciation_findings_comparison_finding_id_fkey"
+            columns: ["comparison_finding_id"]
+            isOneToOne: false
+            referencedRelation: "comparison_findings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pronunciation_findings_transcript_segment_id_fkey"
+            columns: ["transcript_segment_id"]
+            isOneToOne: false
+            referencedRelation: "transcript_segments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pronunciation_findings_transcript_version_id_fkey"
+            columns: ["transcript_version_id"]
+            isOneToOne: false
+            referencedRelation: "transcript_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recording_health_category_scores: {
+        Row: {
+          category: Database["public"]["Enums"]["health_category"]
+          created_at: string
+          id: string
+          rating: Database["public"]["Enums"]["health_rating"]
+          snapshot_id: string
+          summary: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["health_category"]
+          created_at?: string
+          id?: string
+          rating: Database["public"]["Enums"]["health_rating"]
+          snapshot_id: string
+          summary: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["health_category"]
+          created_at?: string
+          id?: string
+          rating?: Database["public"]["Enums"]["health_rating"]
+          snapshot_id?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recording_health_category_scores_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "recording_health_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recording_health_snapshots: {
+        Row: {
+          ai_job_id: string
+          ai_model_metadata_id: string
+          audio_version_id: string
+          comparison_result_id: string | null
+          created_at: string
+          generated_at: string
+          id: string
+          overall_rating: Database["public"]["Enums"]["health_rating"]
+          transcript_version_id: string | null
+        }
+        Insert: {
+          ai_job_id: string
+          ai_model_metadata_id: string
+          audio_version_id: string
+          comparison_result_id?: string | null
+          created_at?: string
+          generated_at?: string
+          id?: string
+          overall_rating: Database["public"]["Enums"]["health_rating"]
+          transcript_version_id?: string | null
+        }
+        Update: {
+          ai_job_id?: string
+          ai_model_metadata_id?: string
+          audio_version_id?: string
+          comparison_result_id?: string | null
+          created_at?: string
+          generated_at?: string
+          id?: string
+          overall_rating?: Database["public"]["Enums"]["health_rating"]
+          transcript_version_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recording_health_snapshots_ai_job_id_fkey"
+            columns: ["ai_job_id"]
+            isOneToOne: false
+            referencedRelation: "ai_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recording_health_snapshots_ai_model_metadata_id_fkey"
+            columns: ["ai_model_metadata_id"]
+            isOneToOne: false
+            referencedRelation: "ai_model_metadata"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recording_health_snapshots_audio_version_id_fkey"
+            columns: ["audio_version_id"]
+            isOneToOne: false
+            referencedRelation: "audio_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recording_health_snapshots_comparison_result_id_fkey"
+            columns: ["comparison_result_id"]
+            isOneToOne: false
+            referencedRelation: "comparison_results"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recording_health_snapshots_transcript_version_id_fkey"
+            columns: ["transcript_version_id"]
+            isOneToOne: false
+            referencedRelation: "transcript_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       review_participants: {
         Row: {
           first_seen_at: string
@@ -1422,6 +1855,144 @@ export type Database = {
           },
         ]
       }
+      transcript_segments: {
+        Row: {
+          confidence: number | null
+          end_ms: number
+          id: string
+          sort_order: number
+          start_ms: number
+          text: string
+          transcript_version_id: string
+          word_timings: Json | null
+        }
+        Insert: {
+          confidence?: number | null
+          end_ms: number
+          id?: string
+          sort_order: number
+          start_ms: number
+          text: string
+          transcript_version_id: string
+          word_timings?: Json | null
+        }
+        Update: {
+          confidence?: number | null
+          end_ms?: number
+          id?: string
+          sort_order?: number
+          start_ms?: number
+          text?: string
+          transcript_version_id?: string
+          word_timings?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transcript_segments_transcript_version_id_fkey"
+            columns: ["transcript_version_id"]
+            isOneToOne: false
+            referencedRelation: "transcript_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transcript_versions: {
+        Row: {
+          ai_job_id: string
+          ai_model_metadata_id: string
+          created_at: string
+          full_text: string
+          generated_at: string
+          id: string
+          language: string | null
+          processing_duration_ms: number | null
+          transcript_id: string
+          version_number: number
+        }
+        Insert: {
+          ai_job_id: string
+          ai_model_metadata_id: string
+          created_at?: string
+          full_text: string
+          generated_at?: string
+          id?: string
+          language?: string | null
+          processing_duration_ms?: number | null
+          transcript_id: string
+          version_number: number
+        }
+        Update: {
+          ai_job_id?: string
+          ai_model_metadata_id?: string
+          created_at?: string
+          full_text?: string
+          generated_at?: string
+          id?: string
+          language?: string | null
+          processing_duration_ms?: number | null
+          transcript_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transcript_versions_ai_job_id_fkey"
+            columns: ["ai_job_id"]
+            isOneToOne: false
+            referencedRelation: "ai_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transcript_versions_ai_model_metadata_id_fkey"
+            columns: ["ai_model_metadata_id"]
+            isOneToOne: false
+            referencedRelation: "ai_model_metadata"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transcript_versions_transcript_id_fkey"
+            columns: ["transcript_id"]
+            isOneToOne: false
+            referencedRelation: "transcripts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transcripts: {
+        Row: {
+          audio_version_id: string
+          created_at: string
+          current_transcript_version_id: string | null
+          id: string
+        }
+        Insert: {
+          audio_version_id: string
+          created_at?: string
+          current_transcript_version_id?: string | null
+          id?: string
+        }
+        Update: {
+          audio_version_id?: string
+          created_at?: string
+          current_transcript_version_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transcripts_audio_version_id_fkey"
+            columns: ["audio_version_id"]
+            isOneToOne: true
+            referencedRelation: "audio_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transcripts_current_transcript_version_id_fkey"
+            columns: ["current_transcript_version_id"]
+            isOneToOne: false
+            referencedRelation: "transcript_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_profiles: {
         Row: {
           auth_user_id: string
@@ -1477,6 +2048,10 @@ export type Database = {
         Args: { p_announcement_version_id: string; p_script_variant_id: string }
         Returns: string
       }
+      audio_version_project_id: {
+        Args: { p_audio_version_id: string }
+        Returns: string
+      }
       can_access_project: {
         Args: { target_project_id: string }
         Returns: boolean
@@ -1489,13 +2064,46 @@ export type Database = {
         Args: { target_project_id: string }
         Returns: boolean
       }
+      can_generate_ai_work: {
+        Args: { target_project_id: string }
+        Returns: boolean
+      }
       can_upload_audio_for_project: {
         Args: { target_project_id: string }
         Returns: boolean
       }
+      cancel_ai_job: { Args: { p_job_id: string }; Returns: undefined }
       cancel_change_request: {
         Args: { p_change_request_id: string }
         Returns: undefined
+      }
+      claim_next_ai_jobs: {
+        Args: {
+          p_job_type: Database["public"]["Enums"]["ai_job_type"]
+          p_limit?: number
+        }
+        Returns: {
+          ai_model_metadata_id: string | null
+          attempts: number
+          audio_version_id: string
+          cancelled_at: string | null
+          claimed_at: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          job_type: Database["public"]["Enums"]["ai_job_type"]
+          last_error: string | null
+          max_attempts: number
+          requested_by_user_id: string | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["ai_job_status"]
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "ai_jobs"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       create_approval: {
         Args: {
@@ -1579,8 +2187,25 @@ export type Database = {
         Args: { p_new_text: string; p_wording_group_id: string }
         Returns: string
       }
+      ensure_ai_model_metadata: {
+        Args: {
+          p_model: string
+          p_model_version: string
+          p_prompt_version: string
+          p_provider: string
+        }
+        Returns: string
+      }
       ensure_review_participant: {
         Args: { p_review_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      ensure_transcript: {
+        Args: { p_audio_version_id: string }
+        Returns: string
+      }
+      fail_ai_job: {
+        Args: { p_error: string; p_job_id: string }
         Returns: undefined
       }
       is_ima_manager: { Args: never; Returns: boolean }
@@ -1599,11 +2224,53 @@ export type Database = {
         Returns: string
       }
       prams_project_id_for_row: { Args: { p_row_id: string }; Returns: string }
+      record_comparison_result: {
+        Args: {
+          p_findings: Json
+          p_job_id: string
+          p_match_ratio: number
+          p_pronunciation_findings: Json
+          p_script_revision_id: string
+          p_transcript_version_id: string
+        }
+        Returns: string
+      }
+      record_health_snapshot: {
+        Args: {
+          p_category_scores: Json
+          p_comparison_result_id: string
+          p_job_id: string
+          p_overall_rating: Database["public"]["Enums"]["health_rating"]
+          p_transcript_version_id: string
+        }
+        Returns: string
+      }
+      record_transcript_result: {
+        Args: {
+          p_full_text: string
+          p_job_id: string
+          p_language: string
+          p_processing_duration_ms: number
+          p_segments: Json
+        }
+        Returns: string
+      }
       remerge_wording_cells: {
         Args: { p_matrix_cell_ids: string[]; p_text: string }
         Returns: string
       }
       reopen_thread: { Args: { p_thread_id: string }; Returns: string }
+      request_bulk_transcription: {
+        Args: { p_audio_version_ids: string[] }
+        Returns: {
+          ai_job_id: string
+          audio_version_id: string
+        }[]
+      }
+      request_transcription: {
+        Args: { p_audio_version_id: string }
+        Returns: string
+      }
       resolve_change_request: {
         Args: { p_change_request_id: string; p_note: string }
         Returns: undefined
@@ -1613,6 +2280,7 @@ export type Database = {
         Args: { p_audio_version_id: string }
         Returns: string
       }
+      retry_ai_job: { Args: { p_job_id: string }; Returns: undefined }
       soft_delete_comment: {
         Args: { p_comment_id: string }
         Returns: undefined
@@ -1628,6 +2296,34 @@ export type Database = {
       }
     }
     Enums: {
+      ai_job_status:
+        | "queued"
+        | "processing"
+        | "completed"
+        | "failed"
+        | "cancelled"
+      ai_job_type: "transcription" | "comparison" | "health"
+      diff_classification:
+        | "perfect"
+        | "minor_wording"
+        | "major_wording"
+        | "missing_phrase"
+        | "additional_phrase"
+        | "possible_pronunciation"
+        | "timing_issue"
+        | "confidence_issue"
+      health_category:
+        | "transcript_match"
+        | "pronunciation"
+        | "timing"
+        | "noise_detection"
+        | "confidence"
+        | "completeness"
+      health_rating:
+        | "excellent"
+        | "good"
+        | "needs_review"
+        | "attention_required"
       organisation_type: "ima" | "jet2" | "studio"
       prams_announcement_version_status: "active" | "removed"
       prams_update_status: "draft" | "active" | "archived"
@@ -1642,6 +2338,13 @@ export type Database = {
         | "approved"
         | "delivered"
       project_type: "standard_radio" | "prams"
+      pronunciation_category:
+        | "place_name"
+        | "airport_name"
+        | "destination_name"
+        | "brand_name"
+        | "person_name"
+        | "general"
       review_status:
         | "draft"
         | "ready_for_review"
@@ -1788,6 +2491,38 @@ export const Constants = {
   },
   public: {
     Enums: {
+      ai_job_status: [
+        "queued",
+        "processing",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
+      ai_job_type: ["transcription", "comparison", "health"],
+      diff_classification: [
+        "perfect",
+        "minor_wording",
+        "major_wording",
+        "missing_phrase",
+        "additional_phrase",
+        "possible_pronunciation",
+        "timing_issue",
+        "confidence_issue",
+      ],
+      health_category: [
+        "transcript_match",
+        "pronunciation",
+        "timing",
+        "noise_detection",
+        "confidence",
+        "completeness",
+      ],
+      health_rating: [
+        "excellent",
+        "good",
+        "needs_review",
+        "attention_required",
+      ],
       organisation_type: ["ima", "jet2", "studio"],
       prams_announcement_version_status: ["active", "removed"],
       prams_update_status: ["draft", "active", "archived"],
@@ -1803,6 +2538,14 @@ export const Constants = {
         "delivered",
       ],
       project_type: ["standard_radio", "prams"],
+      pronunciation_category: [
+        "place_name",
+        "airport_name",
+        "destination_name",
+        "brand_name",
+        "person_name",
+        "general",
+      ],
       review_status: [
         "draft",
         "ready_for_review",

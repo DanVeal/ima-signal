@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Mic, UploadCloud } from "lucide-react";
+import { UploadCloud } from "lucide-react";
 import { PageContainer, PageHeader, Section } from "@/components/nav/page-container";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StaticWaveform } from "@/components/audio/static-waveform";
+import { BulkTranscriptionQueue } from "@/components/intelligence/bulk-transcription-queue";
 import { createClient } from "@/lib/supabase/server";
 import { getProjectById } from "@/lib/supabase/repository";
 import { getRecordingsForProject, getUploaderNames } from "@/lib/audio/queries";
-import { formatDateTime, formatDuration, formatFileSize } from "@/lib/format";
+import { getAiPermissions, getHealthRatingsByAudioVersionIds, getLatestAiJobsByAudioVersionIds } from "@/lib/intelligence/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +33,14 @@ export default async function RecordingsPage({
 
   const rows = await getRecordingsForProject(supabase, projectId);
   const uploaderIds = rows.map((r) => r.currentVersion?.uploadedByUserId ?? null);
-  const uploaders = await getUploaderNames(supabase, uploaderIds);
+  const audioVersionIds = rows.map((r) => r.currentVersion?.id).filter((id): id is string => !!id);
+
+  const [uploaders, jobStatusByVersionId, healthByVersionId, aiPermissions] = await Promise.all([
+    getUploaderNames(supabase, uploaderIds),
+    getLatestAiJobsByAudioVersionIds(supabase, audioVersionIds),
+    getHealthRatingsByAudioVersionIds(supabase, audioVersionIds),
+    getAiPermissions(supabase, projectId),
+  ]);
 
   const withAudio = rows.filter((r) => r.currentVersion);
   const missing = rows.filter((r) => !r.currentVersion);
@@ -54,68 +59,18 @@ export default async function RecordingsPage({
         }
       />
 
-      <Section title="Recordings" description="Current version shown per variant/reference — full history on each recording's page.">
-        <div className="space-y-2">
-          {rows.map((row) => {
-            const v = row.currentVersion;
-            const uploader = v?.uploadedByUserId ? uploaders.get(v.uploadedByUserId) : undefined;
-            return (
-              <Link
-                key={row.subjectId}
-                href={row.audioItemId ? `/projects/${projectId}/recordings/${row.audioItemId}` : "#"}
-                className={`group flex items-center gap-4 rounded-lg border border-border bg-surface-raised px-4 py-3 transition-colors ${
-                  row.audioItemId ? "hover:border-brand/40 hover:bg-brand-100/10" : "cursor-default opacity-70"
-                }`}
-                aria-disabled={!row.audioItemId}
-              >
-                <div className="w-36 shrink-0">
-                  <p className="truncate text-sm font-medium text-ink-900">{row.code}</p>
-                  <p className="truncate text-xs text-text-muted">{row.label.replace(`${row.code} — `, "")}</p>
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  {v ? (
-                    <StaticWaveform
-                      peaks={v.waveformPeaks}
-                      barClassName="bg-ink-300 group-hover:bg-brand/60 transition-colors"
-                    />
-                  ) : (
-                    <div className="flex h-8 items-center gap-2 text-xs text-text-muted">
-                      <Mic className="size-3.5" />
-                      No recording yet
-                    </div>
-                  )}
-                </div>
-
-                {v && (
-                  <>
-                    <span className="w-14 shrink-0 text-right font-mono text-xs tabular-nums text-text-secondary">
-                      {v.durationSeconds != null ? formatDuration(v.durationSeconds) : "—"}
-                    </span>
-                    <Badge variant="outline" className="shrink-0">
-                      v{v.versionNumber}
-                    </Badge>
-                    <div className="flex w-40 shrink-0 items-center gap-2">
-                      {uploader && (
-                        <Avatar className="size-6">
-                          <AvatarFallback className="bg-ink-100 text-[10px] font-medium text-ink-700">
-                            {uploader.avatarInitials}
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
-                      <div className="min-w-0">
-                        <p className="truncate text-xs text-text-secondary">{uploader?.fullName ?? "Unknown"}</p>
-                        <p className="truncate text-[11px] text-text-muted">
-                          {formatDateTime(v.createdAt)} · {formatFileSize(v.fileSizeBytes)}
-                        </p>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </Link>
-            );
-          })}
-        </div>
+      <Section
+        title="Recordings"
+        description="Current version shown per variant/reference — full history on each recording's page. Select recordings to generate transcripts in bulk."
+      >
+        <BulkTranscriptionQueue
+          projectId={projectId}
+          rows={rows}
+          uploaders={uploaders}
+          jobStatusByVersionId={jobStatusByVersionId}
+          healthByVersionId={healthByVersionId}
+          canGenerate={aiPermissions.canGenerate}
+        />
       </Section>
     </PageContainer>
   );

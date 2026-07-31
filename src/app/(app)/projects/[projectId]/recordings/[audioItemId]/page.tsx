@@ -15,6 +15,14 @@ import {
   getReviewPermissions,
   getScriptLinesForAudioItem,
 } from "@/lib/review/queries";
+import {
+  getAiJobsForAudioVersion,
+  getAiPermissions,
+  getComparisonForTranscriptVersion,
+  getHealthSnapshotForAudioVersion,
+  getPronunciationFindings,
+  getTranscriptForAudioVersion,
+} from "@/lib/intelligence/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +52,10 @@ export default async function RecordingDetailPage({
     activity,
     permissions,
     mentionable,
+    transcript,
+    health,
+    aiJobs,
+    aiPermissions,
   ] = await Promise.all([
     getUploaderNames(supabase, detail.versions.map((v) => v.uploadedByUserId)),
     currentVersion ? getPlaybackUrl(currentVersion.storagePath) : Promise.resolve(null),
@@ -55,7 +67,18 @@ export default async function RecordingDetailPage({
     getActivityForAudioItem(supabase, audioItemId),
     getReviewPermissions(supabase, projectId),
     getMentionableUsersForProject(supabase, projectId),
+    currentVersion ? getTranscriptForAudioVersion(supabase, currentVersion.id) : Promise.resolve(null),
+    currentVersion ? getHealthSnapshotForAudioVersion(supabase, currentVersion.id) : Promise.resolve(null),
+    currentVersion ? getAiJobsForAudioVersion(supabase, currentVersion.id) : Promise.resolve([]),
+    getAiPermissions(supabase, projectId),
   ]);
+
+  const [comparison, pronunciationFindings] = transcript?.currentVersion
+    ? await Promise.all([
+        getComparisonForTranscriptVersion(supabase, transcript.currentVersion.id),
+        getPronunciationFindings(supabase, transcript.currentVersion.id),
+      ])
+    : [null, []];
 
   return (
     <PageContainer width="wide">
@@ -76,6 +99,12 @@ export default async function RecordingDetailPage({
           activity,
           permissions,
           mentionable,
+          transcript,
+          comparison,
+          pronunciationFindings,
+          health,
+          aiJobs,
+          aiPermissions,
         }}
       />
     </PageContainer>

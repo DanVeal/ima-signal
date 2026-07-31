@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { formatDateTime } from "@/lib/format";
 import { reviewStatusBadgeClass, REVIEW_STATUS_LABEL } from "./review-status";
+import { HealthSummary } from "@/components/intelligence/health-summary";
 import type {
   ApprovalsForAudioItem,
   ChangeRequestRecord,
@@ -10,6 +11,7 @@ import type {
   ReviewParticipant,
   ReviewSummary,
 } from "@/lib/review/queries";
+import type { HealthSnapshotDetail } from "@/lib/intelligence/queries";
 
 export function ReviewSidebar({
   review,
@@ -19,6 +21,7 @@ export function ReviewSidebar({
   changeRequests,
   approvals,
   currentVersionId,
+  health,
 }: {
   review: ReviewSummary;
   participants: ReviewParticipant[];
@@ -27,6 +30,7 @@ export function ReviewSidebar({
   changeRequests: ChangeRequestRecord[];
   approvals: ApprovalsForAudioItem;
   currentVersionId: string | null;
+  health: HealthSnapshotDetail | null;
 }) {
   const openComments = threads.filter((t) => !t.isResolved).length;
   const openChangeRequests = changeRequests.filter((c) => c.status === "open").length;
@@ -45,6 +49,11 @@ export function ReviewSidebar({
             {currentStanding.decidedByName}
           </p>
         )}
+      </div>
+
+      <div>
+        <p className="mb-2 text-xs font-medium tracking-wide text-text-muted uppercase">Recording health</p>
+        <HealthSummary health={health} />
       </div>
 
       <div>

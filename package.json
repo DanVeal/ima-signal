@@ -18,7 +18,8 @@
     "test:audio-metadata": "node --env-file=.env.local --import tsx supabase/tests/audio-metadata-waveform.test.mjs",
     "test:audio-upload": "node --env-file=.env.local --import tsx supabase/tests/audio-upload.test.mjs",
     "test:review-engine": "node --env-file=.env.local --import tsx supabase/tests/review-engine.test.mjs",
-    "test": "pnpm run test:rls && pnpm run test:constraints && pnpm run test:standard-radio && pnpm run test:import && pnpm run test:wording && pnpm run test:comparison && pnpm run test:audio-matcher && pnpm run test:audio-metadata && pnpm run test:audio-upload && pnpm run test:review-engine"
+    "test:intelligence-engine": "node --env-file=.env.local --import tsx supabase/tests/intelligence-engine.test.mjs",
+    "test": "pnpm run test:rls && pnpm run test:constraints && pnpm run test:standard-radio && pnpm run test:import && pnpm run test:wording && pnpm run test:comparison && pnpm run test:audio-matcher && pnpm run test:audio-metadata && pnpm run test:audio-upload && pnpm run test:review-engine && pnpm run test:intelligence-engine"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

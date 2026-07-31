@@ -2,7 +2,7 @@
 
 import { Play, Pause, RotateCcw, RotateCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Waveform, type WaveformCommentMarker } from "./waveform";
+import { Waveform, type WaveformCommentMarker, type WaveformFindingMarker } from "./waveform";
 import { useAudioPlayback } from "@/lib/audio-playback-context";
 import { formatTimecode } from "@/lib/format";
 
@@ -19,12 +19,16 @@ export function AudioPlayer({
   markers,
   onMarkerClick,
   onRequestComment,
+  findingMarkers,
+  onFindingMarkerClick,
 }: {
   seed: string;
   peaks?: number[] | null;
   markers?: WaveformCommentMarker[];
   onMarkerClick?: (id: string) => void;
   onRequestComment?: (ms: number) => void;
+  findingMarkers?: WaveformFindingMarker[];
+  onFindingMarkerClick?: (id: string) => void;
 }) {
   const { isPlaying, isBuffering, toggle, skip, currentMs, durationMs, playbackRate, setPlaybackRate } =
     useAudioPlayback();
@@ -77,6 +81,8 @@ export function AudioPlayer({
           markers={markers}
           onMarkerClick={onMarkerClick}
           onRequestComment={onRequestComment}
+          findingMarkers={findingMarkers}
+          onFindingMarkerClick={onFindingMarkerClick}
         />
       </div>
 

@@ -4,15 +4,16 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Section } from "@/components/nav/page-container";
 import { AudioPlayer } from "@/components/audio/audio-player";
-import type { WaveformCommentMarker } from "@/components/audio/waveform";
+import type { WaveformCommentMarker, WaveformFindingMarker } from "@/components/audio/waveform";
 import { AudioPlaybackProvider, RealAudioPlaybackProvider, useAudioPlayback } from "@/lib/audio-playback-context";
 import { VersionHistory } from "@/components/recordings/version-history";
 import { ReviewHeader } from "./review-header";
-import { ScriptPanel } from "./script-panel";
 import { CommentComposer } from "./comment-composer";
 import { ReviewFeed } from "./review-feed";
 import { ReviewActivityTimeline } from "./review-activity-timeline";
 import { ReviewSidebar } from "./review-sidebar";
+import { TranscriptPanel } from "@/components/intelligence/transcript-panel";
+import { AiJobStatus } from "@/components/intelligence/ai-job-status";
 import type {
   ApprovalsForAudioItem,
   ChangeRequestRecord,
@@ -26,7 +27,17 @@ import type {
 } from "@/lib/review/queries";
 import type { AudioItemDetail, RecordingVersionSummary } from "@/lib/audio/queries";
 import type { ApprovalDecision, ChangeRequestCategory, ChangeRequestPriority } from "@/lib/review/service";
+import type {
+  AiJobSummary,
+  AiPermissions,
+  ComparisonDetail,
+  ComparisonFindingRow,
+  HealthSnapshotDetail,
+  PronunciationFindingRow,
+  TranscriptDetail,
+} from "@/lib/intelligence/queries";
 import * as reviewActions from "@/lib/review/actions";
+import * as intelligenceActions from "@/lib/intelligence/actions";
 
 export interface ReviewWorkspaceData {
   audioItemId: string;
@@ -44,6 +55,12 @@ export interface ReviewWorkspaceData {
   activity: ReviewActivityEvent[];
   permissions: ReviewPermissions;
   mentionable: MentionableUser[];
+  transcript: TranscriptDetail | null;
+  comparison: ComparisonDetail | null;
+  pronunciationFindings: PronunciationFindingRow[];
+  health: HealthSnapshotDetail | null;
+  aiJobs: AiJobSummary[];
+  aiPermissions: AiPermissions;
 }
 
 function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
@@ -51,6 +68,7 @@ function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
   const { seek, currentMs } = useAudioPlayback();
   const [hoveredThreadId, setHoveredThreadId] = useState<string | null>(null);
   const [requestedTimecodeMs, setRequestedTimecodeMs] = useState<number | null>(null);
+  const [highlightedFindingId, setHighlightedFindingId] = useState<string | null>(null);
 
   const {
     audioItemId,
@@ -67,7 +85,18 @@ function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
     activity,
     permissions,
     mentionable,
+    transcript,
+    comparison,
+    pronunciationFindings,
+    health,
+    aiJobs,
+    aiPermissions,
   } = data;
+
+  // aiJobs is ordered newest-first, so this is the most recent transcription
+  // job regardless of outcome — AiJobStatus treats a cancelled one the same
+  // as "none yet" and offers Generate again.
+  const transcriptionJob = aiJobs.find((j) => j.jobType === "transcription") ?? null;
 
   const uploaderName = currentVersion?.uploadedByUserId
     ? (uploaders.get(currentVersion.uploadedByUserId)?.fullName ?? null)
@@ -94,6 +123,37 @@ function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
   function seekAndHighlight(threadId: string, ms: number) {
     seek(ms);
     setHoveredThreadId(threadId);
+  }
+
+  const findingMarkers: WaveformFindingMarker[] = (comparison?.findings ?? [])
+    .filter((f) => f.startMs != null)
+    .map((f) => ({
+      id: f.id,
+      startMs: f.startMs!,
+      endMs: f.endMs,
+      isHighlighted: highlightedFindingId === f.id,
+      isIssue: f.classification !== "perfect",
+    }));
+
+  function handleSelectFinding(finding: ComparisonFindingRow) {
+    setHighlightedFindingId(finding.id);
+    if (finding.startMs != null) seek(finding.startMs);
+  }
+
+  async function handleGenerateTranscript() {
+    if (!currentVersion) return;
+    await intelligenceActions.requestTranscription(currentVersion.id, audioItemId);
+    router.refresh();
+  }
+
+  async function handleRetryAiJob(jobId: string) {
+    await intelligenceActions.retryAiJob(jobId, audioItemId);
+    router.refresh();
+  }
+
+  async function handleCancelAiJob(jobId: string) {
+    await intelligenceActions.cancelAiJob(jobId, audioItemId);
+    router.refresh();
   }
 
   async function handlePostComment(input: {
@@ -218,6 +278,11 @@ function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
                 if (thread?.startMs != null) seekAndHighlight(id, thread.startMs);
               }}
               onRequestComment={permissions.canComment ? (ms) => setRequestedTimecodeMs(ms) : undefined}
+              findingMarkers={findingMarkers}
+              onFindingMarkerClick={(id) => {
+                const finding = comparison?.findings.find((f) => f.id === id);
+                if (finding) handleSelectFinding(finding);
+              }}
             />
           </Section>
         ) : (
@@ -226,8 +291,27 @@ function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
           </Section>
         )}
 
-        <Section title="Script" description="The intended wording this recording is being checked against.">
-          <ScriptPanel data={scriptData} />
+        <Section
+          title="Script & transcript"
+          description="The intended wording, what was actually said, and where they differ — Signal only flags; you decide."
+        >
+          <div className="mb-4">
+            <AiJobStatus
+              transcriptionJob={transcriptionJob}
+              canGenerate={aiPermissions.canGenerate && !!currentVersion}
+              onGenerate={handleGenerateTranscript}
+              onRetry={handleRetryAiJob}
+              onCancel={handleCancelAiJob}
+            />
+          </div>
+          <TranscriptPanel
+            scriptData={scriptData}
+            transcript={transcript}
+            comparison={comparison}
+            pronunciationFindings={pronunciationFindings}
+            highlightedFindingId={highlightedFindingId}
+            onSelectFinding={handleSelectFinding}
+          />
         </Section>
 
         <Section title="Comments" description="General notes, timecoded comments, and change requests — all in one feed.">
@@ -291,6 +375,7 @@ function WorkspaceBody({ data }: { data: ReviewWorkspaceData }) {
           changeRequests={changeRequests}
           approvals={approvals}
           currentVersionId={currentVersion?.id ?? null}
+          health={health}
         />
       </aside>
     </div>

@@ -13,6 +13,20 @@ export interface WaveformCommentMarker {
   isHighlighted: boolean;
 }
 
+/** AI comparison findings — rendered above the waveform (comment markers render below), in a quiet slate/violet rather than the amber/green used for human comments, so the two never read as the same kind of thing. */
+export interface WaveformFindingMarker {
+  id: string;
+  startMs: number;
+  endMs: number | null;
+  isHighlighted: boolean;
+  isIssue: boolean;
+}
+
+/** A marker's own timecode can legitimately exceed durationMs (e.g. AI findings timed against a slightly different transcript pass, or a comment left before a shorter replacement take) — clamped to [0, 1] so a stale timecode never balloons this container past its own width and drags the whole page into horizontal overflow. */
+function clampRatio(value: number): number {
+  return Math.min(Math.max(value, 0), 1);
+}
+
 function seededBars(seed: string, count: number) {
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
@@ -43,6 +57,8 @@ export function Waveform({
   markers,
   onMarkerClick,
   onRequestComment,
+  findingMarkers,
+  onFindingMarkerClick,
 }: {
   seed: string;
   peaks?: number[] | null;
@@ -52,6 +68,9 @@ export function Waveform({
   onMarkerClick?: (id: string) => void;
   /** When supplied, hovering shows a "+" affordance that opens a new timecoded comment at the hovered time instead of seeking. */
   onRequestComment?: (ms: number) => void;
+  /** AI comparison findings — see docs/intelligence-engine.md's Review Experience section. */
+  findingMarkers?: WaveformFindingMarker[];
+  onFindingMarkerClick?: (id: string) => void;
 }) {
   const { currentMs, durationMs, isPlaying, seek } = useAudioPlayback();
   const generated = useMemo(() => seededBars(seed, 72), [seed]);
@@ -102,8 +121,8 @@ export function Waveform({
 
       {durationMs > 0 &&
         markers?.map((marker) => {
-          const startRatio = marker.startMs / durationMs;
-          const endRatio = marker.endMs != null ? marker.endMs / durationMs : startRatio;
+          const startRatio = clampRatio(marker.startMs / durationMs);
+          const endRatio = marker.endMs != null ? clampRatio(marker.endMs / durationMs) : startRatio;
           return (
             <span
               key={marker.id}
@@ -120,6 +139,35 @@ export function Waveform({
                   : marker.isResolved
                     ? "bg-emerald-400/70 hover:bg-emerald-500"
                     : "bg-amber-400/80 hover:bg-amber-500"
+              }`}
+              style={{
+                left: `${startRatio * 100}%`,
+                width: `${Math.max((endRatio - startRatio) * 100, 0.6)}%`,
+              }}
+            />
+          );
+        })}
+
+      {durationMs > 0 &&
+        findingMarkers?.map((marker) => {
+          const startRatio = clampRatio(marker.startMs / durationMs);
+          const endRatio = marker.endMs != null ? clampRatio(marker.endMs / durationMs) : startRatio;
+          return (
+            <span
+              key={marker.id}
+              role="button"
+              tabIndex={-1}
+              onClick={(e) => {
+                e.stopPropagation();
+                onFindingMarkerClick?.(marker.id);
+              }}
+              title={formatTimecode(marker.startMs)}
+              className={`pointer-events-auto absolute -top-2.5 h-2 min-w-1 -translate-x-1/2 rounded-full transition-all ${
+                marker.isHighlighted
+                  ? "z-10 scale-125 bg-violet-500 shadow-[0_0_0_3px_var(--brand-primary-100)]"
+                  : marker.isIssue
+                    ? "bg-violet-400/70 hover:bg-violet-500"
+                    : "bg-slate-300/70 hover:bg-slate-400"
               }`}
               style={{
                 left: `${startRatio * 100}%`,
