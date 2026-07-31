@@ -222,11 +222,16 @@ async function main() {
 
   console.log("\n7. Phase 2B: Standard Radio scripts write-gated to IMA managers");
   {
-    const { data: script } = await serviceClient
+    // .limit(1) rather than .single(): other test suites (audio-upload.test.mjs)
+    // add their own throwaway scripts under this same real project, so more
+    // than one row can legitimately exist here on a re-run without a reset.
+    const { data: scripts } = await serviceClient
       .from("scripts")
       .select("id")
       .eq("project_id", PROJECT.winterSunW1)
-      .single();
+      .order("created_at")
+      .limit(1);
+    const script = scripts[0];
 
     const { data: asHelen } = await helen.from("scripts").select("id").eq("project_id", PROJECT.winterSunW1);
     check("jet2_reviewer CAN read scripts", (asHelen?.length ?? 0) >= 1);
@@ -385,6 +390,156 @@ async function main() {
     check("a differently-cased duplicate is rejected by the unique constraint", !!dupErr);
 
     if (created) await serviceClient.from("prams_announcements").delete().eq("id", created.id);
+  }
+
+  console.log("\n12. Phase 2C.1: audio domain (audio_items/audio_versions + Storage)");
+  {
+    // A real, currently-audio-less Standard Radio variant under the same
+    // project ellie's studio (Coastal Sound) already owns — winterSunW1 is
+    // assigned to Coastal Sound in the seed data.
+    const { data: lplFue } = await serviceClient
+      .from("script_variants")
+      .select("id")
+      .eq("variant_code", "LPL-FUE")
+      .single();
+
+    // A second variant under otherProjectId (a DIFFERENT studio's project,
+    // from section 2) — ellie must not be able to touch this one at all.
+    const { data: otherScript } = await priya
+      .from("scripts")
+      .insert({ project_id: otherProjectId, title: "RLS Test — Other Studio Script" })
+      .select()
+      .single();
+    const { data: otherVariant } = await priya
+      .from("script_variants")
+      .insert({ script_id: otherScript.id, variant_code: "RLS-AUDIO-TEST" })
+      .select()
+      .single();
+
+    // -- DB-level: audio_items insert gating -----------------------------
+    const { data: ellieItem, error: ellieItemErr } = await ellie
+      .from("audio_items")
+      .insert({ script_variant_id: lplFue.id })
+      .select()
+      .single();
+    check("studio_contributor CAN create an audio_item for their own studio's project", !ellieItemErr && !!ellieItem);
+
+    const { error: ellieOtherErr } = await ellie
+      .from("audio_items")
+      .insert({ script_variant_id: otherVariant.id })
+      .select();
+    check(
+      "studio_contributor CANNOT create an audio_item for a DIFFERENT studio's project",
+      !!ellieOtherErr,
+    );
+
+    const { error: helenItemErr } = await helen
+      .from("audio_items")
+      .insert({ script_variant_id: otherVariant.id })
+      .select();
+    check("jet2_reviewer CANNOT create an audio_item anywhere (playback only)", !!helenItemErr);
+
+    // -- create_audio_version RPC, end to end, as the studio uploader ----
+    let ellieVersionId;
+    if (ellieItem) {
+      const path = `${PROJECT.winterSunW1}/${ellieItem.id}/rls-test-${RUN_SUFFIX}.wav`;
+      const { error: uploadErr } = await ellie.storage
+        .from("audio-recordings")
+        .upload(path, new Blob([new Uint8Array([0, 1, 2, 3])]), { contentType: "audio/wav" });
+      check("studio_contributor CAN upload bytes to their own studio's project path", !uploadErr);
+
+      const { data: rpcVersionId, error: rpcErr } = await ellie.rpc("create_audio_version", {
+        p_audio_item_id: ellieItem.id,
+        p_original_filename: "rls-test.wav",
+        p_storage_path: path,
+        p_file_size_bytes: 4,
+        p_file_checksum: "test-checksum",
+        p_duration_seconds: 1,
+        p_codec: "pcm_s16le",
+        p_sample_rate_hz: 8000,
+        p_channels: 1,
+        p_bit_rate_bps: 128000,
+        p_container_format: "wav",
+        p_waveform_peaks: [0.1, 0.2],
+      });
+      check("studio_contributor CAN call create_audio_version for their own project", !rpcErr && !!rpcVersionId);
+      ellieVersionId = rpcVersionId;
+
+      const { data: itemAfter } = await serviceClient
+        .from("audio_items")
+        .select("current_version_id")
+        .eq("id", ellieItem.id)
+        .single();
+      check(
+        "create_audio_version correctly repointed current_version_id",
+        itemAfter?.current_version_id === ellieVersionId,
+      );
+    }
+
+    // -- Storage RLS: upload vs playback-only -----------------------------
+    const otherPath = `${otherProjectId}/${otherVariant.id}/rls-test-${RUN_SUFFIX}.wav`;
+    const { error: ellieOtherUploadErr } = await ellie.storage
+      .from("audio-recordings")
+      .upload(otherPath, new Blob([new Uint8Array([0, 1])]), { contentType: "audio/wav" });
+    check(
+      "studio_contributor CANNOT upload to a DIFFERENT studio's project path",
+      !!ellieOtherUploadErr,
+    );
+
+    const helenUploadPath = `${PROJECT.winterSunW1}/${ellieItem?.id ?? "x"}/helen-should-fail-${RUN_SUFFIX}.wav`;
+    const { error: helenUploadErr } = await helen.storage
+      .from("audio-recordings")
+      .upload(helenUploadPath, new Blob([new Uint8Array([0, 1])]), { contentType: "audio/wav" });
+    check("jet2_reviewer CANNOT upload audio anywhere (playback only)", !!helenUploadErr);
+
+    if (ellieItem) {
+      const { data: signed, error: signedErr } = await helen.storage
+        .from("audio-recordings")
+        .createSignedUrl(`${PROJECT.winterSunW1}/${ellieItem.id}/rls-test-${RUN_SUFFIX}.wav`, 60);
+      check(
+        "jet2_reviewer CAN get a signed playback URL for a project they can access",
+        !signedErr && !!signed?.signedUrl,
+      );
+
+      const { data: helenSelect } = await helen
+        .from("audio_versions")
+        .select("id")
+        .eq("id", ellieVersionId)
+        .maybeSingle();
+      check("jet2_reviewer CAN read the audio_versions row via the DB too", !!helenSelect);
+    }
+
+    // -- Immutability: no UPDATE on audio_versions, for anyone -----------
+    if (ellieVersionId) {
+      const { error: updateErr } = await priya
+        .from("audio_versions")
+        .update({ original_filename: "tampered.wav" })
+        .eq("id", ellieVersionId);
+      check(
+        "audio_versions CANNOT be updated by anyone, even ima_admin (immutable, no UPDATE grant/policy)",
+        !!updateErr,
+      );
+    }
+
+    // -- Activity logging --------------------------------------------------
+    if (ellieVersionId) {
+      const { data: activity } = await serviceClient
+        .from("activity_events")
+        .select("action")
+        .eq("action", "audio_uploaded")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      check("create_audio_version logs an audio_uploaded activity event", activity?.action === "audio_uploaded");
+    }
+
+    // Unlike a project, audio_items/audio_versions have no activity-logging
+    // trigger of their own (activity_events references project_id, not
+    // audio_item_id), so this cleanup genuinely succeeds — and must run:
+    // audio_items has unique(script_variant_id), so a second run against
+    // this same real LPL-FUE variant would otherwise fail on that
+    // constraint, not the RLS check the next run is actually trying to prove.
+    if (ellieItem) await serviceClient.from("audio_items").delete().eq("id", ellieItem.id);
   }
 
   console.log("\nCleaning up test fixtures...");

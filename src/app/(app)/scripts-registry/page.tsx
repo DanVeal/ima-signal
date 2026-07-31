@@ -1,4 +1,7 @@
+import Link from "next/link";
+import { Mic } from "lucide-react";
 import { PageContainer, PageHeader, Section } from "@/components/nav/page-container";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { getLatestRevisionWithLines, getProjects, getScriptsForProject } from "@/lib/supabase/repository";
 
@@ -49,6 +52,12 @@ export default async function ScriptsRegistryPage() {
         eyebrow="Standard Radio · Phase 2B foundation"
         title={standardRadioProject.name}
         description="Script -> variant -> revision -> ordered lines, read live from scripts / script_variants / script_revisions / script_lines. Every revision is immutable once written — a wording change always creates a new one."
+        actions={
+          <Button variant="outline" render={<Link href={`/projects/${standardRadioProject.id}/recordings`} />}>
+            <Mic className="size-4" />
+            Recordings (Phase 2C.1)
+          </Button>
+        }
       />
 
       <Section

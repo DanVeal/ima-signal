@@ -92,6 +92,140 @@ export type Database = {
           },
         ]
       }
+      audio_items: {
+        Row: {
+          announcement_version_id: string | null
+          created_at: string
+          current_version_id: string | null
+          id: string
+          script_variant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          announcement_version_id?: string | null
+          created_at?: string
+          current_version_id?: string | null
+          id?: string
+          script_variant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          announcement_version_id?: string | null
+          created_at?: string
+          current_version_id?: string | null
+          id?: string
+          script_variant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_items_announcement_version_id_fkey"
+            columns: ["announcement_version_id"]
+            isOneToOne: true
+            referencedRelation: "prams_announcement_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audio_items_current_version_id_fkey"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "audio_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audio_items_script_variant_id_fkey"
+            columns: ["script_variant_id"]
+            isOneToOne: true
+            referencedRelation: "script_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audio_versions: {
+        Row: {
+          audio_item_id: string
+          bit_rate_bps: number | null
+          channels: number | null
+          codec: string | null
+          container_format: string | null
+          created_at: string
+          duration_seconds: number | null
+          file_checksum: string
+          file_size_bytes: number
+          id: string
+          original_filename: string
+          restored_from_version_id: string | null
+          sample_rate_hz: number | null
+          storage_bucket: string
+          storage_path: string
+          uploaded_by_user_id: string | null
+          version_number: number
+          waveform_peaks: Json | null
+        }
+        Insert: {
+          audio_item_id: string
+          bit_rate_bps?: number | null
+          channels?: number | null
+          codec?: string | null
+          container_format?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          file_checksum: string
+          file_size_bytes: number
+          id?: string
+          original_filename: string
+          restored_from_version_id?: string | null
+          sample_rate_hz?: number | null
+          storage_bucket?: string
+          storage_path: string
+          uploaded_by_user_id?: string | null
+          version_number: number
+          waveform_peaks?: Json | null
+        }
+        Update: {
+          audio_item_id?: string
+          bit_rate_bps?: number | null
+          channels?: number | null
+          codec?: string | null
+          container_format?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          file_checksum?: string
+          file_size_bytes?: number
+          id?: string
+          original_filename?: string
+          restored_from_version_id?: string | null
+          sample_rate_hz?: number | null
+          storage_bucket?: string
+          storage_path?: string
+          uploaded_by_user_id?: string | null
+          version_number?: number
+          waveform_peaks?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_versions_audio_item_id_fkey"
+            columns: ["audio_item_id"]
+            isOneToOne: false
+            referencedRelation: "audio_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audio_versions_restored_from_version_id_fkey"
+            columns: ["restored_from_version_id"]
+            isOneToOne: false
+            referencedRelation: "audio_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audio_versions_uploaded_by_user_id_fkey"
+            columns: ["uploaded_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           created_at: string
@@ -956,9 +1090,38 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      audio_item_project_id: {
+        Args: { p_audio_item_id: string }
+        Returns: string
+      }
+      audio_subject_project_id: {
+        Args: { p_announcement_version_id: string; p_script_variant_id: string }
+        Returns: string
+      }
       can_access_project: {
         Args: { target_project_id: string }
         Returns: boolean
+      }
+      can_upload_audio_for_project: {
+        Args: { target_project_id: string }
+        Returns: boolean
+      }
+      create_audio_version: {
+        Args: {
+          p_audio_item_id: string
+          p_bit_rate_bps: number
+          p_channels: number
+          p_codec: string
+          p_container_format: string
+          p_duration_seconds: number
+          p_file_checksum: string
+          p_file_size_bytes: number
+          p_original_filename: string
+          p_sample_rate_hz: number
+          p_storage_path: string
+          p_waveform_peaks: Json
+        }
+        Returns: string
       }
       create_variant_override: {
         Args: {
@@ -1005,6 +1168,10 @@ export type Database = {
       prams_project_id_for_row: { Args: { p_row_id: string }; Returns: string }
       remerge_wording_cells: {
         Args: { p_matrix_cell_ids: string[]; p_text: string }
+        Returns: string
+      }
+      restore_audio_version: {
+        Args: { p_audio_version_id: string }
         Returns: string
       }
     }

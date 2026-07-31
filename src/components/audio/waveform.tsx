@@ -21,13 +21,24 @@ function seededBars(seed: string, count: number) {
 }
 
 /**
- * A deterministic generated waveform (no audio file to decode yet — Phase 4
- * will render this from real peak data). Seeded by audio version id so it
- * stays stable across renders for the same recording.
+ * Renders real peak data (`peaks`, from audio_versions.waveform_peaks —
+ * see docs/audio-foundation.md) when supplied. Falls back to a
+ * deterministic generated waveform, seeded by `seed` so it stays stable
+ * across renders, for the mock-data-driven QC/review screens that have no
+ * real audio file at all.
  */
-export function Waveform({ seed, className }: { seed: string; className?: string }) {
+export function Waveform({
+  seed,
+  peaks,
+  className,
+}: {
+  seed: string;
+  peaks?: number[] | null;
+  className?: string;
+}) {
   const { currentMs, durationMs, isPlaying, seek } = useAudioPlayback();
-  const bars = useMemo(() => seededBars(seed, 72), [seed]);
+  const generated = useMemo(() => seededBars(seed, 72), [seed]);
+  const bars = peaks && peaks.length > 0 ? peaks : generated;
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoverRatio, setHoverRatio] = useState<number | null>(null);
   const progress = durationMs === 0 ? 0 : currentMs / durationMs;

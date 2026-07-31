@@ -1,6 +1,6 @@
 "use client";
 
-import { Play, Pause, RotateCcw, RotateCw } from "lucide-react";
+import { Play, Pause, RotateCcw, RotateCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Waveform } from "./waveform";
 import { useAudioPlayback } from "@/lib/audio-playback-context";
@@ -8,8 +8,13 @@ import { formatTimecode } from "@/lib/format";
 
 const RATES = [0.75, 1, 1.25, 1.5];
 
-export function AudioPlayer({ seed }: { seed: string }) {
-  const { isPlaying, toggle, skip, currentMs, durationMs, playbackRate, setPlaybackRate } =
+/**
+ * `seed` drives the mock-data fallback waveform (see waveform.tsx); pass
+ * `peaks` (real data, from audio_versions.waveform_peaks) when available —
+ * every Phase 2C.1 recording has one.
+ */
+export function AudioPlayer({ seed, peaks }: { seed: string; peaks?: number[] | null }) {
+  const { isPlaying, isBuffering, toggle, skip, currentMs, durationMs, playbackRate, setPlaybackRate } =
     useAudioPlayback();
 
   const nextRate = () => {
@@ -32,9 +37,16 @@ export function AudioPlayer({ seed }: { seed: string }) {
           size="icon"
           aria-label={isPlaying ? "Pause" : "Play"}
           onClick={toggle}
+          disabled={isBuffering && !isPlaying}
           className="size-12 rounded-full shadow-sm transition-transform active:scale-95"
         >
-          {isPlaying ? <Pause className="size-5" /> : <Play className="size-5" />}
+          {isBuffering && !isPlaying ? (
+            <Loader2 className="size-5 animate-spin" />
+          ) : isPlaying ? (
+            <Pause className="size-5" />
+          ) : (
+            <Play className="size-5" />
+          )}
         </Button>
         <Button
           variant="ghost"
@@ -47,12 +59,13 @@ export function AudioPlayer({ seed }: { seed: string }) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <Waveform seed={seed} />
+        <Waveform seed={seed} peaks={peaks} />
       </div>
 
       <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:justify-center sm:gap-1.5">
         <span className="font-mono text-xs tabular-nums text-text-secondary">
           {formatTimecode(currentMs)} / {formatTimecode(durationMs)}
+          {isBuffering && isPlaying && <span className="ml-1.5 text-text-muted">buffering…</span>}
         </span>
         <Button
           variant="outline"

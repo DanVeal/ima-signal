@@ -1,4 +1,7 @@
+import Link from "next/link";
+import { Mic } from "lucide-react";
 import { PageContainer, PageHeader, Section } from "@/components/nav/page-container";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import {
   getMatrixForSection,
@@ -55,6 +58,12 @@ export default async function PramsRegistryPage() {
           update
             ? `${update.update_label} · status: ${update.status}`
             : "No prams_updates row found for this project."
+        }
+        actions={
+          <Button variant="outline" render={<Link href={`/projects/${pramsProject.id}/recordings`} />}>
+            <Mic className="size-4" />
+            Recordings (Phase 2C.1)
+          </Button>
         }
       />
 

@@ -14,7 +14,10 @@
     "test:wording": "node --env-file=.env.local --import tsx supabase/tests/wording-operations.test.mjs",
     "test:comparison": "node --env-file=.env.local --import tsx supabase/tests/comparison.test.mjs",
     "test:standard-radio": "node --env-file=.env.local supabase/tests/standard-radio.test.mjs",
-    "test": "pnpm run test:rls && pnpm run test:constraints && pnpm run test:standard-radio && pnpm run test:import && pnpm run test:wording && pnpm run test:comparison"
+    "test:audio-matcher": "node --env-file=.env.local --import tsx supabase/tests/audio-matcher.test.mjs",
+    "test:audio-metadata": "node --env-file=.env.local --import tsx supabase/tests/audio-metadata-waveform.test.mjs",
+    "test:audio-upload": "node --env-file=.env.local --import tsx supabase/tests/audio-upload.test.mjs",
+    "test": "pnpm run test:rls && pnpm run test:constraints && pnpm run test:standard-radio && pnpm run test:import && pnpm run test:wording && pnpm run test:comparison && pnpm run test:audio-matcher && pnpm run test:audio-metadata && pnpm run test:audio-upload"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -23,6 +26,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "exceljs": "^4.4.0",
+    "ffmpeg-static": "^5.3.0",
+    "ffprobe-static": "^3.1.0",
     "lucide-react": "^1.27.0",
     "next": "16.2.12",
     "react": "19.2.4",
@@ -41,5 +46,10 @@
     "tailwindcss": "^4",
     "tsx": "^4.23.1",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "ffmpeg-static"
+    ]
   }
 }
