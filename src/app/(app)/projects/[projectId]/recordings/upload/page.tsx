@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { PageContainer, PageHeader, Section } from "@/components/nav/page-container";
+import { PermissionDeniedState } from "@/components/states/error-state";
 import { UploadWorkflow } from "@/components/recordings/upload-workflow";
 import { createClient } from "@/lib/supabase/server";
 import { getProjectById } from "@/lib/supabase/repository";
+import { canUploadAudioForProject } from "@/lib/audio/queries";
 import { getMatchTargetsForProject } from "@/lib/audio-upload/actions";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +25,19 @@ export default async function RecordingsUploadPage({
   const supabase = await createClient();
   const project = await getProjectById(supabase, projectId);
   if (!project) notFound();
+
+  const canUpload = await canUploadAudioForProject(supabase, projectId);
+  if (!canUpload) {
+    return (
+      <PageContainer>
+        <PermissionDeniedState
+          className="mt-10"
+          title="Upload recordings"
+          description="Only an IMA Admin/Producer, or the studio this project is assigned to, can upload recordings here."
+        />
+      </PageContainer>
+    );
+  }
 
   const targets = await getMatchTargetsForProject(projectId);
 

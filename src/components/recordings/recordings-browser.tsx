@@ -126,6 +126,7 @@ export function RecordingsBrowser({
   jobStatusByVersionId,
   healthByVersionId,
   canGenerate,
+  canUpload,
 }: {
   projectId: string;
   rows: RecordingRow[];
@@ -133,6 +134,7 @@ export function RecordingsBrowser({
   jobStatusByVersionId: Map<string, AiJobBatchStatus>;
   healthByVersionId: Map<string, HealthRating>;
   canGenerate: boolean;
+  canUpload: boolean;
 }) {
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -370,10 +372,13 @@ export function RecordingsBrowser({
           description={
             hasFilters
               ? "Try widening your search or filter."
-              : "Upload the studio's first take to get started."
+              : canUpload
+                ? "Upload the studio's first take to get started."
+                : "The studio hasn't delivered a take yet."
           }
           action={
-            !hasFilters && (
+            !hasFilters &&
+            canUpload && (
               <Button size="sm" render={<Link href={`/projects/${projectId}/recordings/upload`} />}>
                 Upload a recording
               </Button>

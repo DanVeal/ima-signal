@@ -57,6 +57,19 @@ function toVersionSummary(row: Database["public"]["Tables"]["audio_versions"]["R
   };
 }
 
+/**
+ * IMA admin/producer: any project. Studio admin/contributor: only a project
+ * assigned to their own studio. Jet2 (any role): never — read/playback
+ * only. Mirrors can_upload_audio_for_project's RLS predicate exactly, so
+ * the "Upload recordings" action is never shown to someone who'd just hit
+ * a permission wall after going through the whole upload flow.
+ */
+export async function canUploadAudioForProject(supabase: Client, projectId: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc("can_upload_audio_for_project", { target_project_id: projectId });
+  if (error) throw error;
+  return data ?? false;
+}
+
 export async function getRecordingsForProject(supabase: Client, projectId: string): Promise<RecordingRow[]> {
   const { data: project, error: projectError } = await supabase
     .from("projects")

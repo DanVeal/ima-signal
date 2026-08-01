@@ -6,6 +6,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import type { Database } from "@/lib/supabase/database.types";
 
 type UserRole = Database["public"]["Enums"]["user_role"];
+type OrganisationType = Database["public"]["Enums"]["organisation_type"];
 
 /** Every admin action re-checks this itself — never trust that the page that rendered the button already did. */
 async function assertIsAdmin() {
@@ -148,6 +149,63 @@ export async function updateUserRoleAndOrg(
     .from("user_profiles")
     .update({ role, organisation_id: organisationId })
     .eq("id", userProfileId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin");
+  return {};
+}
+
+export interface CreateOrganisationState {
+  error?: string;
+  createdId?: string;
+}
+
+/**
+ * Organisations have no self-serve RLS write policy at all (Phase 2A:
+ * "writes are service-role only") — this goes through the service client
+ * exactly like every other admin write in this file, gated by the same
+ * assertIsAdmin() check rather than a new RLS policy.
+ */
+export async function createOrganisation(
+  _prevState: CreateOrganisationState,
+  formData: FormData,
+): Promise<CreateOrganisationState> {
+  await assertIsAdmin();
+
+  const name = String(formData.get("name") ?? "").trim();
+  const type = String(formData.get("type") ?? "") as OrganisationType;
+  if (!name || !type) return { error: "Name and type are required." };
+
+  const service = createServiceClient();
+  const { data, error } = await service.from("organisations").insert({ name, type }).select("id").single();
+  if (error) return { error: "Couldn't create the organisation." };
+
+  revalidatePath("/admin");
+  revalidatePath("/projects/new");
+  return { createdId: data.id };
+}
+
+export async function updateOrganisation(
+  orgId: string,
+  name: string,
+  type: OrganisationType,
+): Promise<AdminActionState> {
+  await assertIsAdmin();
+
+  const service = createServiceClient();
+  const { error } = await service.from("organisations").update({ name, type }).eq("id", orgId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin");
+  return {};
+}
+
+/** Archived, never deleted — existing users/campaigns/projects keep resolving it. */
+export async function setOrganisationActive(orgId: string, isActive: boolean): Promise<AdminActionState> {
+  await assertIsAdmin();
+
+  const service = createServiceClient();
+  const { error } = await service.from("organisations").update({ is_active: isActive }).eq("id", orgId);
   if (error) return { error: error.message };
 
   revalidatePath("/admin");

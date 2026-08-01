@@ -18,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ROLE_LABEL } from "@/components/nav/nav-links";
+import { OrganisationPicker } from "@/components/organisations/organisation-picker";
+import { OrganisationsPanel } from "@/components/admin/organisations-panel";
 import { formatDateTime } from "@/lib/format";
 import {
   createUser,
@@ -31,12 +33,6 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type OrgRow = Database["public"]["Tables"]["organisations"]["Row"];
 type UserRole = Database["public"]["Enums"]["user_role"];
-
-const ORG_TYPE_LABEL: Record<string, string> = {
-  ima: "IMA",
-  jet2: "Jet2",
-  studio: "Studio",
-};
 
 const ROLE_OPTIONS: UserRole[] = [
   "ima_admin",
@@ -114,18 +110,13 @@ function CreateUserPanel({ organisations }: { organisations: OrgRow[] }) {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="organisationId">Organisation</Label>
-            <Select name="organisationId" required>
-              <SelectTrigger id="organisationId">
-                <SelectValue placeholder="Select an organisation" />
-              </SelectTrigger>
-              <SelectContent>
-                {organisations.map((org) => (
-                  <SelectItem key={org.id} value={org.id}>
-                    {org.name} ({ORG_TYPE_LABEL[org.type]})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <OrganisationPicker
+              name="organisationId"
+              organisations={organisations.filter((o) => o.is_active)}
+              canCreate
+              triggerId="organisationId"
+              placeholder="Select an organisation"
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="role">Role</Label>
@@ -256,6 +247,8 @@ export function AdminContent({
 
       <div className="space-y-6">
         <CreateUserPanel organisations={organisations} />
+
+        <OrganisationsPanel organisations={organisations} />
 
         <Panel title="People" description={`${rows.length} ${rows.length === 1 ? "account" : "accounts"}.`}>
           {errorMessage && (

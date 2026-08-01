@@ -1,11 +1,13 @@
+import Link from "next/link";
 import { Users } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/nav/page-container";
 import { Panel } from "@/components/layout/panel";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/states/empty-state";
 import { ROLE_LABEL } from "@/components/nav/nav-links";
 import { createClient } from "@/lib/supabase/server";
-import { getOrganisations } from "@/lib/supabase/repository";
+import { getCurrentUserProfile, getOrganisations } from "@/lib/supabase/repository";
 import { toOrganisationDomain, toUserProfileDomain } from "@/lib/supabase/mappers";
 
 // Requires a signed-in session (real Supabase Auth + RLS) — never prerendered at build time.
@@ -17,24 +19,18 @@ const ORG_TYPE_LABEL: Record<string, string> = {
   studio: "Recording studio",
 };
 
-/**
- * Phase 2A proof-of-foundation: this page reads organisations and user
- * profiles from the real Supabase database (via RLS as the signed-in user),
- * not src/lib/mock/. It was chosen as the first page to convert because it
- * has no dependency on tables that don't exist yet (scripts, audio, etc.) —
- * see docs/phase-2a-limitations.md for why every other page still reads
- * mock data for now.
- */
 export default async function PeoplePage() {
   const supabase = await createClient();
-  const [orgRows, { data: userRows, error }] = await Promise.all([
+  const [orgRows, { data: userRows, error }, profile] = await Promise.all([
     getOrganisations(supabase),
     supabase.from("user_profiles").select("*").order("full_name"),
+    getCurrentUserProfile(supabase),
   ]);
   if (error) throw error;
 
   const organisations = orgRows.map(toOrganisationDomain);
   const users = (userRows ?? []).map(toUserProfileDomain);
+  const isAdmin = profile?.role === "ima_admin";
 
   return (
     <PageContainer>
@@ -44,7 +40,22 @@ export default async function PeoplePage() {
         description="Everyone with access across IMA, Jet2 and your recording studios."
       />
       {organisations.length === 0 ? (
-        <EmptyState icon={Users} title="No organisations yet" description="Organisations will appear here once set up." />
+        <EmptyState
+          icon={Users}
+          title="No organisations yet"
+          description={
+            isAdmin
+              ? "Create IMA, client, and studio organisations from the Admin area."
+              : "Organisations will appear here once your IMA Admin sets them up."
+          }
+          action={
+            isAdmin ? (
+              <Button size="sm" render={<Link href="/admin" />}>
+                Go to Admin
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {organisations.map((org) => {

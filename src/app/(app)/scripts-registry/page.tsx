@@ -10,17 +10,11 @@ import { getLatestRevisionWithLines, getProjects, getScriptsForProject } from "@
 export const dynamic = "force-dynamic";
 
 /**
- * Phase 2B proof-of-foundation: Standard Radio's script -> variant ->
- * revision -> ordered-lines chain, read live from Supabase, mirroring
- * /prams-registry's role for the PRAMS side.
- *
- * A separate route from the existing (mock-data-driven) Standard Radio
- * project pages under /projects/[projectId] rather than a replacement for
- * them, for the same reason /prams-registry is separate from the PRAMS
- * project pages: those pages' audio/review/approval state still comes from
- * the mock prototype (no audio tables exist yet), so wiring this data into
- * the SAME ids would mean half the page was real and half mock — see
- * docs/phase-2b-limitations.md.
+ * Standard Radio's script -> variant -> revision -> ordered-lines chain,
+ * read live from Supabase. Resolves to the oldest Standard Radio project
+ * (see getProjects' ordering) — a cross-project registry view is future
+ * work; for now, a project's own page under /projects/[projectId] is the
+ * place to manage a specific project's scripts.
  */
 export default async function ScriptsRegistryPage() {
   const supabase = await createClient();
@@ -35,6 +29,11 @@ export default async function ScriptsRegistryPage() {
           icon={FolderClosed}
           title="No Standard Radio project found"
           description="Create a Standard Radio project to see its scripts here."
+          action={
+            <Button size="sm" render={<Link href="/projects/new" />}>
+              New project
+            </Button>
+          }
         />
       </PageContainer>
     );

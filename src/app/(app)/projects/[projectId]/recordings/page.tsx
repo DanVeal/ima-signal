@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { RecordingsBrowser } from "@/components/recordings/recordings-browser";
 import { createClient } from "@/lib/supabase/server";
 import { getProjectById } from "@/lib/supabase/repository";
-import { getRecordingsForProject, getUploaderNames } from "@/lib/audio/queries";
+import { canUploadAudioForProject, getRecordingsForProject, getUploaderNames } from "@/lib/audio/queries";
 import { getAiPermissions, getHealthRatingsByAudioVersionIds, getLatestAiJobsByAudioVersionIds } from "@/lib/intelligence/queries";
 
 export const dynamic = "force-dynamic";
@@ -35,11 +35,12 @@ export default async function RecordingsPage({
   const uploaderIds = rows.map((r) => r.currentVersion?.uploadedByUserId ?? null);
   const audioVersionIds = rows.map((r) => r.currentVersion?.id).filter((id): id is string => !!id);
 
-  const [uploaders, jobStatusByVersionId, healthByVersionId, aiPermissions] = await Promise.all([
+  const [uploaders, jobStatusByVersionId, healthByVersionId, aiPermissions, canUpload] = await Promise.all([
     getUploaderNames(supabase, uploaderIds),
     getLatestAiJobsByAudioVersionIds(supabase, audioVersionIds),
     getHealthRatingsByAudioVersionIds(supabase, audioVersionIds),
     getAiPermissions(supabase, projectId),
+    canUploadAudioForProject(supabase, projectId),
   ]);
 
   const withAudio = rows.filter((r) => r.currentVersion);
@@ -52,10 +53,12 @@ export default async function RecordingsPage({
         title={project.name}
         description={`${withAudio.length} of ${rows.length} ${project.type === "prams" ? "announcement variants" : "script variants"} have a recording. ${missing.length} missing.`}
         actions={
-          <Button render={<Link href={`/projects/${projectId}/recordings/upload`} />}>
-            <UploadCloud className="size-4" />
-            Upload recordings
-          </Button>
+          canUpload ? (
+            <Button render={<Link href={`/projects/${projectId}/recordings/upload`} />}>
+              <UploadCloud className="size-4" />
+              Upload recordings
+            </Button>
+          ) : undefined
         }
       />
 
@@ -70,6 +73,7 @@ export default async function RecordingsPage({
           jobStatusByVersionId={jobStatusByVersionId}
           healthByVersionId={healthByVersionId}
           canGenerate={aiPermissions.canGenerate}
+          canUpload={canUpload}
         />
       </Section>
     </PageContainer>

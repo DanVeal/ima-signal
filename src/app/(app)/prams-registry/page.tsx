@@ -15,17 +15,12 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * Phase 2A proof-of-foundation, part two: the global PRAMS announcement
- * registry and per-update sections, read live from Supabase (RLS-scoped to
- * the signed-in user) rather than src/lib/mock/prams-library.ts. Phase 2B
- * extends it with the Boarding matrix's live wording groups (below).
- *
- * This is a separate route from the existing (mock-data-driven) PRAMS
- * project pages under /projects/[projectId] rather than a replacement for
- * them: those pages' ids, matrix, and audio/review state all still come
- * from the mock prototype, so wiring this data into the SAME ids would mean
- * half the page was real and half mock — see docs/phase-2b-limitations.md.
- * This route proves the new tables end-to-end without that risk.
+ * The global PRAMS announcement registry and per-update sections, read
+ * live from Supabase (RLS-scoped to the signed-in user), plus the Boarding
+ * matrix's live wording groups. Resolves to the oldest PRAMS project (see
+ * getProjects' ordering) — a cross-project registry view is future work;
+ * for now, a project's own page under /projects/[projectId] is the place
+ * to manage a specific project's sections and import workbooks.
  */
 export default async function PramsRegistryPage() {
   const supabase = await createClient();
@@ -40,6 +35,11 @@ export default async function PramsRegistryPage() {
           icon={FolderClosed}
           title="No PRAMS project found"
           description="Create a PRAMS project to see its announcement registry here."
+          action={
+            <Button size="sm" render={<Link href="/projects/new" />}>
+              New project
+            </Button>
+          }
         />
       </PageContainer>
     );

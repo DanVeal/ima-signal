@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { OrganisationPicker } from "@/components/organisations/organisation-picker";
 import { cn } from "@/lib/utils";
 import { createProject, type CreateProjectState } from "@/lib/projects/actions";
 import type { Database } from "@/lib/supabase/database.types";
@@ -41,7 +42,15 @@ const TYPE_OPTIONS: {
 
 const createProjectInitialState: CreateProjectState = {};
 
-export function NewProjectFlow({ campaigns, organisations }: { campaigns: CampaignRow[]; organisations: OrgRow[] }) {
+export function NewProjectFlow({
+  campaigns,
+  organisations,
+  canCreateOrganisations,
+}: {
+  campaigns: CampaignRow[];
+  organisations: OrgRow[];
+  canCreateOrganisations: boolean;
+}) {
   const [type, setType] = useState<ProjectType | null>(null);
   const [campaignMode, setCampaignMode] = useState<"existing" | "new">(campaigns.length > 0 ? "existing" : "new");
   const [state, formAction, pending] = useActionState(createProject, createProjectInitialState);
@@ -164,36 +173,29 @@ export function NewProjectFlow({ campaigns, organisations }: { campaigns: Campai
         ) : (
           <div className="space-y-2">
             <Input name="newCampaignName" required placeholder="New campaign name" />
-            <Select name="newCampaignOrganisationId" required>
-              <SelectTrigger id="new-project-campaign-org">
-                <SelectValue placeholder="Which client is this for?" />
-              </SelectTrigger>
-              <SelectContent>
-                {clientOrganisations.map((org) => (
-                  <SelectItem key={org.id} value={org.id}>
-                    {org.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <OrganisationPicker
+              name="newCampaignOrganisationId"
+              organisations={clientOrganisations}
+              canCreate={canCreateOrganisations}
+              typeFilter={["jet2", "ima"]}
+              triggerId="new-project-campaign-org"
+              placeholder="Which client is this for?"
+            />
           </div>
         )}
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="new-project-studio">Recording studio (optional)</Label>
-        <Select name="studioOrganisationId">
-          <SelectTrigger id="new-project-studio">
-            <SelectValue placeholder="Not assigned yet" />
-          </SelectTrigger>
-          <SelectContent>
-            {studioOrganisations.map((org) => (
-              <SelectItem key={org.id} value={org.id}>
-                {org.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <OrganisationPicker
+          name="studioOrganisationId"
+          organisations={studioOrganisations}
+          canCreate={canCreateOrganisations}
+          required={false}
+          typeFilter={["studio"]}
+          triggerId="new-project-studio"
+          placeholder="Not assigned yet"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
