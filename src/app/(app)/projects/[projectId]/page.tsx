@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getProjectDetail } from "@/lib/projects/queries";
 import { getActivityForProject } from "@/lib/activity/queries";
 import { getRecordingsForProject } from "@/lib/audio/queries";
-import { getPramsSectionSummary } from "@/lib/supabase/repository";
+import { getPramsSectionSummary, getCurrentUserProfile } from "@/lib/supabase/repository";
 
 // Requires a signed-in session (real Supabase Auth + RLS) — never prerendered at build time.
 export const dynamic = "force-dynamic";
@@ -27,13 +27,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
   const project = await getProjectDetail(supabase, projectId);
   if (!project) notFound();
 
-  const [recordings, activity, sections] = await Promise.all([
+  const [recordings, activity, sections, profile] = await Promise.all([
     project.type === "standard_radio" ? getRecordingsForProject(supabase, projectId) : Promise.resolve([]),
     getActivityForProject(supabase, projectId),
     project.type === "prams" ? getPramsSectionSummary(supabase, projectId) : Promise.resolve([]),
+    getCurrentUserProfile(supabase),
   ]);
 
   const secondTabLabel = project.type === "prams" ? "Sections" : "Scripts & variants";
+  const canImportWorkbook = project.type === "prams" && (profile?.role === "ima_admin" || profile?.role === "ima_producer");
 
   return (
     <PageContainer>
@@ -70,23 +72,41 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
                   icon={ListTree}
                   title="No sections yet"
                   description="Sections appear here once the update's structure has been imported."
+                  action={
+                    canImportWorkbook && (
+                      <Button size="sm" render={<Link href={`/projects/${project.id}/import`} />}>
+                        <Plus className="size-3.5" />
+                        Import workbook
+                      </Button>
+                    )
+                  }
                 />
               ) : (
-              <div className="overflow-hidden rounded-lg border border-border">
-                <div className="divide-y divide-border-subtle">
-                  {sections.map(({ section, variantCount }) => (
-                    <div key={section.id} className="flex items-center justify-between px-5 py-3.5">
-                      <div>
-                        <p className="text-sm font-medium text-text-primary">{section.name}</p>
-                        <p className="text-xs text-text-muted">
-                          {section.available ? "Transcribed from workbook" : "Structure only — not yet transcribed"}
-                        </p>
+              <div className="space-y-4">
+                {canImportWorkbook && (
+                  <div className="flex justify-end">
+                    <Button size="sm" variant="outline" render={<Link href={`/projects/${project.id}/import`} />}>
+                      <Plus className="size-3.5" />
+                      Import workbook
+                    </Button>
+                  </div>
+                )}
+                <div className="overflow-hidden rounded-lg border border-border">
+                  <div className="divide-y divide-border-subtle">
+                    {sections.map(({ section, variantCount }) => (
+                      <div key={section.id} className="flex items-center justify-between px-5 py-3.5">
+                        <div>
+                          <p className="text-sm font-medium text-text-primary">{section.name}</p>
+                          <p className="text-xs text-text-muted">
+                            {section.available ? "Transcribed from workbook" : "Structure only — not yet transcribed"}
+                          </p>
+                        </div>
+                        <span className="text-sm tabular-nums text-text-secondary">
+                          {variantCount} variant{variantCount === 1 ? "" : "s"}
+                        </span>
                       </div>
-                      <span className="text-sm tabular-nums text-text-secondary">
-                        {variantCount} variant{variantCount === 1 ? "" : "s"}
-                      </span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
               )
