@@ -49,6 +49,12 @@ export async function getCampaign(supabase: Client, id: string) {
   return data;
 }
 
+export async function getCampaigns(supabase: Client) {
+  const { data, error } = await supabase.from("campaigns").select("*").order("name");
+  if (error) throw error;
+  return data;
+}
+
 /**
  * All projects visible to the caller under RLS — not scoped by organisation
  * here; RLS already is. Ordered oldest-first: the /prams-registry and
