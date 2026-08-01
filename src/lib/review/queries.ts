@@ -25,6 +25,11 @@ export interface ScriptLine {
   text: string | null;
 }
 
+export interface ScriptAlt {
+  label: string;
+  body: string;
+}
+
 export type ScriptPanelData =
   | {
       kind: "script_revision";
@@ -32,6 +37,9 @@ export type ScriptPanelData =
       revisionNumber: number;
       isApprovedForRecording: boolean;
       lines: ScriptLine[];
+      /** The line this revision's alts (if any) are meant to be inserted after — at most one alt is ever used in a given recording. */
+      anchorLineSortOrder: number | null;
+      alts: ScriptAlt[];
     }
   | {
       kind: "prams_matrix";
@@ -51,7 +59,7 @@ export async function getScriptLinesForAudioItem(supabase: Client, audioItemId: 
   if (item.script_variant_id) {
     const { data: revisions, error } = await supabase
       .from("script_revisions")
-      .select("*, script_lines(*)")
+      .select("*, script_lines(*), script_alts(*)")
       .eq("variant_id", item.script_variant_id)
       .order("revision_number", { ascending: false });
     if (error) throw error;
@@ -66,6 +74,10 @@ export async function getScriptLinesForAudioItem(supabase: Client, audioItemId: 
       lines: [...revision.script_lines]
         .sort((a, b) => a.sort_order - b.sort_order)
         .map((l) => ({ sortOrder: l.sort_order, text: l.text })),
+      anchorLineSortOrder: revision.anchor_line_sort_order,
+      alts: [...revision.script_alts]
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .map((a) => ({ label: a.label, body: a.body })),
     };
   }
 

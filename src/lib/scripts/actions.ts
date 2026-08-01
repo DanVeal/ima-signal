@@ -8,6 +8,23 @@ export interface CreateScriptState {
   error?: string;
 }
 
+interface ParsedAlt {
+  label: string;
+  body: string;
+}
+
+function parseAlts(raw: string): ParsedAlt[] {
+  try {
+    const value = JSON.parse(raw);
+    if (!Array.isArray(value)) return [];
+    return value
+      .map((v) => ({ label: String(v?.label ?? "").trim(), body: String(v?.body ?? "").trim() }))
+      .filter((alt) => alt.label && alt.body);
+  } catch {
+    return [];
+  }
+}
+
 async function assertProjectManager(projectId: string) {
   const supabase = await createClient();
   const {
@@ -40,6 +57,8 @@ export async function createScript(_prevState: CreateScriptState, formData: Form
   const offerLabels = formData.getAll("offerLabel").map((v) => String(v).trim());
   const regionLabels = formData.getAll("regionLabel").map((v) => String(v).trim());
   const lineBlocks = formData.getAll("lines").map((v) => String(v));
+  const anchorLines = formData.getAll("anchorLine").map((v) => String(v).trim());
+  const altBlocks = formData.getAll("alts").map((v) => String(v));
 
   if (!projectId || !title) return { error: "Give the script a title." };
   if (variantCodes.length === 0 || variantCodes.every((c) => !c)) {
@@ -63,7 +82,7 @@ export async function createScript(_prevState: CreateScriptState, formData: Form
 
   const scriptId = script.id;
   async function failAndCleanUp(error: string): Promise<CreateScriptState> {
-    // Nothing kept half-created — script_variants/revisions/lines all cascade off scripts.id.
+    // Nothing kept half-created — script_variants/revisions/lines/alts all cascade off scripts.id.
     await supabase.from("scripts").delete().eq("id", scriptId);
     return { error };
   }
@@ -78,6 +97,18 @@ export async function createScript(_prevState: CreateScriptState, formData: Form
       .filter(Boolean);
     if (lines.length === 0) {
       return failAndCleanUp(`Add at least one line for variant "${variantCode}".`);
+    }
+
+    const alts = parseAlts(altBlocks[i] ?? "[]");
+    let anchorLineSortOrder: number | null = null;
+    if (alts.length > 0) {
+      const anchor = Number(anchorLines[i]);
+      if (!Number.isInteger(anchor) || anchor < 1 || anchor > lines.length) {
+        return failAndCleanUp(
+          `Variant "${variantCode}" has alternate lines but no valid anchor line (pick a line number between 1 and ${lines.length}).`,
+        );
+      }
+      anchorLineSortOrder = anchor;
     }
 
     const { data: variant, error: variantError } = await supabase
@@ -101,7 +132,12 @@ export async function createScript(_prevState: CreateScriptState, formData: Form
 
     const { data: revision, error: revisionError } = await supabase
       .from("script_revisions")
-      .insert({ variant_id: variant.id, revision_number: 1, created_by_user_id: profile.id })
+      .insert({
+        variant_id: variant.id,
+        revision_number: 1,
+        created_by_user_id: profile.id,
+        anchor_line_sort_order: anchorLineSortOrder,
+      })
       .select("id")
       .single();
     if (revisionError || !revision) return failAndCleanUp("Couldn't create the initial revision.");
@@ -110,6 +146,18 @@ export async function createScript(_prevState: CreateScriptState, formData: Form
       lines.map((text, lineIndex) => ({ revision_id: revision.id, sort_order: lineIndex + 1, text })),
     );
     if (linesError) return failAndCleanUp("Couldn't save the script lines.");
+
+    if (alts.length > 0) {
+      const { error: altsError } = await supabase.from("script_alts").insert(
+        alts.map((alt, altIndex) => ({
+          revision_id: revision.id,
+          label: alt.label,
+          body: alt.body,
+          sort_order: altIndex + 1,
+        })),
+      );
+      if (altsError) return failAndCleanUp("Couldn't save the alternate lines.");
+    }
   }
 
   revalidatePath(`/projects/${projectId}`);

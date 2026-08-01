@@ -48,6 +48,21 @@ export function ScriptPanel({ data }: { data: ScriptPanelData }) {
           ))}
         </ol>
       </div>
+      {data.kind === "script_revision" && data.alts.length > 0 && (
+        <div className="space-y-2 border-t border-border-subtle px-4 py-3">
+          <p className="text-xs font-medium tracking-wide text-text-muted uppercase">
+            Alternate lines — after line {(data.anchorLineSortOrder ?? 0) + 1}, at most one used per recording
+          </p>
+          <ul className="space-y-2">
+            {data.alts.map((alt) => (
+              <li key={alt.label} className="rounded-md bg-surface-raised px-3 py-2">
+                <p className="text-xs font-medium text-text-secondary">{alt.label}</p>
+                <p className="mt-0.5 text-sm whitespace-pre-wrap text-text-emphasis">{alt.body}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

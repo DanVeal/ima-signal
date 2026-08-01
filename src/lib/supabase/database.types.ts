@@ -1692,6 +1692,41 @@ export type Database = {
           },
         ]
       }
+      script_alts: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          label: string
+          revision_id: string
+          sort_order: number
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          label: string
+          revision_id: string
+          sort_order: number
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          label?: string
+          revision_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "script_alts_revision_id_fkey"
+            columns: ["revision_id"]
+            isOneToOne: false
+            referencedRelation: "script_revisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       script_lines: {
         Row: {
           id: string
@@ -1723,6 +1758,7 @@ export type Database = {
       }
       script_revisions: {
         Row: {
+          anchor_line_sort_order: number | null
           approved_at: string | null
           approved_by_user_id: string | null
           created_at: string
@@ -1734,6 +1770,7 @@ export type Database = {
           variant_id: string
         }
         Insert: {
+          anchor_line_sort_order?: number | null
           approved_at?: string | null
           approved_by_user_id?: string | null
           created_at?: string
@@ -1745,6 +1782,7 @@ export type Database = {
           variant_id: string
         }
         Update: {
+          anchor_line_sort_order?: number | null
           approved_at?: string | null
           approved_by_user_id?: string | null
           created_at?: string
