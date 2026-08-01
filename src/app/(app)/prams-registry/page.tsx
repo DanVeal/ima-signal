@@ -57,7 +57,7 @@ export default async function PramsRegistryPage() {
   return (
     <PageContainer>
       <PageHeader
-        eyebrow="PRAMS · Phase 2A + 2B foundation"
+        eyebrow="PRAMS"
         title={pramsProject.name}
         description={
           update
@@ -67,14 +67,14 @@ export default async function PramsRegistryPage() {
         actions={
           <Button variant="outline" render={<Link href={`/projects/${pramsProject.id}/recordings`} />}>
             <Mic className="size-4" />
-            Recordings (Phase 2C.1)
+            Recordings
           </Button>
         }
       />
 
       <Section
         title="Global announcement registry"
-        description={`${totalAnnouncements} announcement variants across ${sections.length} sections — read live from prams_announcements / prams_announcement_versions / prams_sections.`}
+        description={`${totalAnnouncements} announcement variants across ${sections.length} sections.`}
         className="mb-10"
       >
         {sections.length === 0 ? (
@@ -107,8 +107,8 @@ export default async function PramsRegistryPage() {
 
       {boarding && (
         <Section
-          title="Boarding matrix (live)"
-          description="Each row's CURRENT wording groups — read from prams_matrix_rows / prams_matrix_cells / prams_wording_groups / prams_wording_group_members. Sharing shown here is a real membership relationship, never inferred from matching text."
+          title="Boarding matrix"
+          description="Each row's current wording groups. Sharing shown here is a real membership relationship, never inferred from matching text."
         >
           {boardingMatrix.length === 0 ? (
             <EmptyState

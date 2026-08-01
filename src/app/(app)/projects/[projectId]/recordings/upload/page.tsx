@@ -29,7 +29,7 @@ export default async function RecordingsUploadPage({
   return (
     <PageContainer width="wide">
       <PageHeader
-        eyebrow="Recordings · Phase 2C.1"
+        eyebrow="Recordings"
         title={`Upload recordings — ${project.name}`}
         description="Filenames are matched exactly, case-insensitively, whitespace-insensitively, and by reference-code substring — review the match before anything is imported."
       />

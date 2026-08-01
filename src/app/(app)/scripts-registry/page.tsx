@@ -54,13 +54,13 @@ export default async function ScriptsRegistryPage() {
   return (
     <PageContainer>
       <PageHeader
-        eyebrow="Standard Radio · Phase 2B foundation"
+        eyebrow="Standard Radio"
         title={standardRadioProject.name}
-        description="Script -> variant -> revision -> ordered lines, read live from scripts / script_variants / script_revisions / script_lines. Every revision is immutable once written — a wording change always creates a new one."
+        description="Script → variant → revision → ordered lines. Every revision is immutable once written — a wording change always creates a new one."
         actions={
           <Button variant="outline" render={<Link href={`/projects/${standardRadioProject.id}/recordings`} />}>
             <Mic className="size-4" />
-            Recordings (Phase 2C.1)
+            Recordings
           </Button>
         }
       />

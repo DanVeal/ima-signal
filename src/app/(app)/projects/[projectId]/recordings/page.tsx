@@ -48,7 +48,7 @@ export default async function RecordingsPage({
   return (
     <PageContainer width="wide">
       <PageHeader
-        eyebrow="Recordings · Phase 2C.1"
+        eyebrow="Recordings"
         title={project.name}
         description={`${withAudio.length} of ${rows.length} ${project.type === "prams" ? "announcement variants" : "script variants"} have a recording. ${missing.length} missing.`}
         actions={

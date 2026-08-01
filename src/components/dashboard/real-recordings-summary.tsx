@@ -8,18 +8,9 @@ import { getRecordingsDashboardStats } from "@/lib/audio/queries";
 import { formatDateTime, formatDuration } from "@/lib/format";
 
 /**
- * Phase 2C.1 proof-of-foundation: real recording counts, real uploads, real
- * missing-audio count, and the real most-recently-uploaded recordings —
- * read live from audio_items/audio_versions across every project the
- * signed-in user can access (RLS-scoped).
- *
- * A deliberately separate section from the rest of this page: the
- * headline/attention-queue/deadlines sections below still read
- * src/lib/mock/ (they depend on comments/change-requests/approvals, which
- * don't exist in the database yet — see docs/audio-foundation.md). Mixing
- * one real number into a page built entirely from mock data would be
- * misleading, not honest, so this stays a clearly-labelled section of its
- * own rather than replacing any existing number on this page.
+ * Recording counts, uploads, missing-audio count, and the most recently
+ * uploaded recordings — read live from audio_items/audio_versions across
+ * every project the signed-in user can access (RLS-scoped).
  */
 export async function RealRecordingsSummary() {
   const supabase = await createClient();
@@ -27,8 +18,8 @@ export async function RealRecordingsSummary() {
 
   return (
     <Section
-      title="Recordings (live)"
-      description="Real counts from Supabase Storage + audio_items/audio_versions — Phase 2C.1."
+      title="Recordings"
+      description="Upload activity across every project you can access."
       className="mb-12"
     >
       <div className="mb-4 grid grid-cols-3 gap-3">
