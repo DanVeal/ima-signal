@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "worker": "node --import tsx scripts/worker.ts",
     "test:rls": "node --env-file=.env.local supabase/tests/rls.test.mjs",
     "test:constraints": "node --env-file=.env.local supabase/tests/constraints.test.mjs",
     "test:import": "node --env-file=.env.local --import tsx supabase/tests/import.test.mjs",
