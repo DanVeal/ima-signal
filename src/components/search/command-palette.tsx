@@ -12,7 +12,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Activity as ActivityIcon,
-  ArrowLeft,
   Captions,
   Clock,
   FileText,
@@ -36,12 +35,8 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useCommandPalette } from "@/lib/command-palette-context";
-import { useDemoUser } from "@/lib/demo-user-context";
 import { useLocalStorageState } from "@/lib/use-local-storage-state";
-import { getAllOrganisations, getAllUsers } from "@/lib/mock/queries";
-import { ROLE_LABEL } from "@/components/nav/nav-links";
 import { searchAction } from "@/lib/search/actions";
 import type { SearchResult, SearchResultType } from "@/lib/search/queries";
 
@@ -93,11 +88,9 @@ export function CommandPalette() {
   const { open, setOpen } = useCommandPalette();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [switchingWorkspace, setSwitchingWorkspace] = useState(false);
   const [recentSearches, setRecentSearches] = useLocalStorageState<string[]>("ima-signal.recent-searches", []);
   const router = useRouter();
   const pathname = usePathname();
-  const { setCurrentUserId } = useDemoUser();
 
   const projectMatch = pathname.match(/^\/projects\/([^/]+)/);
   const currentProjectId = projectMatch?.[1];
@@ -121,12 +114,11 @@ export function CommandPalette() {
     const timeout = setTimeout(() => {
       setQuery("");
       setResults([]);
-      setSwitchingWorkspace(false);
     }, 150);
     return () => clearTimeout(timeout);
   }, [open]);
 
-  const searchable = !switchingWorkspace && query.trim().length >= 2;
+  const searchable = query.trim().length >= 2;
 
   useEffect(() => {
     if (!searchable) return;
@@ -147,8 +139,8 @@ export function CommandPalette() {
   }, [query, searchable]);
 
   // Derived at render time rather than reset via an effect: as soon as the
-  // query is too short (or the switch-workspace sub-page is open) the stale
-  // async results are simply not shown, regardless of when the last fetch resolves.
+  // query is too short the stale async results are simply not shown,
+  // regardless of when the last fetch resolves.
   const groupedResults = useMemo(() => {
     if (!searchable) return [];
     return RESULT_GROUPS.map((group) => ({ ...group, items: results.filter((r) => r.type === group.type) })).filter(
@@ -157,20 +149,12 @@ export function CommandPalette() {
   }, [results, searchable]);
 
   const matchingNavActions = NAV_ACTIONS.filter((action) => matchesQuery(action.label, action.keywords, query));
-  const switchWorkspaceMatches = matchesQuery("Switch Workspace", ["preview as", "role"], query);
   const generateTranscriptMatches =
     onRecordingPage && matchesQuery("Generate Transcript", ["transcribe"], query);
   const uploadRecordingMatches =
     currentProjectId && matchesQuery("Upload a Recording", ["upload"], query);
   const viewRecordingsMatches =
     currentProjectId && matchesQuery("Find Recording", ["view recordings"], query);
-
-  const organisations = getAllOrganisations();
-  const users = getAllUsers();
-  const groupedUsers = organisations.map((org) => ({
-    org,
-    users: users.filter((u) => u.organisationId === org.id),
-  }));
 
   function go(href: string) {
     setOpen(false);
@@ -206,47 +190,11 @@ export function CommandPalette() {
       label="Command palette"
       description="Search projects, recordings, scripts, PRAMS references, comments, transcripts and people, or run a command."
     >
-      <CommandInput
-        placeholder={switchingWorkspace ? "Preview as..." : "Search or run a command..."}
-      />
+      <CommandInput placeholder="Search or run a command..." />
       <CommandList>
-        {switchingWorkspace ? (
-          <>
-            <CommandGroup>
-              <CommandItem value="switch-back" onSelect={() => setSwitchingWorkspace(false)}>
-                <ArrowLeft className="size-4 text-muted-foreground" />
-                Back
-              </CommandItem>
-            </CommandGroup>
-            {groupedUsers.map(({ org, users: orgUsers }) => (
-              <CommandGroup key={org.id} heading={org.name}>
-                {orgUsers.map((user) => (
-                  <CommandItem
-                    key={user.id}
-                    value={`user-${user.id}`}
-                    keywords={[user.fullName, ROLE_LABEL[user.role]]}
-                    onSelect={() => {
-                      setCurrentUserId(user.id);
-                      setOpen(false);
-                    }}
-                  >
-                    <Avatar className="size-5">
-                      <AvatarFallback className="bg-ink-100 text-[10px] font-medium text-ink-700">
-                        {user.avatarInitials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span>{user.fullName}</span>
-                    <span className="ml-auto text-xs text-muted-foreground">{ROLE_LABEL[user.role]}</span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            ))}
-          </>
-        ) : (
-          <>
-            <CommandEmpty>
-              {query.trim().length < 2 ? "Type to search, or pick a command below." : "No results found."}
-            </CommandEmpty>
+        <CommandEmpty>
+          {query.trim().length < 2 ? "Type to search, or pick a command below." : "No results found."}
+        </CommandEmpty>
 
             {query.trim().length === 0 && recentSearches.length > 0 && (
               <CommandGroup heading="Recent searches">
@@ -289,7 +237,6 @@ export function CommandPalette() {
             ))}
 
             {(matchingNavActions.length > 0 ||
-              switchWorkspaceMatches ||
               generateTranscriptMatches ||
               uploadRecordingMatches ||
               viewRecordingsMatches) && (
@@ -326,17 +273,9 @@ export function CommandPalette() {
                       {action.label}
                     </CommandItem>
                   ))}
-                  {switchWorkspaceMatches && (
-                    <CommandItem value="action-switch-workspace" onSelect={() => setSwitchingWorkspace(true)}>
-                      <UsersIcon className="size-4 shrink-0 text-muted-foreground" />
-                      Switch Workspace
-                    </CommandItem>
-                  )}
                 </CommandGroup>
               </>
             )}
-          </>
-        )}
       </CommandList>
     </CommandDialog>
   );

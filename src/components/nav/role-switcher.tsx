@@ -1,89 +1,47 @@
 "use client";
 
-import { Fragment } from "react";
-import { ChevronDown, Eye, LogOut } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, LogOut, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useDemoUser } from "@/lib/demo-user-context";
-import { getAllOrganisations, getAllUsers } from "@/lib/mock/queries";
 import { signOut } from "@/lib/supabase/actions";
 import { ROLE_LABEL } from "./nav-links";
+import type { CurrentUserProfile } from "./app-shell";
 
-/**
- * Phase 2A adds a real Supabase Auth session (see /login and middleware.ts)
- * — every page behind this switcher already requires a real signed-in user,
- * and every query is subject to real RLS regardless of what's previewed
- * here. This switcher itself is still a UI-only preview affordance for
- * seeing navigation/permissions render as each role, never a real account
- * switch — real authorization is enforced at the database, not by this
- * control.
- */
-export function RoleSwitcher() {
-  const { currentUser, setCurrentUserId } = useDemoUser();
-  const users = getAllUsers();
-  const organisations = getAllOrganisations();
-
-  const grouped = organisations.map((org) => ({
-    org,
-    users: users.filter((u) => u.organisationId === org.id),
-  }));
+/** Real account menu for the signed-in user — no organisation directory, no role switching. */
+export function RoleSwitcher({ profile }: { profile: CurrentUserProfile }) {
+  if (!profile) return null;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center gap-2 rounded-full border border-border-subtle bg-surface-raised py-1 pl-1 pr-2.5 text-sm shadow-xs transition-colors hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
         <Avatar className="size-6">
           <AvatarFallback className="bg-brand-100 text-[11px] font-medium text-brand">
-            {currentUser.avatarInitials}
+            {profile.avatar_initials}
           </AvatarFallback>
         </Avatar>
         <span className="hidden text-left sm:block">
-          <span className="block text-xs leading-tight font-medium text-text-emphasis">
-            {currentUser.fullName}
-          </span>
-          <span className="block text-[11px] leading-tight text-text-muted">
-            {ROLE_LABEL[currentUser.role]}
-          </span>
+          <span className="block text-xs leading-tight font-medium text-text-emphasis">{profile.full_name}</span>
+          <span className="block text-[11px] leading-tight text-text-muted">{ROLE_LABEL[profile.role]}</span>
         </span>
         <ChevronDown className="size-3.5 text-text-muted" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
-        <div className="flex items-center gap-1.5 px-1.5 py-1 text-[11px] font-normal tracking-wide text-text-muted uppercase">
-          <Eye className="size-3" />
-          Previewing as
+      <DropdownMenuContent align="end" className="w-56">
+        <div className="px-2 py-1.5">
+          <p className="text-sm font-medium text-text-emphasis">{profile.full_name}</p>
+          <p className="text-xs text-text-muted">{profile.email}</p>
         </div>
-        {grouped.map(({ org, users: orgUsers }, index) => (
-          <Fragment key={org.id}>
-            {index > 0 && <DropdownMenuSeparator />}
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-xs text-text-secondary">{org.name}</DropdownMenuLabel>
-              {orgUsers.map((user) => (
-                <DropdownMenuItem
-                  key={user.id}
-                  onClick={() => setCurrentUserId(user.id)}
-                  className="flex items-center gap-2"
-                >
-                  <Avatar className="size-6">
-                    <AvatarFallback className="bg-ink-100 text-[11px] font-medium text-ink-700">
-                      {user.avatarInitials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="flex flex-col">
-                    <span className="text-xs font-medium text-text-emphasis">{user.fullName}</span>
-                    <span className="text-[11px] text-text-muted">{ROLE_LABEL[user.role]}</span>
-                  </span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuGroup>
-          </Fragment>
-        ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem render={<Link href="/settings" />} className="flex items-center gap-2">
+          <Settings className="size-3.5" />
+          Settings
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()} className="flex items-center gap-2 text-critical">
           <LogOut className="size-3.5" />

@@ -8,22 +8,21 @@ import { Logo } from "@/components/brand/logo";
 import { WorkspaceBadge } from "@/components/brand/workspace-badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { useDemoUser } from "@/lib/demo-user-context";
 import { useCommandPalette } from "@/lib/command-palette-context";
 import { navLinksForRole, ROLE_LABEL } from "./nav-links";
 import { RoleSwitcher } from "./role-switcher";
 import { cn } from "@/lib/utils";
+import type { CurrentUserProfile } from "./app-shell";
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname.startsWith(href);
 }
 
-export function SiteHeader() {
+export function SiteHeader({ profile }: { profile: CurrentUserProfile }) {
   const pathname = usePathname();
-  const { currentUser } = useDemoUser();
   const { setOpen: setCommandPaletteOpen } = useCommandPalette();
-  const links = navLinksForRole(currentUser.role);
+  const links = navLinksForRole(profile?.role ?? "jet2_view_only");
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -81,7 +80,7 @@ export function SiteHeader() {
             <Search className="size-4" />
           </Button>
           <div className="hidden sm:block">
-            <RoleSwitcher />
+            <RoleSwitcher profile={profile} />
           </div>
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -119,13 +118,12 @@ export function SiteHeader() {
                   );
                 })}
               </nav>
-              <div className="mt-auto border-t border-border-subtle p-4">
-                <p className="mb-2 text-[11px] font-medium tracking-wide text-text-muted uppercase">
-                  Previewing as
-                </p>
-                <p className="text-sm font-medium text-text-emphasis">{currentUser.fullName}</p>
-                <p className="text-xs text-text-muted">{ROLE_LABEL[currentUser.role]}</p>
-              </div>
+              {profile && (
+                <div className="mt-auto border-t border-border-subtle p-4">
+                  <p className="text-sm font-medium text-text-emphasis">{profile.full_name}</p>
+                  <p className="text-xs text-text-muted">{ROLE_LABEL[profile.role]}</p>
+                </div>
+              )}
             </SheetContent>
           </Sheet>
         </div>
