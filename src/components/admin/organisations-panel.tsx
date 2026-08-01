@@ -55,7 +55,7 @@ function CreateOrganisationForm({ onCreated }: { onCreated: (org: OrgRow) => voi
         <Label htmlFor="org-type">Type</Label>
         <Select value={type} onValueChange={(v) => v && setType(v as OrgType)}>
           <SelectTrigger id="org-type">
-            <SelectValue />
+            <SelectValue>{ORG_TYPE_OPTIONS.find((t) => t.value === type)?.label}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {ORG_TYPE_OPTIONS.map((t) => (

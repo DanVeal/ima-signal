@@ -53,6 +53,7 @@ export function NewProjectFlow({
 }) {
   const [type, setType] = useState<ProjectType | null>(null);
   const [campaignMode, setCampaignMode] = useState<"existing" | "new">(campaigns.length > 0 ? "existing" : "new");
+  const [campaignId, setCampaignId] = useState<string | undefined>(undefined);
   const [state, formAction, pending] = useActionState(createProject, createProjectInitialState);
 
   const clientOrganisations = organisations.filter((o) => o.type !== "studio");
@@ -158,9 +159,11 @@ export function NewProjectFlow({
         <input type="hidden" name="campaignMode" value={campaignMode} />
 
         {campaignMode === "existing" ? (
-          <Select name="campaignId" required>
+          <Select name="campaignId" value={campaignId} onValueChange={(v) => v && setCampaignId(v)} required>
             <SelectTrigger id="new-project-campaign">
-              <SelectValue placeholder="Select a campaign" />
+              <SelectValue placeholder="Select a campaign">
+                {campaigns.find((c) => c.id === campaignId)?.name}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {campaigns.map((campaign) => (

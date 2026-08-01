@@ -174,10 +174,11 @@ export async function discardWorkbookImport(importId: string): Promise<{ error?:
   const supabase = await createClient();
   const { data: importRow } = await supabase
     .from("prams_workbook_imports")
-    .select("id, project_id")
+    .select("id, project_id, status")
     .eq("id", importId)
     .maybeSingle();
   if (!importRow) return { error: "Import not found." };
+  if (importRow.status !== "pending_review") return { error: "This import has already been confirmed or discarded." };
 
   try {
     await assertProjectManager(importRow.project_id);

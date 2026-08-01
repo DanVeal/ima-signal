@@ -46,12 +46,13 @@ export async function createScript(_prevState: CreateScriptState, formData: Form
     return { error: "Add at least one variant with a variant code." };
   }
 
-  let supabase, profile;
+  let assertResult: Awaited<ReturnType<typeof assertProjectManager>>;
   try {
-    ({ supabase, profile } = await assertProjectManager(projectId));
+    assertResult = await assertProjectManager(projectId);
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Not allowed." };
   }
+  const { supabase, profile } = assertResult;
 
   const { data: script, error: scriptError } = await supabase
     .from("scripts")
@@ -60,14 +61,29 @@ export async function createScript(_prevState: CreateScriptState, formData: Form
     .single();
   if (scriptError || !script) return { error: "Couldn't create the script." };
 
+  const scriptId = script.id;
+  async function failAndCleanUp(error: string): Promise<CreateScriptState> {
+    // Nothing kept half-created — script_variants/revisions/lines all cascade off scripts.id.
+    await supabase.from("scripts").delete().eq("id", scriptId);
+    return { error };
+  }
+
   for (let i = 0; i < variantCodes.length; i++) {
     const variantCode = variantCodes[i];
     if (!variantCode) continue;
 
+    const lines = (lineBlocks[i] ?? "")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    if (lines.length === 0) {
+      return failAndCleanUp(`Add at least one line for variant "${variantCode}".`);
+    }
+
     const { data: variant, error: variantError } = await supabase
       .from("script_variants")
       .insert({
-        script_id: script.id,
+        script_id: scriptId,
         variant_code: variantCode,
         destination: destinations[i] || null,
         departure_airport: departureAirports[i] || null,
@@ -78,9 +94,9 @@ export async function createScript(_prevState: CreateScriptState, formData: Form
       .select("id")
       .single();
     if (variantError || !variant) {
-      return {
-        error: variantError?.code === "23505" ? `Variant code "${variantCode}" is already used in this script.` : "Couldn't create a variant.",
-      };
+      return failAndCleanUp(
+        variantError?.code === "23505" ? `Variant code "${variantCode}" is already used in this script.` : "Couldn't create a variant.",
+      );
     }
 
     const { data: revision, error: revisionError } = await supabase
@@ -88,18 +104,12 @@ export async function createScript(_prevState: CreateScriptState, formData: Form
       .insert({ variant_id: variant.id, revision_number: 1, created_by_user_id: profile.id })
       .select("id")
       .single();
-    if (revisionError || !revision) return { error: "Couldn't create the initial revision." };
+    if (revisionError || !revision) return failAndCleanUp("Couldn't create the initial revision.");
 
-    const lines = (lineBlocks[i] ?? "")
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-    if (lines.length > 0) {
-      const { error: linesError } = await supabase.from("script_lines").insert(
-        lines.map((text, lineIndex) => ({ revision_id: revision.id, sort_order: lineIndex + 1, text })),
-      );
-      if (linesError) return { error: "Couldn't save the script lines." };
-    }
+    const { error: linesError } = await supabase.from("script_lines").insert(
+      lines.map((text, lineIndex) => ({ revision_id: revision.id, sort_order: lineIndex + 1, text })),
+    );
+    if (linesError) return failAndCleanUp("Couldn't save the script lines.");
   }
 
   revalidatePath(`/projects/${projectId}`);

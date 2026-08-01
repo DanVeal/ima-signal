@@ -79,12 +79,19 @@ export async function createProject(_prevState: CreateProjectState, formData: Fo
     .single();
 
   if (projectError || !project) {
+    // Don't leave an orphaned campaign behind if it was created just for this attempt.
+    if (campaignMode === "new") await supabase.from("campaigns").delete().eq("id", campaignId);
     if (projectError?.code === "23505") return { error: "That job number is already in use." };
     return { error: "Couldn't create the project." };
   }
 
   if (type === "prams") {
-    await supabase.from("prams_updates").insert({ project_id: project.id, update_label: name });
+    const { error: pramsUpdateError } = await supabase
+      .from("prams_updates")
+      .insert({ project_id: project.id, update_label: name });
+    if (pramsUpdateError) {
+      console.error(`[createProject] prams_updates insert failed for project ${project.id}:`, pramsUpdateError);
+    }
   }
 
   revalidatePath("/projects");

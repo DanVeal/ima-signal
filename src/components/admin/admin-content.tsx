@@ -82,6 +82,7 @@ function TempPasswordBanner({ email, password, onDismiss }: { email: string; pas
 function CreateUserPanel({ organisations }: { organisations: OrgRow[] }) {
   const [state, formAction, pending] = useActionState(createUser, createUserInitialState);
   const [dismissed, setDismissed] = useState(false);
+  const [role, setRole] = useState<UserRole | undefined>(undefined);
 
   const showBanner = state.tempPassword && state.createdEmail && !dismissed;
 
@@ -120,9 +121,9 @@ function CreateUserPanel({ organisations }: { organisations: OrgRow[] }) {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="role">Role</Label>
-            <Select name="role" required>
+            <Select name="role" value={role} onValueChange={(v) => v && setRole(v as UserRole)} required>
               <SelectTrigger id="role">
-                <SelectValue placeholder="Select a role" />
+                <SelectValue placeholder="Select a role">{role ? ROLE_LABEL[role] : undefined}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {ROLE_OPTIONS.map((role) => (

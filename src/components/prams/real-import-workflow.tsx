@@ -40,6 +40,7 @@ export function RealImportWorkflow({ projectId, sections }: { projectId: string;
   const [previewState, previewAction, previewPending] = useActionState(previewWorkbookImport, previewInitialState);
   const [confirmState, confirmAction, confirmPending] = useActionState(confirmWorkbookImport, confirmInitialState);
   const [sectionMode, setSectionMode] = useState<"existing" | "new">(sections.length > 0 ? "existing" : "new");
+  const [sectionSlug, setSectionSlug] = useState<string | undefined>(undefined);
   const [discarding, startDiscard] = useTransition();
   const [discarded, setDiscarded] = useState(false);
 
@@ -190,9 +191,11 @@ export function RealImportWorkflow({ projectId, sections }: { projectId: string;
         </div>
 
         {sectionMode === "existing" ? (
-          <Select name="sectionSlug" required>
+          <Select name="sectionSlug" value={sectionSlug} onValueChange={(v) => v && setSectionSlug(v)} required>
             <SelectTrigger id="import-section-slug">
-              <SelectValue placeholder="Select a section" />
+              <SelectValue placeholder="Select a section">
+                {sections.find((s) => s.slug === sectionSlug)?.name}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {sections.map((section) => (

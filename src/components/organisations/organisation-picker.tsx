@@ -61,7 +61,7 @@ export function OrganisationPicker({
         />
         <Select value={newType} onValueChange={(v) => v && setNewType(v as OrgType)}>
           <SelectTrigger>
-            <SelectValue />
+            <SelectValue>{ORG_TYPE_OPTIONS.find((t) => t.value === newType)?.label}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             {ORG_TYPE_OPTIONS.map((t) => (
