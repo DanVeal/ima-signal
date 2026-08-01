@@ -2001,6 +2001,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          is_active: boolean
           organisation_id: string
           role: Database["public"]["Enums"]["user_role"]
         }
@@ -2011,6 +2012,7 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          is_active?: boolean
           organisation_id: string
           role: Database["public"]["Enums"]["user_role"]
         }
@@ -2021,6 +2023,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          is_active?: boolean
           organisation_id?: string
           role?: Database["public"]["Enums"]["user_role"]
         }
@@ -2164,6 +2167,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          is_active: boolean
           organisation_id: string
           role: Database["public"]["Enums"]["user_role"]
         }
@@ -2208,6 +2212,7 @@ export type Database = {
         Args: { p_error: string; p_job_id: string }
         Returns: undefined
       }
+      is_ima_admin: { Args: never; Returns: boolean }
       is_ima_manager: { Args: never; Returns: boolean }
       normalize_reference_code: { Args: { input: string }; Returns: string }
       post_comment: {

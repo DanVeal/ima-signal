@@ -17,6 +17,9 @@ export async function signIn(_prevState: SignInState, formData: FormData): Promi
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    if (error.code === "user_banned") {
+      return { error: "This account has been disabled. Contact your IMA Admin if you think that's a mistake." };
+    }
     return { error: "Incorrect email or password." };
   }
 

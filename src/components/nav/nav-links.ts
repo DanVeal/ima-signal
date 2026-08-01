@@ -24,6 +24,11 @@ export const NAV_LINKS: NavLink[] = [
     visibleTo: (role) => isIma(role),
   },
   { href: "/settings", label: "Settings", visibleTo: () => true },
+  {
+    href: "/admin",
+    label: "Admin",
+    visibleTo: (role) => role === "ima_admin",
+  },
 ];
 
 export function navLinksForRole(role: OrgRole): NavLink[] {
