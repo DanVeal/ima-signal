@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ListTree } from "lucide-react";
+import { ListTree, Plus } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/nav/page-container";
 import { ProjectStatusBadge } from "@/components/status/project-status-badge";
 import { DeadlineBadge } from "@/components/status/deadline-badge";
@@ -9,6 +10,7 @@ import { RealVariantList } from "@/components/projects/real-variant-list";
 import { ActivityFeed } from "@/components/activity/activity-feed";
 import { RecordVisit } from "@/components/productivity/record-visit";
 import { EmptyState } from "@/components/states/empty-state";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/server";
 import { getProjectDetail } from "@/lib/projects/queries";
@@ -89,7 +91,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
               </div>
               )
             ) : (
-              <RealVariantList projectId={project.id} rows={recordings} />
+              <div className="space-y-4">
+                {recordings.length > 0 && (
+                  <div className="flex justify-end">
+                    <Button size="sm" variant="outline" render={<Link href={`/projects/${project.id}/scripts/new`} />}>
+                      <Plus className="size-3.5" />
+                      New script
+                    </Button>
+                  </div>
+                )}
+                <RealVariantList projectId={project.id} rows={recordings} />
+              </div>
             )}
           </TabsContent>
           <TabsContent value="activity" className="mt-5">

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, FileAudio } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/states/empty-state";
 import { formatDuration } from "@/lib/format";
 import type { RecordingRow } from "@/lib/audio/queries";
@@ -11,6 +12,11 @@ export function RealVariantList({ projectId, rows }: { projectId: string; rows: 
         icon={FileAudio}
         title="No script variants yet"
         description="Create a script variant to start briefing the studio."
+        action={
+          <Button size="sm" render={<Link href={`/projects/${projectId}/scripts/new`} />}>
+            New script
+          </Button>
+        }
       />
     );
   }
