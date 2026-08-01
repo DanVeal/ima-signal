@@ -13,6 +13,16 @@ import type {
   ApprovalDecision,
   CreateChangeRequestInput,
 } from "./service";
+import { notifyChangeRequestRaised, notifyMention, notifyApprovalDecision } from "@/lib/notifications/service";
+
+async function getCurrentProfileId(supabase: Awaited<ReturnType<typeof createClient>>): Promise<string | null> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase.from("user_profiles").select("id").eq("auth_user_id", user.id).single();
+  return data?.id ?? null;
+}
 
 async function revalidateRecordingPage(audioItemId: string) {
   const supabase = await createClient();
@@ -31,6 +41,23 @@ export async function postComment(input: PostCommentInput) {
   const supabase = await createClient();
   const commentId = await service.postComment(supabase, input);
   await revalidateRecordingPage(input.audioItemId);
+
+  if (input.mentionedUserIds?.length) {
+    try {
+      const authorUserId = await getCurrentProfileId(supabase);
+      if (authorUserId) {
+        await notifyMention(supabase, {
+          audioItemId: input.audioItemId,
+          mentionedUserIds: input.mentionedUserIds,
+          commentBody: input.body,
+          authorUserId,
+        });
+      }
+    } catch (err) {
+      console.error("[notifications] mention notify failed:", err);
+    }
+  }
+
   return { commentId };
 }
 
@@ -67,6 +94,16 @@ export async function createApproval(
   const supabase = await createClient();
   const approvalId = await service.createApproval(supabase, audioItemId, audioVersionId, decision, note);
   await revalidateRecordingPage(audioItemId);
+
+  try {
+    const decidedByUserId = await getCurrentProfileId(supabase);
+    if (decidedByUserId) {
+      await notifyApprovalDecision(supabase, { audioItemId, audioVersionId, decision, note, decidedByUserId });
+    }
+  } catch (err) {
+    console.error("[notifications] approval decision notify failed:", err);
+  }
+
   return { approvalId };
 }
 
@@ -81,6 +118,22 @@ export async function createChangeRequest(input: CreateChangeRequestInput) {
   const supabase = await createClient();
   const changeRequestId = await service.createChangeRequest(supabase, input);
   await revalidateRecordingPage(input.audioItemId);
+
+  try {
+    const raisedByUserId = await getCurrentProfileId(supabase);
+    if (raisedByUserId) {
+      await notifyChangeRequestRaised(supabase, {
+        audioItemId: input.audioItemId,
+        category: input.category,
+        priority: input.priority,
+        message: input.message,
+        raisedByUserId,
+      });
+    }
+  } catch (err) {
+    console.error("[notifications] change request notify failed:", err);
+  }
+
   return { changeRequestId };
 }
 
