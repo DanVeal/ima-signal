@@ -53,8 +53,20 @@ export interface ImportPreview {
   sectionIsNew: boolean;
 }
 
-function normalizeCode(raw: string): string {
+export function normalizeCode(raw: string): string {
   return raw.trim().replace(/\s+/g, " ").toUpperCase();
+}
+
+/** A sheet whose columns normalize to a duplicate code would silently merge distinct announcements under prams_announcements' unique reference_code — refuse rather than corrupt data. */
+export function findDuplicateReferenceCodes(parsed: ParsedSection): string[] {
+  const seen = new Set<string>();
+  const duplicates = new Set<string>();
+  for (const col of parsed.columns) {
+    const code = normalizeCode(col.referenceCodeRaw);
+    if (seen.has(code)) duplicates.add(code);
+    seen.add(code);
+  }
+  return Array.from(duplicates);
 }
 
 /** Reads the section's current structure, if any, in the shape needed for diffing. */

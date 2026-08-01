@@ -44,7 +44,12 @@ export interface ParsedWorkbook {
   sections: ParsedSection[];
 }
 
-const REFERENCE_TITLE_PATTERN = /^(\S+)\s*-\s*(.+)$/;
+// Reference code and title are separated by the FIRST period in the cell —
+// e.g. "080.J2 - BOARDING" is code "080", title "J2 - BOARDING" (any
+// hyphens after that point are part of the title's own wording, not a
+// second delimiter). Confirmed against the real PRAMS workbook convention,
+// which is NOT consistently hyphen-separated (see docs/phase-2b-limitations.md).
+const REFERENCE_TITLE_PATTERN = /^([^.\s]+)\.(.+)$/;
 const MAX_HEADER_SEARCH_ROWS = 20;
 const MAX_DATA_ROWS = 500;
 
@@ -67,6 +72,24 @@ function extractTags(title: string): string[] {
   if (/\bVIP\b/i.test(title)) tags.push("VIP");
   if (/\bFUEL\b/i.test(title)) tags.push("Fuel");
   return tags;
+}
+
+/**
+ * Splits a header cell into code + title. The period-first rule only holds
+ * when what precedes the period actually looks like a reference code
+ * (starts with a digit, e.g. "080", "011A") — a handful of cells (e.g.
+ * "AIRBUS.A321CEO_DEMO") use a non-numeric prefix that isn't a code at all,
+ * and splitting those would collide two different announcements onto the
+ * same reference_code (which is globally unique). For those, the whole
+ * cell is the code, with no title split — confirmed against the real
+ * workbook rather than inferred.
+ */
+function extractCodeAndTitle(text: string): { code: string; title: string } | null {
+  const match = REFERENCE_TITLE_PATTERN.exec(text);
+  if (!match) return null;
+  const [, code, title] = match;
+  if (/^\d/.test(code)) return { code, title };
+  return { code: text, title: text };
 }
 
 /** Parses merges of the shape "C5:D5" into { row, startCol, endCol }, ignoring any vertical merge. */
@@ -140,10 +163,9 @@ export function parseSection(worksheet: ExcelJS.Worksheet): ParsedSection {
   for (let c = firstCol; c <= lastCol; c++) {
     const text = cellText(headerRow.getCell(c).value);
     if (!text) continue;
-    const match = REFERENCE_TITLE_PATTERN.exec(text);
-    if (!match) continue;
-    const [, referenceCodeRaw, title] = match;
-    columns.push({ columnIndex: c, referenceCodeRaw, title, tags: extractTags(title) });
+    const parsed = extractCodeAndTitle(text);
+    if (!parsed) continue;
+    columns.push({ columnIndex: c, referenceCodeRaw: parsed.code, title: parsed.title, tags: extractTags(parsed.title) });
   }
 
   const rows: ParsedRow[] = [];
@@ -169,6 +191,55 @@ export function parseSection(worksheet: ExcelJS.Worksheet): ParsedSection {
   }
 
   return { sheetName: worksheet.name, sectionTitle, columns, rows };
+}
+
+/**
+ * Some sheets aren't a side-by-side matrix at all: a single column holds
+ * several unrelated, standalone announcements stacked vertically, each its
+ * own header cell followed by its lines, separated by a blank gap (e.g.
+ * "Doors": "010.ARM DOORS" + its line, then lower down in the SAME column,
+ * the unrelated "065.DISARM DOORS" + its line). Each such block becomes its
+ * own one-column ParsedSection — the diff/commit pipeline in
+ * import-service.ts needs no changes to handle a section with one column.
+ * Scanned per-column (not row-then-column) so two blocks in different
+ * columns can never have their lines cross-attributed to each other.
+ */
+export function parseVerticalBlocks(worksheet: ExcelJS.Worksheet): ParsedSection[] {
+  const maxCol = Math.min(worksheet.columnCount + 1, 50);
+  const maxRow = Math.min(worksheet.rowCount, MAX_DATA_ROWS);
+  const sections: ParsedSection[] = [];
+
+  for (let c = 2; c <= maxCol; c++) {
+    let current: { code: string; title: string; rows: ParsedRow[] } | null = null;
+
+    const flush = () => {
+      if (!current) return;
+      sections.push({
+        sheetName: worksheet.name,
+        sectionTitle: current.title,
+        columns: [{ columnIndex: c, referenceCodeRaw: current.code, title: current.title, tags: extractTags(current.title) }],
+        rows: current.rows,
+      });
+      current = null;
+    };
+
+    for (let r = 1; r <= maxRow; r++) {
+      const text = cellText(worksheet.getRow(r).getCell(c).value);
+      const parsed = text ? extractCodeAndTitle(text) : null;
+
+      if (parsed) {
+        flush();
+        current = { code: parsed.code, title: parsed.title, rows: [] };
+        continue;
+      }
+      if (!current || text === null) continue;
+
+      current.rows.push({ rowIndex: r, groups: [{ columnIndexes: [c], text }] });
+    }
+    flush();
+  }
+
+  return sections;
 }
 
 export async function parseWorkbook(buffer: Buffer, sheetNames: string[]): Promise<ParsedWorkbook> {

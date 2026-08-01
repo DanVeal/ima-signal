@@ -92,12 +92,12 @@ check("parses exactly one section", parsedWorkbook.sections.length === 1);
 check("section title is 'Boarding'", boarding.sectionTitle === "Boarding");
 check("finds exactly 4 announcement columns", boarding.columns.length === 4);
 check(
-  "columns preserve exact workbook order (080.J2, 080A.J2, 081A.J2, 081.J2)",
-  boarding.columns.map((c) => c.referenceCodeRaw).join(",") === "080.J2,080A.J2,081A.J2,081.J2",
+  "columns preserve exact workbook order (080, 080A, 081A, 081) — code is everything before the FIRST period",
+  boarding.columns.map((c) => c.referenceCodeRaw).join(",") === "080,080A,081A,081",
 );
 check(
-  "preserves full titles verbatim",
-  boarding.columns[2].title === "BOARDING & FUEL – VIP",
+  "preserves full titles verbatim, including the airline/variant prefix and any hyphens in the wording",
+  boarding.columns[2].title === "J2 - BOARDING & FUEL – VIP",
 );
 check("finds exactly 5 data rows", boarding.rows.length === 5);
 check(
